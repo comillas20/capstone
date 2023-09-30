@@ -107,8 +107,8 @@ export default function TeamSwitcher({ className }: TeamSwitcherProps) {
 				<PopoverContent className="w-[200px] p-0">
 					<Command>
 						<CommandList>
-							<CommandInput placeholder="Search team..." />
-							<CommandEmpty>No team found.</CommandEmpty>
+							<CommandInput placeholder="Search branch..." />
+							<CommandEmpty>No branch found.</CommandEmpty>
 							{groups.map(group => (
 								<CommandGroup key={group.label} heading={group.label}>
 									{group.teams.map(team => (
