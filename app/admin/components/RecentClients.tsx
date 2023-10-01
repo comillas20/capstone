@@ -1,6 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@components/ui/avatar";
 
-export function RecentSales() {
+export function RecentClients() {
 	return (
 		<div className="max-h-[300] space-y-8">
 			<div className="flex items-center">

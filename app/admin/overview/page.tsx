@@ -6,10 +6,10 @@ import {
 	CardTitle,
 } from "@components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@components/ui/tabs";
-import { Overview } from "@app/admin/components/Overview";
-import { RecentSales } from "@app/admin/components/RecentSales";
+import { Sales } from "@app/admin/components/Sales";
+import { RecentClients } from "@app/admin/components/RecentClients";
 
-export default function Dashboard() {
+export default function Overview() {
 	return (
 		<Tabs defaultValue="overview" className="space-y-4">
 			<div className="flex items-center justify-between space-y-2">
@@ -110,19 +110,19 @@ export default function Dashboard() {
 				<div className="flex flex-col gap-4 lg:grid lg:grid-cols-7">
 					<Card className="lg:col-span-4">
 						<CardHeader>
-							<CardTitle>Overview</CardTitle>
+							<CardTitle>Sales 2023</CardTitle>
 						</CardHeader>
 						<CardContent className="pl-2">
-							<Overview />
+							<Sales />
 						</CardContent>
 					</Card>
 					<Card className="lg:col-span-3">
 						<CardHeader>
-							<CardTitle>Recent Sales</CardTitle>
-							<CardDescription>You made 265 sales this month.</CardDescription>
+							<CardTitle>Recent Clients</CardTitle>
+							<CardDescription>You had 6 clients this month.</CardDescription>
 						</CardHeader>
 						<CardContent className="max-h-72 overflow-y-auto">
-							<RecentSales />
+							<RecentClients />
 						</CardContent>
 					</Card>
 				</div>

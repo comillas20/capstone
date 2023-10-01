@@ -2,6 +2,8 @@ import "@styles/globals.css";
 import type { Metadata } from "next";
 import { twJoin } from "tailwind-merge";
 import { Inter } from "next/font/google";
+import { getPreferredTheme, setTheme } from "@lib/utils";
+import { Toaster } from "@components/ui/toaster";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,7 +20,10 @@ export default function RootLayout({
 }) {
 	return (
 		<html lang="en">
-			<body className={twJoin(inter.className, "max-h-screen")}>{children}</body>
+			<body className={twJoin(inter.className, "max-h-screen")}>
+				{children}
+				<Toaster />
+			</body>
 		</html>
 	);
 }

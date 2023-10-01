@@ -1,23 +1,29 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { z } from "zod";
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
 }
 
+const themeSchema = z.enum(["dark", "light", "auto"]);
 export function getPreferredTheme() {
+	// window object is undefined when this function is called in the server, not client
 	const storedTheme =
 		typeof window !== "undefined" ? window.localStorage.getItem("theme") : "auto";
-	if (storedTheme) {
-		return storedTheme;
-	}
 
-	return window.matchMedia("(prefers-color-scheme: dark)").matches
-		? "dark"
-		: "light";
+	try {
+		const validatedTheme = themeSchema.parse(storedTheme);
+		return validatedTheme;
+	} catch (error) {
+		// if the stored theme is not one of the allowed values, like theme being undefined
+		return window.matchMedia("(prefers-color-scheme: dark)").matches
+			? "dark"
+			: "light";
+	}
 }
 
-export function setTheme(theme: string) {
+export function setTheme(theme: z.infer<typeof themeSchema>) {
 	if (theme === "auto") {
 		//Note to self: dont even think about unnesting this
 		if (window.matchMedia("(prefers-color-scheme: dark)").matches)

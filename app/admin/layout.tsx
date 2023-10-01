@@ -1,7 +1,7 @@
 import { MainNav } from "@app/admin/components/MainNav";
-import { Search } from "@app/admin/components/Search";
-import TeamSwitcher from "@app/admin/components/TeamSwitcher";
-import UserNav from "@app/admin/components/UserNav";
+import { Search } from "@components/Search";
+import BranchSwitcher from "@app/admin/components/BranchSwitcher";
+import UserNav from "@components/UserNav";
 
 export async function generateMetadata() {
 	return {
@@ -19,7 +19,7 @@ export default function AdminLayout({
 		<div className="flex flex-col md:flex">
 			<nav className="border-b">
 				<div className="flex h-16 items-center px-4">
-					<TeamSwitcher />
+					<BranchSwitcher />
 					<MainNav className="mx-6" />
 					<div className="ml-auto flex items-center space-x-4">
 						<Search />

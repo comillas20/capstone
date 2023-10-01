@@ -12,7 +12,12 @@ export function MainNav({
 		{
 			// includes reports and other statistics
 			name: "Overview",
-			href: "/admin/dashboard",
+			href: "/admin/overview",
+		},
+		{
+			// includes pending and accepted reservations, setting unavailable dates
+			name: "Reservations",
+			href: "/admin/reservations",
 		},
 		{
 			// includes refunds, register verification, and payments
@@ -20,12 +25,13 @@ export function MainNav({
 			href: "/admin/customers",
 		},
 		{
+			// includes product creation, modification, deletion
 			name: "Products",
 			href: "/admin/products",
 		},
 		{
 			name: "Settings",
-			href: "/admin/settings",
+			href: "/admin/settings/account",
 		},
 	];
 	let currentPage = usePathname();
@@ -38,6 +44,7 @@ export function MainNav({
 				return (
 					<Link
 						href={value.href}
+						key={value.name}
 						className={cn(
 							"text-sm font-medium transition-colors hover:text-primary",
 							!selected && "text-muted-foreground"

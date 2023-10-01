@@ -53,7 +53,7 @@ const data = [
 	},
 ];
 
-export function Overview() {
+export function Sales() {
 	return (
 		<ResponsiveContainer width="100%" height={288}>
 			<BarChart data={data}>
@@ -69,7 +69,7 @@ export function Overview() {
 					fontSize={12}
 					tickLine={false}
 					axisLine={false}
-					tickFormatter={value => `$${value}`}
+					tickFormatter={value => `₱${value}`}
 				/>
 				<Bar dataKey="total" fill="#E63946" radius={[4, 4, 0, 0]} />
 			</BarChart>

@@ -45,42 +45,33 @@ import {
 
 const groups = [
 	{
-		label: "Personal Account",
-		teams: [
+		label: "Surigao branches",
+		branches: [
 			{
-				label: "Alicia Koch",
-				value: "personal",
-			},
-		],
-	},
-	{
-		label: "Teams",
-		teams: [
-			{
-				label: "Acme Inc.",
-				value: "acme-inc",
+				label: "Taft",
+				value: "taft",
 			},
 			{
-				label: "Monsters Inc.",
-				value: "monsters",
+				label: "Narciso",
+				value: "narciso",
 			},
 		],
 	},
 ];
 
-type Team = (typeof groups)[number]["teams"][number];
+type Team = (typeof groups)[number]["branches"][number];
 
 type PopoverTriggerProps = React.ComponentPropsWithoutRef<
 	typeof PopoverTrigger
 >;
 
-interface TeamSwitcherProps extends PopoverTriggerProps {}
+interface BranchSwitcherProps extends PopoverTriggerProps {}
 
-export default function TeamSwitcher({ className }: TeamSwitcherProps) {
+export default function BranchSwitcher({ className }: BranchSwitcherProps) {
 	const [open, setOpen] = React.useState(false);
 	const [showNewTeamDialog, setShowNewTeamDialog] = React.useState(false);
 	const [selectedTeam, setSelectedTeam] = React.useState<Team>(
-		groups[0].teams[0]
+		groups[0].branches[0]
 	);
 
 	return (
@@ -92,7 +83,7 @@ export default function TeamSwitcher({ className }: TeamSwitcherProps) {
 						role="combobox"
 						aria-expanded={open}
 						aria-label="Select a team"
-						className={cn("w-[200px] justify-between", className)}>
+						className={cn("w-[90px] justify-between md:w-[200px]", className)}>
 						<Avatar className="mr-2 h-5 w-5">
 							<AvatarImage
 								src={`https://avatar.vercel.sh/${selectedTeam.value}.png`}
@@ -100,7 +91,7 @@ export default function TeamSwitcher({ className }: TeamSwitcherProps) {
 							/>
 							<AvatarFallback>SC</AvatarFallback>
 						</Avatar>
-						{selectedTeam.label}
+						<span className="hidden md:inline">{selectedTeam.label}</span>
 						<CaretSortIcon className="ml-auto h-4 w-4 shrink-0 opacity-50" />
 					</Button>
 				</PopoverTrigger>
@@ -111,7 +102,7 @@ export default function TeamSwitcher({ className }: TeamSwitcherProps) {
 							<CommandEmpty>No branch found.</CommandEmpty>
 							{groups.map(group => (
 								<CommandGroup key={group.label} heading={group.label}>
-									{group.teams.map(team => (
+									{group.branches.map(team => (
 										<CommandItem
 											key={team.value}
 											onSelect={() => {
@@ -149,7 +140,7 @@ export default function TeamSwitcher({ className }: TeamSwitcherProps) {
 											setShowNewTeamDialog(true);
 										}}>
 										<PlusCircledIcon className="mr-2 h-5 w-5" />
-										Create Team
+										Create Branch
 									</CommandItem>
 								</DialogTrigger>
 							</CommandGroup>
