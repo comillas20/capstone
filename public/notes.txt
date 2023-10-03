@@ -1,0 +1,9 @@
+To add in admin settings:
+    notification duration
+    default landing page/tab for admin dashboard
+    admin account settings
+	cancel creation of a branch (only for the branch that made it)
+
+Reminder for future:
+    - Jakelou have different branches in the city, if they decided to make another branch, 
+    who makes the account of the new admin of the new branch?

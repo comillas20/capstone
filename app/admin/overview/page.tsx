@@ -121,7 +121,7 @@ export default function Overview() {
 							<CardTitle>Recent Clients</CardTitle>
 							<CardDescription>You had 6 clients this month.</CardDescription>
 						</CardHeader>
-						<CardContent className="max-h-72 overflow-y-auto">
+						<CardContent>
 							<RecentClients />
 						</CardContent>
 					</Card>
