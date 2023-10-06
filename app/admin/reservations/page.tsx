@@ -2,8 +2,8 @@ import { promises as fs } from "fs";
 import path from "path";
 import { z } from "zod";
 
-import { columns } from "./components/columns";
-import { DataTable } from "./components/data-table";
+import { columns } from "./components/Columns";
+import { DataTable } from "@app/admin/components/DataTable";
 import { taskSchema } from "./data/schema";
 
 // Simulate a database read for tasks.
@@ -26,7 +26,7 @@ export default async function ReservationsPage() {
 				<div>
 					<h2 className="text-2xl font-bold tracking-tight">Welcome back!</h2>
 					<p className="text-muted-foreground">
-						Here&apos;s a list of your tasks for this month!
+						Here&apos;s the current list of reservations!
 					</p>
 				</div>
 			</div>

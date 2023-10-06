@@ -8,7 +8,6 @@ import {
 } from "@radix-ui/react-icons";
 
 import { cn } from "@lib/utils";
-import { Avatar, AvatarFallback, AvatarImage } from "@components/ui/avatar";
 import { Button } from "@components/ui/button";
 import {
 	Command,
@@ -83,14 +82,7 @@ export default function BranchSwitcher({ className }: BranchSwitcherProps) {
 						role="combobox"
 						aria-expanded={open}
 						aria-label="Select a team"
-						className={cn("w-[90px] justify-between md:w-[200px]", className)}>
-						<Avatar className="mr-2 h-5 w-5">
-							<AvatarImage
-								src={`https://avatar.vercel.sh/${selectedTeam.value}.png`}
-								alt={selectedTeam.label}
-							/>
-							<AvatarFallback>SC</AvatarFallback>
-						</Avatar>
+						className={cn("w-52 justify-between", className)}>
 						<span className="hidden md:inline">{selectedTeam.label}</span>
 						<CaretSortIcon className="ml-auto h-4 w-4 shrink-0 opacity-50" />
 					</Button>
@@ -110,14 +102,6 @@ export default function BranchSwitcher({ className }: BranchSwitcherProps) {
 												setOpen(false);
 											}}
 											className="text-sm">
-											<Avatar className="mr-2 h-5 w-5">
-												<AvatarImage
-													src={`https://avatar.vercel.sh/${team.value}.png`}
-													alt={team.label}
-													className="grayscale"
-												/>
-												<AvatarFallback>SC</AvatarFallback>
-											</Avatar>
 											{team.label}
 											<CheckIcon
 												className={cn(

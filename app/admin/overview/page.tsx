@@ -8,19 +8,39 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@components/ui/tabs";
 import { Sales } from "@app/admin/components/Sales";
 import { RecentClients } from "@app/admin/components/RecentClients";
+import { promises as fs } from "fs";
+import path from "path";
+import { z } from "zod";
 
-export default function Overview() {
+import { columns } from "./components/Columns";
+import { DataTable } from "@app/admin/components/DataTable";
+import { taskSchema } from "./data/schema";
+import { Separator } from "@components/ui/separator";
+
+// Simulate a database read for tasks.
+async function getTasks() {
+	const data = await fs.readFile(
+		path.join(process.cwd(), "app/admin/overview/data/tasks.json")
+	);
+
+	const tasks = JSON.parse(data.toString());
+
+	return z.array(taskSchema).parse(tasks);
+}
+
+export default async function Overview() {
+	const tasks = await getTasks();
 	return (
 		<Tabs defaultValue="overview" className="space-y-4">
 			<div className="flex items-center justify-between space-y-2">
 				<h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
 				<TabsList className="bg-primary text-primary-foreground">
 					<TabsTrigger value="overview">Overview</TabsTrigger>
-					<TabsTrigger value="analytics">Analytics</TabsTrigger>
 					<TabsTrigger value="reports">Reports</TabsTrigger>
 					<TabsTrigger value="notifications">Notifications</TabsTrigger>
 				</TabsList>
 			</div>
+			<Separator></Separator>
 			<TabsContent value="overview" className="flex flex-col space-y-4 md:block">
 				<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
 					<Card>
@@ -125,6 +145,11 @@ export default function Overview() {
 							<RecentClients />
 						</CardContent>
 					</Card>
+				</div>
+			</TabsContent>
+			<TabsContent value="reports">
+				<div className="hidden h-full flex-1 flex-col space-y-8 md:flex">
+					<DataTable data={tasks} columns={columns} />
 				</div>
 			</TabsContent>
 		</Tabs>

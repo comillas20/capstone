@@ -31,7 +31,7 @@ export function MainNav({
 		},
 		{
 			name: "Settings",
-			href: "/admin/settings/account",
+			href: "/admin/settings",
 		},
 	];
 	let currentPage = usePathname();
