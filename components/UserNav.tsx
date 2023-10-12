@@ -10,6 +10,7 @@ import {
 	DropdownMenuShortcut,
 	DropdownMenuTrigger,
 } from "@components/ui/dropdown-menu";
+import Link from "next/link";
 
 export default function UserNav() {
 	return (
@@ -34,7 +35,7 @@ export default function UserNav() {
 				<DropdownMenuSeparator />
 				<DropdownMenuGroup>
 					<DropdownMenuItem>
-						Profile
+						<Link href="/admin/settings/account">Profile</Link>
 						<DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
 					</DropdownMenuItem>
 					<DropdownMenuItem>

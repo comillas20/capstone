@@ -42,23 +42,18 @@ import {
 	SelectValue,
 } from "@components/ui/select";
 
-const groups = [
+const branches = [
 	{
-		label: "Surigao branches",
-		branches: [
-			{
-				label: "Taft",
-				value: "taft",
-			},
-			{
-				label: "Narciso",
-				value: "narciso",
-			},
-		],
+		label: "Narciso",
+		value: "narciso",
+	},
+	{
+		label: "Sabang",
+		value: "sabang",
 	},
 ];
 
-type Team = (typeof groups)[number]["branches"][number];
+type Branch = (typeof branches)[number];
 
 type PopoverTriggerProps = React.ComponentPropsWithoutRef<
 	typeof PopoverTrigger
@@ -69,8 +64,8 @@ interface BranchSwitcherProps extends PopoverTriggerProps {}
 export default function BranchSwitcher({ className }: BranchSwitcherProps) {
 	const [open, setOpen] = React.useState(false);
 	const [showNewTeamDialog, setShowNewTeamDialog] = React.useState(false);
-	const [selectedTeam, setSelectedTeam] = React.useState<Team>(
-		groups[0].branches[0]
+	const [selectedBranch, setSelectedBranch] = React.useState<Branch>(
+		branches[0]
 	);
 
 	return (
@@ -83,7 +78,7 @@ export default function BranchSwitcher({ className }: BranchSwitcherProps) {
 						aria-expanded={open}
 						aria-label="Select a team"
 						className={cn("w-52 justify-between", className)}>
-						<span className="hidden md:inline">{selectedTeam.label}</span>
+						<span className="hidden md:inline">{selectedBranch.label}</span>
 						<CaretSortIcon className="ml-auto h-4 w-4 shrink-0 opacity-50" />
 					</Button>
 				</PopoverTrigger>
@@ -92,27 +87,25 @@ export default function BranchSwitcher({ className }: BranchSwitcherProps) {
 						<CommandList>
 							<CommandInput placeholder="Search branch..." />
 							<CommandEmpty>No branch found.</CommandEmpty>
-							{groups.map(group => (
-								<CommandGroup key={group.label} heading={group.label}>
-									{group.branches.map(team => (
-										<CommandItem
-											key={team.value}
-											onSelect={() => {
-												setSelectedTeam(team);
-												setOpen(false);
-											}}
-											className="text-sm">
-											{team.label}
-											<CheckIcon
-												className={cn(
-													"ml-auto h-4 w-4",
-													selectedTeam.value === team.value ? "opacity-100" : "opacity-0"
-												)}
-											/>
-										</CommandItem>
-									))}
-								</CommandGroup>
-							))}
+							<CommandGroup>
+								{branches.map(branch => (
+									<CommandItem
+										key={branch.value}
+										onSelect={() => {
+											setSelectedBranch(branch);
+											setOpen(false);
+										}}
+										className="text-sm">
+										{branch.label}
+										<CheckIcon
+											className={cn(
+												"ml-auto h-4 w-4",
+												selectedBranch.value === branch.value ? "opacity-100" : "opacity-0"
+											)}
+										/>
+									</CommandItem>
+								))}
+							</CommandGroup>
 						</CommandList>
 						<CommandSeparator />
 						<CommandList>
@@ -134,18 +127,16 @@ export default function BranchSwitcher({ className }: BranchSwitcherProps) {
 			</Popover>
 			<DialogContent>
 				<DialogHeader>
-					<DialogTitle>Create team</DialogTitle>
-					<DialogDescription>
-						Add a new team to manage products and customers.
-					</DialogDescription>
+					<DialogTitle>Create branch</DialogTitle>
+					<DialogDescription>Add a new branch</DialogDescription>
 				</DialogHeader>
 				<div>
 					<div className="space-y-4 py-2 pb-4">
 						<div className="space-y-2">
-							<Label htmlFor="name">Team name</Label>
-							<Input id="name" placeholder="Acme Inc." />
+							<Label htmlFor="name">Branch name</Label>
+							<Input id="name" placeholder="Narciso" />
 						</div>
-						<div className="space-y-2">
+						{/* <div className="space-y-2">
 							<Label htmlFor="plan">Subscription plan</Label>
 							<Select>
 								<SelectTrigger>
@@ -162,7 +153,7 @@ export default function BranchSwitcher({ className }: BranchSwitcherProps) {
 									</SelectItem>
 								</SelectContent>
 							</Select>
-						</div>
+						</div> */}
 					</div>
 				</div>
 				<DialogFooter>
