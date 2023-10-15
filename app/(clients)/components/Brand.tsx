@@ -5,7 +5,7 @@ export default function Brand() {
 	return (
 		<Link href="/" className="relative h-8 w-8 rounded-full bg-primary">
 			<Avatar className="h-8 w-8">
-				<AvatarImage src={brandLogo} alt="@jakelou" />
+				{/* <AvatarImage src={brandLogo} alt="@jakelou" /> */}
 				<AvatarFallback>J</AvatarFallback>
 			</Avatar>
 		</Link>

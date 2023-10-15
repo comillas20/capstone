@@ -1,5 +1,4 @@
 import { MainNav } from "@components/MainNav";
-import { Search } from "@components/Search";
 import BranchSwitcher from "@components/BranchSwitcher";
 import UserNav from "@components/UserNav";
 
