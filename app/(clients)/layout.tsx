@@ -36,7 +36,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 					</div>
 				</div>
 			</nav>
-			<main className="flex-1 space-y-4 px-28 py-4">{children}</main>
+			<main className="flex-1 space-y-4 px-16 py-4">{children}</main>
 		</div>
 	);
 }

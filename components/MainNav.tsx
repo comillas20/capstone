@@ -24,7 +24,7 @@ export function MainNav({ className, navBtns, ...props }: MainNavProps) {
 						key={value.name}
 						className={cn(
 							"text-sm font-medium transition-colors hover:text-primary",
-							!selected && "text-muted-foreground"
+							selected && "text-primary"
 						)}
 						replace>
 						{value.name}
