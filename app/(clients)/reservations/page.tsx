@@ -1,5 +1,6 @@
 import Offers from "./components/Offers";
 import ReservationCalendar from "./components/ReservationCalendar";
+
 export default function page() {
 	return (
 		<div className="flex w-full flex-col space-y-6">

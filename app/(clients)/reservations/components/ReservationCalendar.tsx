@@ -4,6 +4,7 @@ import { Calendar } from "@components/ui/calendar";
 import { cn } from "@lib/utils";
 import { useState } from "react";
 import { addDays, addYears, isBefore, isSameMonth } from "date-fns";
+import { ScrollArea, ScrollBar } from "@components/ui/scroll-area";
 
 export default function ReservationCalendar() {
 	const currentDate = new Date();
@@ -40,10 +41,15 @@ export default function ReservationCalendar() {
 				}}
 				disabled={date =>
 					addDays(date, 1) < currentDate || date > addYears(date, 1)
-				}></Calendar>
-			<div className="flex flex-1 flex-col rounded-md">
-				<h3 className="mb-8 text-lg">{date?.toDateString()} - Vacants</h3>
-				<div>?</div>
+				}
+				fixedWeeks></Calendar>
+			<div className="flex max-h-[26.425rem] flex-1 flex-col rounded-md border px-4 py-3">
+				<h3 className="mb-3 text-lg">{date?.toDateString()} - Vacants</h3>
+				<hr className="mb-4" />
+				<ScrollArea>
+					<div>?</div>
+					<ScrollBar />
+				</ScrollArea>
 			</div>
 		</div>
 	);

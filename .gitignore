@@ -36,3 +36,5 @@ next-env.d.ts
 
 #sample images
 /app/sample
+
+.env

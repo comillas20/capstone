@@ -1,3 +1,5 @@
+import { RedirectType, redirect } from "next/navigation";
+
 export default function Settings() {
-	return "Settings for clients!";
+	return <>{redirect("/settings/account", RedirectType.replace)}</>;
 }
