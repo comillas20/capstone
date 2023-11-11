@@ -149,7 +149,7 @@ export default async function Overview() {
 			</TabsContent>
 			<TabsContent value="reports">
 				<div className="hidden h-full flex-1 flex-col space-y-8 md:flex">
-					<DataTable data={tasks} columns={columns} />
+					{/* <DataTable data={tasks} columns={columns} /> */}
 				</div>
 			</TabsContent>
 		</Tabs>

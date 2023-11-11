@@ -1,5 +1,4 @@
-import Offers from "./components/Offers";
-import ReservationCalendar from "./components/ReservationCalendar";
+import ReservationForm from "./components/ReservationForm";
 
 export default function page() {
 	return (
@@ -8,8 +7,7 @@ export default function page() {
 				<h2 className="text-2xl font-bold tracking-tight">Offers</h2>
 				<p className="text-muted-foreground">Pick the best offers for you!</p>
 			</div>
-			<Offers />
-			<ReservationCalendar />
+			<ReservationForm />
 		</div>
 	);
 }

@@ -1,47 +1,42 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@components/ui/radio-group";
 import { Label } from "@components/ui/label";
-import { cn } from "@lib/utils";
 
 type SetCardsProps = {
 	title: string;
 	products: {
 		category: string;
+		course: string;
 		dishes: string[];
 	}[];
 	selected?: boolean;
-	onClick?: () => void;
+	selectProducts: (category: string, course: string, dish: string) => void;
 };
-export function createSetCardsRadioItemID(productName: string) {
-	return productName.toLowerCase().replace(" ", "_");
-}
+
 export default function SetCards({
 	title,
 	products,
 	selected,
-	onClick,
+	selectProducts,
 }: SetCardsProps) {
 	return (
-		<Card
-			className={cn(
-				"hidden w-full first:block hover:shadow-sm hover:shadow-primary min-[1450px]:block min-[1450px]:w-96 min-[1450px]:min-w-fit",
-				selected && "outline outline-1 outline-primary hover:shadow-none"
-			)}
-			onClick={onClick}>
+		<Card className="w-full border-none">
 			<CardHeader className="text-center">
 				<CardTitle className="text-2xl">{title}</CardTitle>
 				<p className="text-muted-foreground">Choose one from each category</p>
 			</CardHeader>
-			<CardContent className="flex flex-row justify-between gap-4 min-[1450px]:flex-col min-[1450px]:justify-normal">
+			<CardContent className="flex flex-row justify-around gap-4">
 				{products.map(product => (
-					<div
-						key={product.category}
-						className="min-[1450px]:mt-4 min-[1450px]:first:mt-0">
+					<div key={product.category}>
 						<h2 className="mb-2 text-lg">{product.category}</h2>
-						<RadioGroup disabled={!selected}>
+						<RadioGroup
+							key={title.concat(product.category)}
+							disabled={!selected}
+							onValueChange={e => selectProducts(product.category, product.course, e)}
+							defaultValue="none">
 							{product.dishes.map(dish => (
 								<Label key={dish} className="flex items-center space-x-2">
-									<RadioGroupItem value={createSetCardsRadioItemID(dish)} />
+									<RadioGroupItem value={dish} />
 									<span>{dish}</span>
 								</Label>
 							))}
