@@ -1,6 +1,6 @@
 import ReservationForm from "./components/ReservationForm";
 
-export default function page() {
+export default async function page() {
 	return (
 		<div className="flex w-full flex-col space-y-6">
 			<div className="space-y-0.5">

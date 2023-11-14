@@ -10,22 +10,78 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Reservations{
-  id Int @id @default(autoincrement())
-  date DateTime
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  userID String
-  totalPrice Decimal
+model Reservations {
+  id         Int      @id @default(autoincrement())
+  date       DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  userID     String
+  totalPrice Float
 }
 
 model Orders {
-  id Int @id @default(autoincrement())
-  products Products[]
+  id   Int    @id @default(autoincrement())
+  dish Dish[] @relation("OrderDishes")
 }
 
-model Products{
-  id Int @id @default(autoincrement())
+model Dish {
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(50)
+  categoryID  Int
+  category    Category  @relation(fields: [categoryID], references: [id])
+  courseID    Int
+  course      Course    @relation(fields: [courseID], references: [id])
+  subSet      SubSets[] @relation("DishSubSets")
+  orders      Orders[]  @relation("OrderDishes")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  isAvailable Boolean
+  price       Float
+}
+
+model Category {
+  id   Int    @id @default(autoincrement())
+  name String @db.VarChar(50) @unique
+  dish Dish[]
+}
+
+model Course {
+  id   Int    @id @default(autoincrement())
   name String @db.VarChar(50)
-  orders Orders[]
+  dish Dish[]
+}
+
+model Set {
+  id      Int       @id @default(autoincrement())
+  name    String    @db.VarChar(50)
+  subSets SubSets[]
+}
+
+//to allow merging of categories like "Fish/Canton/Vegetable" in the menu/set
+model SubSets {
+  id     Int    @id @default(autoincrement())
+  name   String @db.VarChar(50)
+  setID  Int
+  set    Set    @relation(fields: [setID], references: [id], onDelete: Cascade)
+  dishes Dish[] @relation("DishSubSets")
+}
+
+model User {
+  id           Int            @id @default(autoincrement())
+  username     String         @db.VarChar(50)
+  password     String         @db.VarChar(50)
+  preferenceID Int
+  preference   UserPreference @relation(fields: [preferenceID], references: [id])
+}
+
+model UserPreference {
+  id       Int     @id @default(autoincrement())
+  user     User[]
+  darkMode Boolean
+}
+
+model OtherServices {
+  id    Int    @id @default(autoincrement())
+  name  String @db.VarChar(50)
+  price Float
 }

@@ -20,59 +20,113 @@ import { cn } from "@lib/utils";
 import SetCards from "./SetCards";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@components/ui/tabs";
 import { CheckboxWithText } from "@components/CheckboxWithText";
-import { DropdownMenu } from "@components/ui/dropdown-menu";
 import {
 	Popover,
 	PopoverContent,
 	PopoverTrigger,
 } from "@components/ui/popover";
+import { PopoverClose } from "@radix-ui/react-popover";
+import { Separator } from "@components/ui/separator";
+import useSWR, { useSWRConfig } from "swr";
+import { getAllCategories, getAllCourses, getAllSets } from "../serverActions";
 
 export default function ReservationForm() {
+	const prerequisiteToDialog = 3;
 	const [selected, setSelected] = useState(0);
-	type Items = { category: string; course: string; dish: string };
-	const [selectedItems, setSelectedItems] = useState<Items[]>([]);
+	type Dish = {
+		id: Number;
+		name: string;
+		isAvailable: boolean;
+		price: number;
+		category: {
+			id: number;
+			name: string;
+		};
+		course: {
+			id: number;
+			name: string;
+		};
+	};
+	const [selectedDishes, setSelectedDishes] = useState<Dish[]>([]);
 
-	function selectItems(category: string, course: string, dish: string) {
-		setSelectedItems(prevItems => [
-			...prevItems,
-			{ category: category, course: course, dish: dish },
-		]);
+	function selectDishes(dish: Dish | undefined) {
+		if (dish === undefined) return;
+
+		const existingIndex = selectedDishes.findIndex(
+			sDish =>
+				sDish.category.id === dish.category.id && sDish.course.id === dish.course.id
+		);
+
+		if (existingIndex !== -1) {
+			// If category already exists, replace it
+			setSelectedDishes(prevItems => {
+				const updatedItems = [...prevItems];
+				updatedItems[existingIndex] = { ...dish }; // Create a new object for immutability
+				return updatedItems;
+			});
+		} else {
+			// If category doesn't exist, add it instead
+			setSelectedDishes(prevItems => [...prevItems, { ...dish }]); // Create a new object for immutability
+		}
 	}
+
 	const currentDate = new Date();
 	const [date, setDate] = useState<Date | undefined>(addDays(currentDate, 3));
+	//Note to self: Date type instead of Numbers, so I can use date comparison methods
 	const [month, setMonth] = useState<Date>(currentDate);
+	const [hour, setHour] = useState<number>(currentDate.getHours() % 12 || 12);
+	const [minutes, setMinutes] = useState<number>(0);
+	const [meridiem, setMeridiem] = useState<"am" | "pm">("am");
+	const defaultTimeLinkName = "Set time";
+	const [timeLinkName, setTimeLinkName] = useState<string>(defaultTimeLinkName);
+	const [numberOfPacks, setNumberOfPacks] = useState<number>(50);
+	const [timeUse, setTimeUse] = useState<number>(4);
+
+	const sets = useSWR("getAllSets", () => getAllSets(), {
+		revalidateOnReconnect: true,
+	});
+	const allCategories = useSWR("getAllCategories", () => getAllCategories(), {
+		revalidateOnReconnect: true,
+	});
+	const allCourses = useSWR("getAllCourses", () => getAllCourses(), {
+		revalidateOnReconnect: true,
+	});
 
 	return (
 		<>
 			<div className="mb-14 flex justify-between gap-4 rounded-sm border">
-				{sets.length > 1 && (
+				{sets.data && sets.data.length > 1 && (
 					<Button
 						className="h-full self-center rounded-e-none"
 						onClick={() => {
 							if (selected > 0) {
 								setSelected(selected - 1);
-								setSelectedItems([]);
+								setSelectedDishes([]);
 							}
 						}}
 						disabled={selected === 0}>
 						<ChevronLeft className="h-96" />
 					</Button>
 				)}
-				<SetCards
-					title={sets[selected].name}
-					products={sets[selected].products}
-					selected
-					selectProducts={selectItems}></SetCards>
-				{sets.length > 1 && (
+				{sets.data && allCategories.data && (
+					<SetCards
+						title={sets.data[selected].name}
+						subSets={sets.data[selected].subSets}
+						allCategories={allCategories.data}
+						selected
+						selectProducts={selectDishes}></SetCards>
+				)}
+
+				{sets.data && sets.data.length > 1 && (
 					<Button
 						className="h-full self-center rounded-s-none"
 						onClick={() => {
-							if (selected < sets.length - 1) {
+							if (sets.data && selected < sets.data.length - 1) {
 								setSelected(selected + 1);
-								setSelectedItems([]);
+								setSelectedDishes([]);
 							}
 						}}
-						disabled={selected === sets.length - 1}>
+						disabled={selected === sets.data.length - 1}>
 						<ChevronRight className="h-96" />
 					</Button>
 				)}
@@ -115,7 +169,9 @@ export default function ReservationForm() {
 					<ScrollArea>
 						<Dialog>
 							<DialogTrigger asChild>
-								<Button disabled={selectedItems.length < 4}>{date?.getHours()}</Button>
+								<Button disabled={selectedDishes.length < prerequisiteToDialog}>
+									9:00am | Brgy. Taft, Narciso St., Surigao City
+								</Button>
 							</DialogTrigger>
 							<DialogContent className="sm:max-w-[425px] md:max-w-[500px]">
 								<Tabs defaultValue="confirmation">
@@ -124,34 +180,171 @@ export default function ReservationForm() {
 											<DialogTitle>Confirmation</DialogTitle>
 											<DialogDescription>Confirm your details here</DialogDescription>
 										</DialogHeader>
-										<div className="grid grid-cols-2 gap-16">
-											<ul>
-												<span className="text-sm font-bold">Main Dishes</span>
-												{selectedItems
-													.filter(value => value.course == "Main dish")
-													.map(items => (
-														<li key={items.category}>{items.dish}</li>
-													))}
-											</ul>
-											<ul>
-												<span className="text-sm font-bold">Desserts</span>
-												{selectedItems
-													.filter(value => value.course == "Dessert")
-													.map(items => (
-														<li key={items.category}>{items.dish}</li>
-													))}
-											</ul>
+										<div className="grid grid-cols-2 gap-9">
+											{allCourses.data &&
+												allCourses.data.map(course => (
+													<ul key={course.id}>
+														<span className="text-sm font-bold">{course.name}</span>
+														{selectedDishes
+															.filter(dish => dish.course.id == course.id)
+															.map(dish => (
+																<li key={dish.id.toString()}>{dish.name}</li>
+															))}
+													</ul>
+												))}
 										</div>
-										<div>
-											<div className="text-sm font-bold">Date and Time</div>
-											<div className="grid grid-cols-2 gap-x-16">
-												<span>{date?.toDateString()}</span>
+										<div className="grid grid-cols-2 gap-9">
+											<span className="text-sm font-bold">Number of packs:</span>
+											<Popover>
+												<PopoverTrigger asChild>
+													<a className="inline cursor-pointer text-primary">
+														{numberOfPacks}
+													</a>
+												</PopoverTrigger>
+												<PopoverContent className="w-60 drop-shadow">
+													<h5 className="font-bold">Number of packs</h5>
+													<p className="text-sm text-muted-foreground">
+														Minimum of <strong className="font-bold">50 packs</strong>
+													</p>
+													<Separator className="my-2"></Separator>
+													<div className="flex justify-around text-base">
+														<input
+															className="w-24"
+															type="number"
+															min={50}
+															value={numberOfPacks.toString()}
+															onChange={e => {
+																const np = parseInt(e.target.value, 10);
+																if (!isNaN(np) && np >= 50) {
+																	setNumberOfPacks(np);
+																}
+															}}
+														/>
+														<span className="font-bold">Packs</span>
+													</div>
+
+													<Separator className="col-span-3 my-2"></Separator>
+													<div className="col-span-3 flex justify-end">
+														<PopoverClose asChild>
+															<Button>Save</Button>
+														</PopoverClose>
+													</div>
+												</PopoverContent>
+											</Popover>
+										</div>
+										<div className="grid grid-cols-2 gap-x-9">
+											<div className="order-1 text-sm font-bold">Date and Time</div>
+											<span className="order-3">{date?.toDateString()}</span>
+											<div className="order-2 row-span-2 grid grid-cols-[1fr_auto_1fr]">
+												<div className="text-sm font-bold">Start of event</div>
+												<Separator
+													orientation="vertical"
+													className="row-span-2 mx-4"></Separator>
+												<div className="text-sm font-bold">Renting Hours</div>
 												<Popover>
 													<PopoverTrigger asChild>
-														<a className="cursor-pointer text-primary">Set time</a>
+														<a className="inline cursor-pointer text-primary">
+															{timeLinkName}
+														</a>
 													</PopoverTrigger>
-													<PopoverContent className="w-80">
-														<div className="grid grid-cols-2 gap-4"></div>
+													<PopoverContent className="w-60 drop-shadow">
+														<div className="grid grid-cols-3 gap-2">
+															<div className="col-span-3 text-sm font-bold">
+																When do you want to start?
+															</div>
+															<span className="text-xs font-bold">Hour</span>
+															<span className="text-xs font-bold">Minute</span>
+															<span className="text-xs font-bold">am/pm</span>
+															<input
+																type="number"
+																max={12}
+																min={1}
+																value={hour.toString()}
+																onChange={e => {
+																	const numericValue = parseInt(e.target.value, 10);
+																	setHour(
+																		isNaN(numericValue)
+																			? 1
+																			: numericValue <= 12 && numericValue > 0
+																			? numericValue
+																			: 1
+																	);
+																}}
+															/>
+															<input
+																type="number"
+																max={59}
+																min={1}
+																value={minutes.toString()}
+																onChange={e => {
+																	const numericValue = parseInt(e.target.value, 10);
+																	setMinutes(
+																		isNaN(numericValue)
+																			? 0
+																			: numericValue < 59 && numericValue > 0
+																			? numericValue
+																			: 0
+																	);
+																}}
+															/>
+															<Button
+																variant={"outline"}
+																className="h-8"
+																onClick={() => setMeridiem(meridiem === "am" ? "pm" : "am")}>
+																{meridiem}
+															</Button>
+															<Separator className="col-span-3 my-2"></Separator>
+															<div className="col-span-3 flex justify-end">
+																<PopoverClose asChild>
+																	<Button
+																		onClick={() => {
+																			const min =
+																				minutes < 10
+																					? "0".concat(minutes.toString())
+																					: minutes.toString();
+																			setTimeLinkName(hour + ":" + min + meridiem);
+																		}}>
+																		Save
+																	</Button>
+																</PopoverClose>
+															</div>
+														</div>
+													</PopoverContent>
+												</Popover>
+												<Popover>
+													<PopoverTrigger asChild>
+														<a className="inline cursor-pointer text-primary">
+															{timeUse + " hours"}
+														</a>
+													</PopoverTrigger>
+													<PopoverContent className="w-60 drop-shadow">
+														<h5 className="font-bold">Renting Hours</h5>
+														<p className="text-sm text-muted-foreground">
+															Minimum of <strong className="font-bold">4 hours</strong>
+														</p>
+														<Separator className="my-2"></Separator>
+														<div className="flex justify-around text-base">
+															<input
+																type="number"
+																max={10}
+																min={4}
+																value={timeUse.toString()}
+																onChange={e => {
+																	const tu = parseInt(e.target.value, 10);
+																	if (!isNaN(tu) && tu >= 4 && tu <= 10) {
+																		setTimeUse(tu);
+																	}
+																}}
+															/>
+															<span className="font-bold">Hours</span>
+														</div>
+
+														<Separator className="col-span-3 my-2"></Separator>
+														<div className="col-span-3 flex justify-end">
+															<PopoverClose asChild>
+																<Button>Save</Button>
+															</PopoverClose>
+														</div>
 													</PopoverContent>
 												</Popover>
 											</div>
@@ -163,7 +356,9 @@ export default function ReservationForm() {
 										<DialogFooter className="mt-4">
 											<TabsList>
 												<TabsTrigger asChild value="additional" type="button">
-													<Button>Next</Button>
+													<Button disabled={timeLinkName === defaultTimeLinkName}>
+														Next
+													</Button>
 												</TabsTrigger>
 											</TabsList>
 										</DialogFooter>
@@ -185,14 +380,13 @@ export default function ReservationForm() {
 												</div>
 											))}
 										</div>
-										<div>
-											<div className="text-sm font-bold">Branch</div>
-											<div>Brgy. Taft, Narciso St., Surigao City</div>
-										</div>
 										<DialogFooter className="mt-4">
-											<TabsList>
+											<TabsList className="flex gap-4 bg-inherit">
 												<TabsTrigger asChild value="confirmation" type="button">
-													<Button>Back</Button>
+													<Button variant={"secondary"}>Back</Button>
+												</TabsTrigger>
+												<TabsTrigger asChild value="payment" type="button">
+													<Button>Next</Button>
 												</TabsTrigger>
 											</TabsList>
 										</DialogFooter>
