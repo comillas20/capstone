@@ -34,3 +34,16 @@ export function setTheme(theme: z.infer<typeof themeSchema>) {
 
 	typeof window !== "undefined" && window.localStorage.setItem("theme", theme);
 }
+
+export function convertDateToString(date: Date) {
+	const dateOptions = {
+		year: "numeric",
+		month: "short",
+		day: "numeric",
+		hour: "numeric",
+		minute: "numeric",
+		hour12: true,
+	} as Intl.DateTimeFormatOptions;
+
+	return date.toLocaleString("en-US", dateOptions);
+}
