@@ -82,13 +82,13 @@ export default function ReservationForm() {
 	const [numberOfPacks, setNumberOfPacks] = useState<number>(50);
 	const [timeUse, setTimeUse] = useState<number>(4);
 
-	const sets = useSWR("getAllSets", () => getAllSets(), {
+	const sets = useSWR("getAllSets", getAllSets, {
 		revalidateOnReconnect: true,
 	});
-	const allCategories = useSWR("getAllCategories", () => getAllCategories(), {
+	const allCategories = useSWR("getAllCategories", getAllCategories, {
 		revalidateOnReconnect: true,
 	});
-	const allCourses = useSWR("getAllCourses", () => getAllCourses(), {
+	const allCourses = useSWR("getAllCourses", getAllCourses, {
 		revalidateOnReconnect: true,
 	});
 

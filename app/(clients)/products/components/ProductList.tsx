@@ -58,7 +58,8 @@ export default function ProductList({
 								<Image
 									src={product.imghref}
 									alt={product.name}
-									className="bottom-0 left-0 right-0 top-0 h-60 w-full rounded-t-md"></Image>
+									className="bottom-0 left-0 right-0 top-0 h-60 w-full rounded-t-md"
+								/>
 							</CardContent>
 							<Separator></Separator>
 							<CardFooter className="flex-col rounded-b-lg bg-primary p-2 text-primary-foreground">
