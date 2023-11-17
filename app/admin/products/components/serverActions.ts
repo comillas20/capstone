@@ -15,8 +15,21 @@ enum isAvailable {
 	true = "Available",
 	false = "N/A",
 }
+
+export async function createDish(dish: Dish) {
+	const newDish = await prisma.dish.create({
+		data: {
+			name: dish.name,
+			isAvailable: dish.isAvailable === isAvailable.true,
+			price: dish.price,
+			categoryID: dish.categoryID,
+			courseID: dish.courseID,
+		},
+	});
+
+	return newDish;
+}
 export async function editDish(dish: Dish) {
-	console.log(dish.isAvailable);
 	const newDish = await prisma.dish.update({
 		data: {
 			name: dish.name,
@@ -39,6 +52,18 @@ export async function editDish(dish: Dish) {
 	});
 
 	return newDish;
+}
+
+export async function deleteDishes(dishes: number[]) {
+	const yeetedDishes = await prisma.dish.deleteMany({
+		where: {
+			id: {
+				in: dishes,
+			},
+		},
+	});
+
+	return yeetedDishes;
 }
 
 export async function getAllDishes() {
@@ -64,10 +89,36 @@ export async function getAllDishes() {
 	return dishes;
 }
 
-export async function ddmCategories() {
+export async function getAllCategories() {
 	return await prisma.category.findMany();
 }
 
-export async function ddmCourses() {
+export async function getAllCourses() {
 	return await prisma.course.findMany();
 }
+
+export async function getAllSets() {
+	return await prisma.set.findMany({
+		select: {
+			id: true,
+			name: true,
+			subSets: {
+				select: {
+					id: true,
+					name: true,
+					dishes: {
+						select: {
+							id: true,
+							name: true,
+						},
+					},
+				},
+			},
+		},
+	});
+}
+
+// await prisma.dish.update({
+// 	where: { id: 55 },
+// 	data: { subSet: { connect: { id: 18 } } },
+// });

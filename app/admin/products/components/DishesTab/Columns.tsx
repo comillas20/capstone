@@ -9,16 +9,14 @@ import {
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuLabel,
-	DropdownMenuSeparator,
 	DropdownMenuTrigger,
-	DropdownMenuPortal,
-	DropdownMenuSub,
 } from "@components/ui/dropdown-menu";
 import { Checkbox } from "@components/ui/checkbox";
-import EditDialog from "./EditDialog";
+import AddEditDialog from "./AddEditDialog";
 import { useState } from "react";
 import useSWR from "swr";
 import { isAvailable } from "../../page";
+import DeleteDialog from "./DeleteDialog";
 
 export type Dishes = {
 	id: number;
@@ -99,7 +97,8 @@ export const columns: ColumnDef<Dishes>[] = [
 		id: "actions",
 		cell: ({ row, table }) => {
 			// const payment = row.original;
-			const [isOpen, setIsOpen] = useState(false);
+			const [isAEOpen, setIsAEOpen] = useState(false);
+			const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 			return (
 				<>
 					<DropdownMenu>
@@ -114,15 +113,26 @@ export const columns: ColumnDef<Dishes>[] = [
 						</DropdownMenuTrigger>
 						<DropdownMenuContent align="end">
 							<DropdownMenuLabel>Options</DropdownMenuLabel>
-							<DropdownMenuItem onSelect={() => setIsOpen(true)}>
+							<DropdownMenuItem onSelect={() => setIsAEOpen(true)}>
 								Edit {row.getValue("name")}
 							</DropdownMenuItem>
-							<DropdownMenuItem className="text-destructive">
+							<DropdownMenuItem
+								className="text-destructive"
+								onSelect={() => setIsDeleteOpen(true)}>
 								Delete {row.getValue("name")}
 							</DropdownMenuItem>
 						</DropdownMenuContent>
 					</DropdownMenu>
-					<EditDialog data={row.original} open={isOpen} onOpenChange={setIsOpen} />
+					<AddEditDialog
+						data={row.original}
+						open={isAEOpen}
+						onOpenChange={setIsAEOpen}
+					/>
+					<DeleteDialog
+						data={row.original}
+						open={isDeleteOpen}
+						onOpenChange={setIsAEOpen}
+					/>
 				</>
 			);
 		},

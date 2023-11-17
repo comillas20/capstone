@@ -24,6 +24,7 @@ import useSWR from "swr";
 import { getAllDishes } from "../serverActions";
 import { convertDateToString } from "@lib/utils";
 import { isAvailable } from "../../page";
+import AddEditDialog from "./AddEditDialog";
 
 export default function DishesPage() {
 	const [rowSelection, setRowSelection] = useState({});
@@ -57,82 +58,94 @@ export default function DishesPage() {
 		onRowSelectionChange: setRowSelection,
 	});
 	useEffect(() => {
-		table.setPageSize(6);
+		table.setPageSize(5);
 	}, []);
+	const [isOpen, setIsOpen] = useState(false);
 	return (
-		<>
-			<div>
-				<Card className="justify-items-center pt-6">
-					<CardContent>
-						<Image
-							src={calamares}
-							alt={"calamares"}
-							className="bottom-0 left-0 right-0 top-0 h-80 w-full"
-						/>
-					</CardContent>
-					<CardFooter className="flex justify-center">
-						<CardTitle>Calamares</CardTitle>
-					</CardFooter>
-				</Card>
+		<div className="flex flex-col space-y-2">
+			<div className="flex justify-end">
+				<Button onClick={() => setIsOpen(true)}>Create</Button>
+				<AddEditDialog open={isOpen} onOpenChange={setIsOpen}></AddEditDialog>
 			</div>
-			<div className="flex-1">
+			<div className="flex gap-6 pt-4">
 				<div>
-					<div className="rounded-md border">
-						<Table>
-							<TableHeader>
-								{table.getHeaderGroups().map(headerGroup => (
-									<TableRow key={headerGroup.id}>
-										{headerGroup.headers.map(header => {
-											return (
-												<TableHead key={header.id}>
-													{header.isPlaceholder
-														? null
-														: flexRender(header.column.columnDef.header, header.getContext())}
-												</TableHead>
-											);
-										})}
-									</TableRow>
-								))}
-							</TableHeader>
-							<TableBody>
-								{table.getRowModel().rows?.length ? (
-									table.getRowModel().rows.map(row => (
-										<TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
-											{row.getVisibleCells().map(cell => (
-												<TableCell key={cell.id} className="cursor-pointer select-none">
-													{flexRender(cell.column.columnDef.cell, cell.getContext())}
-												</TableCell>
-											))}
+					<Card className="justify-items-center pt-6">
+						<CardContent>
+							<Image
+								src={calamares}
+								alt={"calamares"}
+								className="bottom-0 left-0 right-0 top-0 h-80 w-full"
+							/>
+						</CardContent>
+						<CardFooter className="flex justify-center">
+							<CardTitle>Calamares</CardTitle>
+						</CardFooter>
+					</Card>
+				</div>
+				<div className="flex-1">
+					<div>
+						<div className="rounded-md border">
+							<Table>
+								<TableHeader>
+									{table.getHeaderGroups().map(headerGroup => (
+										<TableRow key={headerGroup.id}>
+											{headerGroup.headers.map(header => {
+												return (
+													<TableHead key={header.id}>
+														{header.isPlaceholder
+															? null
+															: flexRender(
+																	header.column.columnDef.header,
+																	header.getContext()
+															  )}
+													</TableHead>
+												);
+											})}
 										</TableRow>
-									))
-								) : (
-									<TableRow>
-										<TableCell colSpan={columns.length} className="h-24 text-center">
-											No results.
-										</TableCell>
-									</TableRow>
-								)}
-							</TableBody>
-						</Table>
-					</div>
-					<div className="flex items-center justify-end space-x-2 py-4">
-						<Button
-							variant="outline"
-							size="sm"
-							onClick={() => table.previousPage()}
-							disabled={!table.getCanPreviousPage()}>
-							Previous
-						</Button>
-						<Button
-							variant="outline"
-							size="sm"
-							onClick={() => table.nextPage()}
-							disabled={!table.getCanNextPage()}>
-							Next
-						</Button>
+									))}
+								</TableHeader>
+								<TableBody>
+									{table.getRowModel().rows?.length ? (
+										table.getRowModel().rows.map(row => (
+											<TableRow
+												key={row.id}
+												data-state={row.getIsSelected() && "selected"}>
+												{row.getVisibleCells().map(cell => (
+													<TableCell key={cell.id} className="cursor-pointer select-none">
+														{flexRender(cell.column.columnDef.cell, cell.getContext())}
+													</TableCell>
+												))}
+											</TableRow>
+										))
+									) : (
+										<TableRow>
+											<TableCell colSpan={columns.length} className="h-24 text-center">
+												No results.
+											</TableCell>
+										</TableRow>
+									)}
+								</TableBody>
+							</Table>
+						</div>
+						<div className="flex items-center justify-end space-x-2 py-4">
+							<Button
+								variant="outline"
+								size="sm"
+								onClick={() => table.previousPage()}
+								disabled={!table.getCanPreviousPage()}>
+								Previous
+							</Button>
+							<Button
+								variant="outline"
+								size="sm"
+								onClick={() => table.nextPage()}
+								disabled={!table.getCanNextPage()}>
+								Next
+							</Button>
+						</div>
 					</div>
 				</div>
 			</div>
-		</>
+		</div>
 	);
 }

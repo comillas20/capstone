@@ -26,7 +26,7 @@ model Orders {
 
 model Dish {
   id          Int       @id @default(autoincrement())
-  name        String    @db.VarChar(50)
+  name        String    @db.VarChar(50) @unique
   categoryID  Int
   category    Category  @relation(fields: [categoryID], references: [id])
   courseID    Int

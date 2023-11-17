@@ -10,7 +10,6 @@ export default async function ProductsPage() {
 					<h2 className="text-3xl font-bold tracking-tight">Products</h2>
 					<p className="text-muted-foreground">Manage dishes, sets, and services</p>
 				</div>
-
 				<TabsList className="bg-primary text-primary-foreground">
 					<TabsTrigger value="dishes">Dishes</TabsTrigger>
 					<TabsTrigger value="sets">Sets</TabsTrigger>
@@ -18,7 +17,7 @@ export default async function ProductsPage() {
 				</TabsList>
 			</div>
 			<Separator></Separator>
-			<TabsContent value="dishes" className="flex gap-6 pt-4">
+			<TabsContent value="dishes">
 				<DishesPage></DishesPage>
 			</TabsContent>
 			<TabsContent value="sets"></TabsContent>
