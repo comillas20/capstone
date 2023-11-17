@@ -53,10 +53,11 @@ export default function DeleteDialog({
 												description: "The dish is successfully deleted!",
 												duration: 5000,
 											});
-											mutate("getAllDishes");
+											mutate("dpGetAllDishes");
 										}
 									});
-								}}>
+								}}
+								disabled={isSaving}>
 								Delete
 							</Button>
 						</DialogClose>

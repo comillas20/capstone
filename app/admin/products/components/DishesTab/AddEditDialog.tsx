@@ -49,14 +49,14 @@ export default function AddEditDialog({
 	open,
 	onOpenChange,
 }: AddEditDialogProps) {
-	const allCategories = useSWR("dtCategories", getAllCategories, {
+	const allCategories = useSWR("aedGetAllCategories", getAllCategories, {
 		revalidateOnReconnect: true,
 	});
 
-	const allCourses = useSWR("dtCourses", getAllCourses, {
+	const allCourses = useSWR("aedGetAllCourses", getAllCourses, {
 		revalidateOnReconnect: true,
 	});
-	const allDishes = useSWR("dtDishes", getAllDishes);
+	const allDishes = useSWR("aedGetAllDishes", getAllDishes);
 	const defaultDDM = "--select--";
 	const formSchema = z.object({
 		id: z.number(),
@@ -129,7 +129,7 @@ export default function AddEditDialog({
 						: "The dish is successfully created!",
 					duration: 5000,
 				});
-				mutate("getAllDishes");
+				mutate("dpGetAllDishes");
 			}
 		});
 	}

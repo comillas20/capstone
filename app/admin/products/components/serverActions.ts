@@ -67,7 +67,6 @@ export async function deleteDishes(dishes: number[]) {
 }
 
 export async function getAllDishes() {
-	// Fetch data from your API here.
 	const dishes = await prisma.dish.findMany({
 		select: {
 			id: true,
@@ -104,12 +103,15 @@ export async function getAllSets() {
 			name: true,
 			subSets: {
 				select: {
-					id: true,
 					name: true,
 					dishes: {
 						select: {
 							id: true,
 							name: true,
+							category: true,
+							course: true,
+							isAvailable: true,
+							price: true,
 						},
 					},
 				},

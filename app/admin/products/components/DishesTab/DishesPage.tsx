@@ -28,7 +28,7 @@ import AddEditDialog from "./AddEditDialog";
 
 export default function DishesPage() {
 	const [rowSelection, setRowSelection] = useState({});
-	const { data } = useSWR("getAllDishes", async () => {
+	const { data } = useSWR("dpGetAllDishes", async () => {
 		const d = await getAllDishes();
 		const dishes: Dishes[] = d.map(dish => ({
 			id: dish.id,
@@ -64,7 +64,7 @@ export default function DishesPage() {
 	return (
 		<div className="flex flex-col space-y-2">
 			<div className="flex justify-end">
-				<Button onClick={() => setIsOpen(true)}>Create</Button>
+				<Button onClick={() => setIsOpen(true)}>Create new</Button>
 				<AddEditDialog open={isOpen} onOpenChange={setIsOpen}></AddEditDialog>
 			</div>
 			<div className="flex gap-6 pt-4">

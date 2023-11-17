@@ -14,7 +14,6 @@ import {
 import { Checkbox } from "@components/ui/checkbox";
 import AddEditDialog from "./AddEditDialog";
 import { useState } from "react";
-import useSWR from "swr";
 import { isAvailable } from "../../page";
 import DeleteDialog from "./DeleteDialog";
 
