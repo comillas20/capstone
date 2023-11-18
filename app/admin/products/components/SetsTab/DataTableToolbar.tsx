@@ -5,10 +5,10 @@ import { Table } from "@tanstack/react-table";
 
 import { Button } from "@components/ui/button";
 import { Input } from "@components/ui/input";
-import { DataTableViewOptions } from "./DataTableViewOptions";
+import { DataTableViewOptions } from "@app/admin/components/DataTableViewOptions";
 
-import { priorities, statuses } from "../reservations/data/data";
-import { DataTableFacetedFilter } from "./DataTableFacetedFilter";
+// import { priorities, statuses } from "../../reservations/data/data";
+import { DataTableFacetedFilter } from "@app/admin/components/DataTableFacetedFilter";
 
 interface DataTableToolbarProps<TData> {
 	table: Table<TData>;
@@ -21,7 +21,7 @@ export function DataTableToolbar<TData>({
 
 	return (
 		<div className="flex items-center justify-between">
-			<div className="flex flex-1 items-center space-x-2">
+			{/* <div className="flex flex-1 items-center space-x-2">
 				<Input
 					placeholder="Filter tasks..."
 					value={(table.getColumn("customer")?.getFilterValue() as string) ?? ""}
@@ -53,7 +53,7 @@ export function DataTableToolbar<TData>({
 						<Cross2Icon className="ml-2 h-4 w-4" />
 					</Button>
 				)}
-			</div>
+			</div> */}
 			<DataTableViewOptions table={table} />
 		</div>
 	);

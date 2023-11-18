@@ -130,6 +130,9 @@ export default function AddEditDialog({
 					duration: 5000,
 				});
 				mutate("dpGetAllDishes");
+				mutate("aedGetAllCategories");
+				mutate("aedGetAllCourses");
+				mutate("aedGetAllDishes");
 			}
 		});
 	}

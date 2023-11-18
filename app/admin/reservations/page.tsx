@@ -5,6 +5,7 @@ import { z } from "zod";
 import { columns } from "./components/Columns";
 import { DataTable } from "@app/admin/components/DataTable";
 import { taskSchema } from "./data/schema";
+import { DataTableToolbar } from "./components/DataTableToolbar";
 
 // Simulate a database read for tasks.
 async function getTasks() {
@@ -30,7 +31,7 @@ export default async function ReservationsPage() {
 					</p>
 				</div>
 			</div>
-			<DataTable data={tasks} columns={columns} />
+			<DataTable data={tasks} columns={columns} Toolbar={DataTableToolbar} />
 		</div>
 	);
 }

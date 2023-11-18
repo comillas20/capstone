@@ -2,32 +2,18 @@
 import calamares from "@app/sample/items/calamares.jpg";
 import Image from "next/image";
 import { Dishes, columns } from "./Columns";
-import { Card, CardContent, CardFooter, CardTitle } from "@components/ui/card";
-import { useEffect, useState } from "react";
-import {
-	flexRender,
-	getCoreRowModel,
-	getPaginationRowModel,
-	useReactTable,
-} from "@tanstack/react-table";
-
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "@components/ui/table";
+import { useState } from "react";
 import { Button } from "@components/ui/button";
 import useSWR from "swr";
 import { getAllDishes } from "../serverActions";
 import { convertDateToString } from "@lib/utils";
 import { isAvailable } from "../../page";
 import AddEditDialog from "./AddEditDialog";
+import { PlusCircleIcon } from "lucide-react";
+import { DataTable } from "@app/admin/components/DataTable";
+import { DataTableToolbar } from "./DataTableToolbar";
 
 export default function DishesPage() {
-	const [rowSelection, setRowSelection] = useState({});
 	const { data } = useSWR("dpGetAllDishes", async () => {
 		const d = await getAllDishes();
 		const dishes: Dishes[] = d.map(dish => ({
@@ -46,29 +32,11 @@ export default function DishesPage() {
 	});
 	//Had to do this to bypass TS type check, @data will only be undefined during loading (e.g. slow internet)
 	const d2 = data ? data : [];
-	const table = useReactTable({
-		data: d2,
-		columns,
-		state: {
-			rowSelection,
-		},
-		getCoreRowModel: getCoreRowModel(),
-		getPaginationRowModel: getPaginationRowModel(),
-		enableRowSelection: true,
-		onRowSelectionChange: setRowSelection,
-	});
-	useEffect(() => {
-		table.setPageSize(5);
-	}, []);
-	const [isOpen, setIsOpen] = useState(false);
 	return (
 		<div className="flex flex-col space-y-2">
-			<div className="flex justify-end">
-				<Button onClick={() => setIsOpen(true)}>Create new</Button>
-				<AddEditDialog open={isOpen} onOpenChange={setIsOpen}></AddEditDialog>
-			</div>
+			<div className="flex justify-end"></div>
 			<div className="flex gap-6 pt-4">
-				<div>
+				{/* <div className="hidden lg:block">
 					<Card className="justify-items-center pt-6">
 						<CardContent>
 							<Image
@@ -81,9 +49,9 @@ export default function DishesPage() {
 							<CardTitle>Calamares</CardTitle>
 						</CardFooter>
 					</Card>
-				</div>
+				</div> */}
 				<div className="flex-1">
-					<div>
+					{/* <div>
 						<div className="rounded-md border">
 							<Table>
 								<TableHeader>
@@ -143,7 +111,8 @@ export default function DishesPage() {
 								Next
 							</Button>
 						</div>
-					</div>
+					</div> */}
+					<DataTable data={d2} columns={columns} Toolbar={DataTableToolbar} />
 				</div>
 			</div>
 		</div>

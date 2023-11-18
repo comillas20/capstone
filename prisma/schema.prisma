@@ -49,6 +49,7 @@ model Course {
   id   Int    @id @default(autoincrement())
   name String @db.VarChar(50)
   dish Dish[]
+  subsets SubSets[]
 }
 
 model Set {
@@ -64,6 +65,8 @@ model SubSets {
   setID  Int
   set    Set    @relation(fields: [setID], references: [id], onDelete: Cascade)
   dishes Dish[] @relation("DishSubSets")
+  courseID Int
+  course Course @relation(fields: [courseID], references: [id])
 }
 
 model User {

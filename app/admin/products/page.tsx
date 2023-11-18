@@ -1,6 +1,7 @@
 import { Separator } from "@components/ui/separator";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@components/ui/tabs";
 import DishesPage from "./components/DishesTab/DishesPage";
+import SetsPage from "./components/SetsTab/SetsPage";
 
 export default async function ProductsPage() {
 	return (
@@ -18,9 +19,11 @@ export default async function ProductsPage() {
 			</div>
 			<Separator></Separator>
 			<TabsContent value="dishes">
-				<DishesPage></DishesPage>
+				<DishesPage />
 			</TabsContent>
-			<TabsContent value="sets"></TabsContent>
+			<TabsContent value="sets">
+				<SetsPage />
+			</TabsContent>
 		</Tabs>
 	);
 }

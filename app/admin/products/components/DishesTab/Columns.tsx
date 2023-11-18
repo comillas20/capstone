@@ -1,21 +1,13 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal } from "lucide-react";
-
-import { Button } from "@components/ui/button";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuLabel,
-	DropdownMenuTrigger,
-} from "@components/ui/dropdown-menu";
 import { Checkbox } from "@components/ui/checkbox";
 import AddEditDialog from "./AddEditDialog";
 import { useState } from "react";
 import { isAvailable } from "../../page";
 import DeleteDialog from "./DeleteDialog";
+import { DataTableColumnHeader } from "@app/admin/components/DataTableColumnHeader";
+import { DataTableRowActions } from "./DataTableRowActions";
 
 export type Dishes = {
 	id: number;
@@ -52,37 +44,47 @@ export const columns: ColumnDef<Dishes>[] = [
 		enableSorting: false,
 		enableHiding: false,
 	},
-	// {
-	// 	accessorKey: "id",
-	// 	header: "ID",
-	// },
 	{
 		accessorKey: "name",
-		header: "Dish name",
+		header: ({ column }) => (
+			<DataTableColumnHeader column={column} title="Dish name" />
+		),
 	},
 	{
 		accessorKey: "category",
-		header: "Category",
+		header: ({ column }) => (
+			<DataTableColumnHeader column={column} title="Category" />
+		),
 	},
 	{
 		accessorKey: "course",
-		header: "Course",
+		header: ({ column }) => (
+			<DataTableColumnHeader column={column} title="Course" />
+		),
 	},
 	{
 		accessorKey: "createdAt",
-		header: "Created",
+		header: ({ column }) => (
+			<DataTableColumnHeader column={column} title="Created" />
+		),
 	},
 	{
 		accessorKey: "updatedAt",
-		header: "Last Updated",
+		header: ({ column }) => (
+			<DataTableColumnHeader column={column} title="Last Updated" />
+		),
 	},
 	{
 		accessorKey: "isAvailable",
-		header: "Availability",
+		header: ({ column }) => (
+			<DataTableColumnHeader column={column} title="Availability" />
+		),
 	},
 	{
 		accessorKey: "price",
-		header: "Price/Pack",
+		header: ({ column }) => (
+			<DataTableColumnHeader column={column} title="Price/Pack" />
+		),
 		cell: ({ row }) => {
 			const formatted = new Intl.NumberFormat("en-US", {
 				style: "currency",
@@ -100,28 +102,12 @@ export const columns: ColumnDef<Dishes>[] = [
 			const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 			return (
 				<>
-					<DropdownMenu>
-						<DropdownMenuTrigger asChild>
-							<Button
-								variant="ghost"
-								className="h-8 w-8 p-0"
-								disabled={table.getIsSomeRowsSelected()}>
-								<span className="sr-only">Open menu</span>
-								<MoreHorizontal className="h-4 w-4" />
-							</Button>
-						</DropdownMenuTrigger>
-						<DropdownMenuContent align="end">
-							<DropdownMenuLabel>Options</DropdownMenuLabel>
-							<DropdownMenuItem onSelect={() => setIsAEOpen(true)}>
-								Edit {row.getValue("name")}
-							</DropdownMenuItem>
-							<DropdownMenuItem
-								className="text-destructive"
-								onSelect={() => setIsDeleteOpen(true)}>
-								Delete {row.getValue("name")}
-							</DropdownMenuItem>
-						</DropdownMenuContent>
-					</DropdownMenu>
+					<DataTableRowActions
+						row={row}
+						table={table}
+						addEditOpener={setIsAEOpen}
+						deleteOpener={setIsDeleteOpen}
+					/>
 					<AddEditDialog
 						data={row.original}
 						open={isAEOpen}

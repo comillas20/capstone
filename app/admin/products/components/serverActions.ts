@@ -103,17 +103,18 @@ export async function getAllSets() {
 			name: true,
 			subSets: {
 				select: {
+					id: true,
 					name: true,
 					dishes: {
 						select: {
 							id: true,
 							name: true,
 							category: true,
-							course: true,
 							isAvailable: true,
 							price: true,
 						},
 					},
+					course: true,
 				},
 			},
 		},
@@ -124,3 +125,15 @@ export async function getAllSets() {
 // 	where: { id: 55 },
 // 	data: { subSet: { connect: { id: 18 } } },
 // });
+
+async function addDishToSubSet() {
+	await prisma.dish.update({
+		where: { id: 55 },
+		data: { subSet: { connect: { id: 18 } } },
+	});
+}
+
+//temp
+export async function deleteSubsets() {
+	return await prisma.subSets.deleteMany();
+}
