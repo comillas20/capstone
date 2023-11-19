@@ -6,7 +6,7 @@ import {
 	DialogHeader,
 } from "@components/ui/dialog";
 import { DialogClose, DialogTitle } from "@radix-ui/react-dialog";
-import { Dishes } from "./Columns";
+import { Dishes } from "./DishColumns";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -183,7 +183,6 @@ export default function AddEditDialog({
 														</Button>
 													</DropdownMenuTrigger>
 													<DropdownMenuContent className="w-56">
-														<DropdownMenuSeparator />
 														<DropdownMenuRadioGroup
 															value={field.value}
 															onValueChange={field.onChange}>
@@ -226,7 +225,6 @@ export default function AddEditDialog({
 														</Button>
 													</DropdownMenuTrigger>
 													<DropdownMenuContent className="w-56">
-														<DropdownMenuSeparator />
 														<DropdownMenuRadioGroup
 															value={field.value}
 															onValueChange={field.onChange}>
@@ -287,7 +285,7 @@ export default function AddEditDialog({
 										<FormItem>
 											<div className="flex gap-4 pt-2">
 												<FormLabel className="flex flex-wrap content-center">
-													Price:
+													Price/Pack:
 												</FormLabel>
 												<FormControl>
 													<Input
@@ -313,7 +311,7 @@ export default function AddEditDialog({
 									</Button>
 								</DialogClose>
 								<Button type="submit" disabled={isSaving}>
-									Submit
+									Save
 								</Button>
 							</div>
 						</form>

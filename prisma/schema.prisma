@@ -28,10 +28,10 @@ model Dish {
   id          Int       @id @default(autoincrement())
   name        String    @db.VarChar(50) @unique
   categoryID  Int
-  category    Category  @relation(fields: [categoryID], references: [id])
+  category    Category  @relation(fields: [categoryID], references: [id], onDelete: Cascade)
   courseID    Int
-  course      Course    @relation(fields: [courseID], references: [id])
-  subSet      SubSets[] @relation("DishSubSets")
+  course      Course    @relation(fields: [courseID], references: [id], onDelete: Cascade)
+  subSet      SubSet[] @relation("DishSubSets")
   orders      Orders[]  @relation("OrderDishes")
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
@@ -49,30 +49,35 @@ model Course {
   id   Int    @id @default(autoincrement())
   name String @db.VarChar(50)
   dish Dish[]
-  subsets SubSets[]
+  subsets SubSet[]
 }
 
 model Set {
   id      Int       @id @default(autoincrement())
   name    String    @db.VarChar(50)
-  subSets SubSets[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  subSets SubSet[]
 }
 
 //to allow merging of categories like "Fish/Canton/Vegetable" in the menu/set
-model SubSets {
+model SubSet {
   id     Int    @id @default(autoincrement())
   name   String @db.VarChar(50)
   setID  Int
   set    Set    @relation(fields: [setID], references: [id], onDelete: Cascade)
   dishes Dish[] @relation("DishSubSets")
   courseID Int
-  course Course @relation(fields: [courseID], references: [id])
+  course Course @relation(fields: [courseID], references: [id], onDelete: Cascade)
+	@@map("SubSets")
 }
 
 model User {
   id           Int            @id @default(autoincrement())
   username     String         @db.VarChar(50)
   password     String         @db.VarChar(50)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
   preferenceID Int
   preference   UserPreference @relation(fields: [preferenceID], references: [id])
 }

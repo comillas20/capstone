@@ -4,9 +4,11 @@ import { Table } from "@tanstack/react-table";
 import { Button } from "@components/ui/button";
 import { Input } from "@components/ui/input";
 import { DataTableViewOptions } from "@app/admin/components//DataTableViewOptions";
-import { PlusCircleIcon } from "lucide-react";
+import { Info, PlusCircleIcon } from "lucide-react";
 import AddEditDialog from "./AddEditDialog";
 import { useState } from "react";
+import useSWR from "swr";
+import { getAllCategories, getAllCourses } from "../serverActions";
 
 interface DataTableToolbarProps<TData> {
 	table: Table<TData>;
@@ -16,6 +18,8 @@ export function DataTableToolbar<TData>({
 	table,
 }: DataTableToolbarProps<TData>) {
 	const [isOpen, setIsOpen] = useState(false);
+	const categories = useSWR("dtCategoryToolbar", getAllCategories);
+	const courses = useSWR("dtCourseToolbar", getAllCourses);
 	return (
 		<div className="flex items-center justify-between">
 			<div className="flex flex-1 items-center space-x-2">
@@ -29,14 +33,21 @@ export function DataTableToolbar<TData>({
 				/>
 				<DataTableViewOptions table={table} />
 			</div>
+			{(categories.data?.length == 0 || courses.data?.length == 0) && (
+				<p className="mr-4 flex items-center text-sm text-primary">
+					<Info className="mr-2" />
+					Please add a category and a course first before adding a dish
+				</p>
+			)}
 			<Button
 				size="sm"
-				className="ml-auto hidden h-8 lg:flex"
-				onClick={() => setIsOpen(true)}>
+				className="flex"
+				onClick={() => setIsOpen(true)}
+				disabled={categories.data?.length == 0 || courses.data?.length == 0}>
 				<PlusCircleIcon className="mr-2" />
-				New dish
+				Dish
 			</Button>
-			<AddEditDialog open={isOpen} onOpenChange={setIsOpen}></AddEditDialog>
+			<AddEditDialog open={isOpen} onOpenChange={setIsOpen} />
 		</div>
 	);
 }

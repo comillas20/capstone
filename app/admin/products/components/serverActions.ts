@@ -87,13 +87,64 @@ export async function getAllDishes() {
 
 	return dishes;
 }
-
+type categoryCourse = {
+	id: number;
+	name: string;
+};
+export async function createCategory(category: string) {
+	return await prisma.category.create({
+		data: {
+			name: category,
+		},
+	});
+}
+export async function editCategory(data: categoryCourse) {
+	return await prisma.category.update({
+		data: {
+			name: data.name,
+		},
+		where: {
+			id: data.id,
+		},
+	});
+}
 export async function getAllCategories() {
 	return await prisma.category.findMany();
 }
+export async function deleteCategory(id: number) {
+	return await prisma.category.delete({
+		where: {
+			id: id,
+		},
+	});
+}
 
+export async function createCourse(course: string) {
+	return await prisma.course.create({
+		data: {
+			name: course,
+		},
+	});
+}
+export async function editCourse(data: categoryCourse) {
+	return await prisma.course.update({
+		data: {
+			name: data.name,
+		},
+		where: {
+			id: data.id,
+		},
+	});
+}
 export async function getAllCourses() {
 	return await prisma.course.findMany();
+}
+export async function deleteCourse(id: number) {
+	return await prisma.course.delete({
+		where: {
+			id: id,
+		},
+	});
 }
 
 export async function getAllSets() {
@@ -117,6 +168,8 @@ export async function getAllSets() {
 					course: true,
 				},
 			},
+			createdAt: true,
+			updatedAt: true,
 		},
 	});
 }
@@ -135,5 +188,5 @@ async function addDishToSubSet() {
 
 //temp
 export async function deleteSubsets() {
-	return await prisma.subSets.deleteMany();
+	return await prisma.subSet.deleteMany();
 }

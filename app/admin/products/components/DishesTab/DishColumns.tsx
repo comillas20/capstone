@@ -47,7 +47,7 @@ export const columns: ColumnDef<Dishes>[] = [
 	{
 		accessorKey: "name",
 		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="Dish name" />
+			<DataTableColumnHeader column={column} title="Dish" />
 		),
 	},
 	{

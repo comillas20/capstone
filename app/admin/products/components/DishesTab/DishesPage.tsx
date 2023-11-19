@@ -1,20 +1,24 @@
 "use client";
-import calamares from "@app/sample/items/calamares.jpg";
-import Image from "next/image";
-import { Dishes, columns } from "./Columns";
-import { useState } from "react";
-import { Button } from "@components/ui/button";
+import { Dishes, columns } from "./DishColumns";
 import useSWR from "swr";
-import { getAllDishes } from "../serverActions";
+import {
+	getAllCategories,
+	getAllCourses,
+	getAllDishes,
+} from "../serverActions";
 import { convertDateToString } from "@lib/utils";
 import { isAvailable } from "../../page";
-import AddEditDialog from "./AddEditDialog";
-import { PlusCircleIcon } from "lucide-react";
 import { DataTable } from "@app/admin/components/DataTable";
 import { DataTableToolbar } from "./DataTableToolbar";
+import { Card, CardContent, CardFooter } from "@components/ui/card";
+import { Button } from "@components/ui/button";
+import { Separator } from "@components/ui/separator";
+import CategoryCourseDialog from "./CategoryCourseDialog";
+import { PlusCircleIcon } from "lucide-react";
+import { useState } from "react";
 
 export default function DishesPage() {
-	const { data } = useSWR("dpGetAllDishes", async () => {
+	const dishes = useSWR("dpGetAllDishes", async () => {
 		const d = await getAllDishes();
 		const dishes: Dishes[] = d.map(dish => ({
 			id: dish.id,
@@ -30,88 +34,98 @@ export default function DishesPage() {
 		}));
 		return dishes;
 	});
+	const categories = useSWR("dpGetAllCategories", getAllCategories);
+	const courses = useSWR("dpGetAllCourses", getAllCourses);
+	const [isAddCategoryModalOpen, setIsAddCategoryModalOpen] = useState(false);
+	const [isAddCourseModalOpen, setIsAddCourseModalOpen] = useState(false);
+	const [isEditCategoryModalOpen, setIsEditCategoryModalOpen] = useState(false);
+	const [isEditCourseModalOpen, setIsEditCourseModalOpen] = useState(false);
 	//Had to do this to bypass TS type check, @data will only be undefined during loading (e.g. slow internet)
-	const d2 = data ? data : [];
+	const d2 = dishes.data ? dishes.data : [];
 	return (
 		<div className="flex flex-col space-y-2">
-			<div className="flex justify-end"></div>
 			<div className="flex gap-6 pt-4">
-				{/* <div className="hidden lg:block">
-					<Card className="justify-items-center pt-6">
-						<CardContent>
-							<Image
-								src={calamares}
-								alt={"calamares"}
-								className="bottom-0 left-0 right-0 top-0 h-80 w-full"
-							/>
+				<div className="mt-12">
+					<Card className="flex flex-col pt-4">
+						<CardContent className="flex flex-1 justify-center">
+							<div>
+								<h3 className="text-sm font-semibold">Categories</h3>
+								<div className="flex flex-col space-y-4">
+									{categories.data &&
+										categories.data.map(category => (
+											<div key={category.id}>
+												<Button
+													variant={"link"}
+													size={"sm"}
+													className="justify-start pl-0"
+													onClick={() => setIsEditCategoryModalOpen(true)}>
+													{category.name}
+												</Button>
+												<CategoryCourseDialog
+													editData={category}
+													open={isEditCategoryModalOpen}
+													onOpenChange={setIsEditCategoryModalOpen}
+													isCategory={true}
+												/>
+											</div>
+										))}
+								</div>
+							</div>
+							<Separator orientation="vertical" className="mx-4 h-auto" />
+							<div>
+								<h3 className="text-sm font-semibold">Courses</h3>
+								<div className="flex flex-col space-y-4">
+									{courses.data &&
+										courses.data.map(course => (
+											<div key={course.id}>
+												<Button
+													variant={"link"}
+													size={"sm"}
+													className="justify-start pl-0"
+													onClick={() => setIsEditCourseModalOpen(true)}>
+													{course.name}
+												</Button>
+												<CategoryCourseDialog
+													editData={course}
+													open={isEditCourseModalOpen}
+													onOpenChange={setIsEditCourseModalOpen}
+													isCategory={false}
+												/>
+											</div>
+										))}
+								</div>
+							</div>
 						</CardContent>
-						<CardFooter className="flex justify-center">
-							<CardTitle>Calamares</CardTitle>
+						<Separator />
+						<CardFooter className="flex justify-center gap-4 py-0">
+							<Button
+								size="sm"
+								variant={"link"}
+								className="flex p-0 "
+								onClick={() => setIsAddCategoryModalOpen(true)}>
+								<span className="text-xs">New Category</span>
+							</Button>
+							<Button
+								size="sm"
+								variant={"link"}
+								className="flex p-0"
+								onClick={() => setIsAddCourseModalOpen(true)}>
+								<span className="text-xs">New Course</span>
+							</Button>
 						</CardFooter>
+						<CategoryCourseDialog
+							open={isAddCategoryModalOpen}
+							onOpenChange={setIsAddCategoryModalOpen}
+							isCategory={true}
+						/>
+						<CategoryCourseDialog
+							open={isAddCourseModalOpen}
+							onOpenChange={setIsAddCourseModalOpen}
+							isCategory={false}
+						/>
 					</Card>
-				</div> */}
+				</div>
 				<div className="flex-1">
-					{/* <div>
-						<div className="rounded-md border">
-							<Table>
-								<TableHeader>
-									{table.getHeaderGroups().map(headerGroup => (
-										<TableRow key={headerGroup.id}>
-											{headerGroup.headers.map(header => {
-												return (
-													<TableHead key={header.id}>
-														{header.isPlaceholder
-															? null
-															: flexRender(
-																	header.column.columnDef.header,
-																	header.getContext()
-															  )}
-													</TableHead>
-												);
-											})}
-										</TableRow>
-									))}
-								</TableHeader>
-								<TableBody>
-									{table.getRowModel().rows?.length ? (
-										table.getRowModel().rows.map(row => (
-											<TableRow
-												key={row.id}
-												data-state={row.getIsSelected() && "selected"}>
-												{row.getVisibleCells().map(cell => (
-													<TableCell key={cell.id} className="cursor-pointer select-none">
-														{flexRender(cell.column.columnDef.cell, cell.getContext())}
-													</TableCell>
-												))}
-											</TableRow>
-										))
-									) : (
-										<TableRow>
-											<TableCell colSpan={columns.length} className="h-24 text-center">
-												No results.
-											</TableCell>
-										</TableRow>
-									)}
-								</TableBody>
-							</Table>
-						</div>
-						<div className="flex items-center justify-end space-x-2 py-4">
-							<Button
-								variant="outline"
-								size="sm"
-								onClick={() => table.previousPage()}
-								disabled={!table.getCanPreviousPage()}>
-								Previous
-							</Button>
-							<Button
-								variant="outline"
-								size="sm"
-								onClick={() => table.nextPage()}
-								disabled={!table.getCanNextPage()}>
-								Next
-							</Button>
-						</div>
-					</div> */}
 					<DataTable data={d2} columns={columns} Toolbar={DataTableToolbar} />
 				</div>
 			</div>
