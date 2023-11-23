@@ -4,35 +4,34 @@ import {
 	DialogDescription,
 	DialogHeader,
 	DialogTitle,
+	DialogTrigger,
 } from "@components/ui/dialog";
-import { Dishes } from "./DishColumns";
-import { DialogClose } from "@radix-ui/react-dialog";
-import { Button } from "@components/ui/button";
-import { useTransition } from "react";
-import { useSWRConfig } from "swr";
-import { deleteDishes } from "../serverActions";
 import { toast } from "@components/ui/use-toast";
+import { DialogClose } from "@radix-ui/react-dialog";
+import { useTransition } from "react";
+import { Button } from "@components/ui/button";
+import { mutate } from "swr";
+import { deleteSubset } from "../serverActions";
 
-type DeleteDialogProps = {
-	data: Dishes;
-	onOpenChange: React.Dispatch<React.SetStateAction<boolean>>;
-} & React.ComponentProps<typeof Dialog>;
-
-export default function DeleteDialog({
-	data,
-	open,
-	onOpenChange,
-}: DeleteDialogProps) {
+export default function SubSetDeleteDialog({
+	subSet,
+	children,
+}: {
+	subSet: { id: number; name: string };
+	children: React.ReactElement;
+}) {
 	const [isSaving, startSaving] = useTransition();
-	const { mutate } = useSWRConfig();
 
 	return (
-		<Dialog open={open} onOpenChange={onOpenChange}>
+		<Dialog>
+			<DialogTrigger asChild>{children}</DialogTrigger>
 			<DialogContent>
 				<DialogHeader className="mb-4">
 					<DialogTitle className="text-destructive">Delete</DialogTitle>
-					<DialogDescription>Deleting {data.name}</DialogDescription>
-					<div className="text-destructive">This action cannot be undo. Delete?</div>
+					<DialogDescription>Deleting {subSet.name}</DialogDescription>
+					<div className="text-destructive">
+						This action is not reversable. Continue?
+					</div>
 					<div className="flex justify-end gap-4">
 						<DialogClose asChild>
 							<Button variant={"secondary"} type="button">
@@ -44,19 +43,18 @@ export default function DeleteDialog({
 								type="button"
 								variant={"destructive"}
 								onClick={() => {
-									onOpenChange(false);
 									startSaving(async () => {
-										const submitDish = await deleteDishes([data.id]);
+										const submitDish = await deleteSubset(subSet.id);
 										if (submitDish) {
 											toast({
 												title: "Success",
-												description: "The dish is successfully deleted!",
+												description: subSet.name + " is successfully deleted!",
 												duration: 5000,
 											});
-											mutate("dpGetAllDishes");
-
-											mutate("ssaedGetAllDishes");
 										}
+
+										mutate("spGetAllSets");
+										mutate("ssaedGetAllSets");
 									});
 								}}
 								disabled={isSaving}>

@@ -28,7 +28,7 @@ import {
 	getAllDishes,
 } from "../serverActions";
 import { isAvailable as iaEnum } from "../../page";
-import { useTransition } from "react";
+import { useEffect, useTransition } from "react";
 import { toast } from "@components/ui/use-toast";
 import {
 	DropdownMenu,
@@ -63,9 +63,19 @@ export default function AddEditDialog({
 		name: z
 			.string()
 			.min(1)
-			.refine(e => !allDishes.data?.find(f => f.name === e), {
-				message: "This dish already exists!",
-			}),
+			.refine(
+				e =>
+					!allDishes.data?.find(f => {
+						//If user is editing, then exclude the current name in searching for duplicate
+						const checker = data
+							? f.name !== data?.name && f.name === e
+							: f.name === e;
+						return checker;
+					}),
+				{
+					message: "This dish already exists!",
+				}
+			),
 		categoryID: z
 			.string()
 			.min(1)
@@ -133,9 +143,14 @@ export default function AddEditDialog({
 				mutate("aedGetAllCategories");
 				mutate("aedGetAllCourses");
 				mutate("aedGetAllDishes");
+
+				mutate("ssaedGetAllDishes");
 			}
 		});
 	}
+	useEffect(() => {
+		form.reset();
+	}, [open]);
 	return (
 		!allDishes.isLoading && (
 			<Dialog open={open} onOpenChange={onOpenChange}>

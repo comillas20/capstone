@@ -14,7 +14,6 @@ import { Card, CardContent, CardFooter } from "@components/ui/card";
 import { Button } from "@components/ui/button";
 import { Separator } from "@components/ui/separator";
 import CategoryCourseDialog from "./CategoryCourseDialog";
-import { PlusCircleIcon } from "lucide-react";
 import { useState } from "react";
 
 export default function DishesPage() {
@@ -36,10 +35,10 @@ export default function DishesPage() {
 	});
 	const categories = useSWR("dpGetAllCategories", getAllCategories);
 	const courses = useSWR("dpGetAllCourses", getAllCourses);
-	const [isAddCategoryModalOpen, setIsAddCategoryModalOpen] = useState(false);
-	const [isAddCourseModalOpen, setIsAddCourseModalOpen] = useState(false);
-	const [isEditCategoryModalOpen, setIsEditCategoryModalOpen] = useState(false);
-	const [isEditCourseModalOpen, setIsEditCourseModalOpen] = useState(false);
+	// const [isAddCategoryModalOpen, setIsAddCategoryModalOpen] = useState(false);
+	// const [isAddCourseModalOpen, setIsAddCourseModalOpen] = useState(false);
+	// const [isEditCategoryModalOpen, setIsEditCategoryModalOpen] = useState(false);
+	// const [isEditCourseModalOpen, setIsEditCourseModalOpen] = useState(false);
 	//Had to do this to bypass TS type check, @data will only be undefined during loading (e.g. slow internet)
 	const d2 = dishes.data ? dishes.data : [];
 	return (
@@ -49,48 +48,38 @@ export default function DishesPage() {
 					<Card className="flex flex-col pt-4">
 						<CardContent className="flex flex-1 justify-center">
 							<div>
-								<h3 className="text-sm font-semibold">Categories</h3>
-								<div className="flex flex-col space-y-4">
+								<h3 className="mb-3 text-sm font-semibold">Categories</h3>
+								<div className="flex flex-col space-y-1">
 									{categories.data &&
 										categories.data.map(category => (
 											<div key={category.id}>
-												<Button
-													variant={"link"}
-													size={"sm"}
-													className="justify-start pl-0"
-													onClick={() => setIsEditCategoryModalOpen(true)}>
-													{category.name}
-												</Button>
-												<CategoryCourseDialog
-													editData={category}
-													open={isEditCategoryModalOpen}
-													onOpenChange={setIsEditCategoryModalOpen}
-													isCategory={true}
-												/>
+												<CategoryCourseDialog editData={category} isCategory={true}>
+													<Button
+														variant={"link"}
+														size={"sm"}
+														className="h-fit w-full justify-start p-0">
+														{category.name}
+													</Button>
+												</CategoryCourseDialog>
 											</div>
 										))}
 								</div>
 							</div>
 							<Separator orientation="vertical" className="mx-4 h-auto" />
 							<div>
-								<h3 className="text-sm font-semibold">Courses</h3>
-								<div className="flex flex-col space-y-4">
+								<h3 className="mb-3 text-sm font-semibold">Courses</h3>
+								<div className="flex flex-col space-y-1">
 									{courses.data &&
 										courses.data.map(course => (
 											<div key={course.id}>
-												<Button
-													variant={"link"}
-													size={"sm"}
-													className="justify-start pl-0"
-													onClick={() => setIsEditCourseModalOpen(true)}>
-													{course.name}
-												</Button>
-												<CategoryCourseDialog
-													editData={course}
-													open={isEditCourseModalOpen}
-													onOpenChange={setIsEditCourseModalOpen}
-													isCategory={false}
-												/>
+												<CategoryCourseDialog editData={course} isCategory={false}>
+													<Button
+														variant={"link"}
+														size={"sm"}
+														className="h-fit w-full justify-start p-0">
+														{course.name}
+													</Button>
+												</CategoryCourseDialog>
 											</div>
 										))}
 								</div>
@@ -98,31 +87,17 @@ export default function DishesPage() {
 						</CardContent>
 						<Separator />
 						<CardFooter className="flex justify-center gap-4 py-0">
-							<Button
-								size="sm"
-								variant={"link"}
-								className="flex p-0 "
-								onClick={() => setIsAddCategoryModalOpen(true)}>
-								<span className="text-xs">New Category</span>
-							</Button>
-							<Button
-								size="sm"
-								variant={"link"}
-								className="flex p-0"
-								onClick={() => setIsAddCourseModalOpen(true)}>
-								<span className="text-xs">New Course</span>
-							</Button>
+							<CategoryCourseDialog isCategory={true}>
+								<Button size="sm" variant={"link"} className="flex p-0 ">
+									<span className="text-xs">New Category</span>
+								</Button>
+							</CategoryCourseDialog>
+							<CategoryCourseDialog isCategory={false}>
+								<Button size="sm" variant={"link"} className="flex p-0">
+									<span className="text-xs">New Course</span>
+								</Button>
+							</CategoryCourseDialog>
 						</CardFooter>
-						<CategoryCourseDialog
-							open={isAddCategoryModalOpen}
-							onOpenChange={setIsAddCategoryModalOpen}
-							isCategory={true}
-						/>
-						<CategoryCourseDialog
-							open={isAddCourseModalOpen}
-							onOpenChange={setIsAddCourseModalOpen}
-							isCategory={false}
-						/>
 					</Card>
 				</div>
 				<div className="flex-1">

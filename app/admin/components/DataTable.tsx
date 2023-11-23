@@ -27,7 +27,6 @@ import {
 } from "@components/ui/table";
 
 import { DataTablePagination } from "./DataTablePagination";
-// import { DataTableToolbar } from "./DataTableToolbar";
 
 interface DataTableToolbarProps<TData> {
 	table: t<TData>;
@@ -36,12 +35,16 @@ interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];
 	data: TData[];
 	Toolbar: React.ComponentType<DataTableToolbarProps<TData>>;
+	rowClassName?: string;
+	selectFirstRowAsDefault?: boolean;
 }
 
 export function DataTable<TData, TValue>({
 	columns,
 	data,
 	Toolbar,
+	rowClassName,
+	selectFirstRowAsDefault,
 }: DataTableProps<TData, TValue>) {
 	const [rowSelection, setRowSelection] = React.useState({});
 	const [columnVisibility, setColumnVisibility] =
@@ -73,9 +76,11 @@ export function DataTable<TData, TValue>({
 		getFacetedUniqueValues: getFacetedUniqueValues(),
 	});
 
+	React.useEffect(() => {
+		if (selectFirstRowAsDefault) setRowSelection({ "0": true });
+	}, []);
 	return (
 		<div className="space-y-4">
-			{/* <DataTableToolbar table={table} /> */}
 			{Toolbar && <Toolbar table={table} />}
 			<div className="rounded-md border">
 				<Table>
@@ -97,7 +102,10 @@ export function DataTable<TData, TValue>({
 					<TableBody>
 						{table.getRowModel().rows?.length ? (
 							table.getRowModel().rows.map(row => (
-								<TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+								<TableRow
+									key={row.id}
+									data-state={row.getIsSelected() && "selected"}
+									className={rowClassName}>
 									{row.getVisibleCells().map(cell => (
 										<TableCell key={cell.id}>
 											{flexRender(cell.column.columnDef.cell, cell.getContext())}

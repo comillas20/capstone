@@ -147,6 +147,23 @@ export async function deleteCourse(id: number) {
 	});
 }
 
+export async function createSet(name: string) {
+	return await prisma.set.create({
+		data: {
+			name: name,
+		},
+	});
+}
+export async function editSet({ id, name }: { id: number; name: string }) {
+	return await prisma.set.update({
+		data: {
+			name: name,
+		},
+		where: {
+			id: id,
+		},
+	});
+}
 export async function getAllSets() {
 	return await prisma.set.findMany({
 		select: {
@@ -165,11 +182,24 @@ export async function getAllSets() {
 							price: true,
 						},
 					},
-					course: true,
+					course: {
+						select: {
+							id: true,
+							name: true,
+						},
+					},
 				},
 			},
 			createdAt: true,
 			updatedAt: true,
+		},
+	});
+}
+
+export async function deleteSet(id: number) {
+	return await prisma.set.delete({
+		where: {
+			id: id,
 		},
 	});
 }
@@ -179,14 +209,66 @@ export async function getAllSets() {
 // 	data: { subSet: { connect: { id: 18 } } },
 // });
 
+type subset = {
+	id: number;
+	name: string;
+	setID: number;
+	dishes: number[];
+	courseID: number;
+};
+export async function createSubset(subset: subset) {
+	return await prisma.subSet.create({
+		data: {
+			name: subset.name,
+			courseID: subset.courseID,
+			setID: subset.setID,
+			dishes: {
+				connect: subset.dishes.map(dishID => ({ id: dishID })),
+			},
+		},
+		include: {
+			dishes: true,
+			set: true,
+			course: true,
+		},
+	});
+}
+export async function editSubset(subset: subset) {
+	return await prisma.subSet.update({
+		data: {
+			name: subset.name,
+			courseID: subset.courseID,
+			setID: subset.setID,
+			dishes: {
+				disconnect: [],
+				connect: subset.dishes.map(dishID => ({ id: dishID })),
+			},
+		},
+		where: {
+			id: subset.id,
+		},
+		include: {
+			dishes: true,
+			set: true,
+			course: true,
+		},
+	});
+}
+export async function getAllSubSets() {
+	return await prisma.subSet.findMany({
+		include: {
+			dishes: true,
+		},
+	});
+}
+export async function deleteSubset(id: number) {
+	return await prisma.subSet.delete({
+		where: { id: id },
+	});
+}
 async function addDishToSubSet() {
 	await prisma.dish.update({
 		where: { id: 55 },
 		data: { subSet: { connect: { id: 18 } } },
 	});
-}
-
-//temp
-export async function deleteSubsets() {
-	return await prisma.subSet.deleteMany();
 }

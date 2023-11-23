@@ -4,6 +4,7 @@ import {
 	DialogDescription,
 	DialogHeader,
 	DialogTitle,
+	DialogTrigger,
 } from "@components/ui/dialog";
 import useSWR, { useSWRConfig } from "swr";
 import {
@@ -37,7 +38,7 @@ type CategoryCourseDialogProps = {
 		name: string;
 	};
 	isCategory: boolean;
-	onOpenChange: React.Dispatch<React.SetStateAction<boolean>>;
+	children: React.ReactElement<typeof Button>;
 } & React.ComponentProps<typeof Dialog>;
 
 export default function CategoryCourseDialog({
@@ -45,6 +46,7 @@ export default function CategoryCourseDialog({
 	isCategory,
 	open,
 	onOpenChange,
+	children,
 }: CategoryCourseDialogProps) {
 	const { data } = isCategory
 		? useSWR("ccdGetAllCategories", getAllCategories, {
@@ -78,8 +80,9 @@ export default function CategoryCourseDialog({
 	});
 	const [isSaving, startSaving] = useTransition();
 	const { mutate } = useSWRConfig();
+	const [isThisOpen, setIsThisOpen] = useState<boolean>();
 	function onSubmit(values: z.infer<typeof formSchema>) {
-		onOpenChange(false);
+		setIsThisOpen(false);
 		startSaving(async () => {
 			const submit = editData
 				? isCategory
@@ -111,7 +114,8 @@ export default function CategoryCourseDialog({
 	}
 	const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 	return (
-		<Dialog open={open} onOpenChange={onOpenChange}>
+		<Dialog open={isThisOpen} onOpenChange={setIsThisOpen}>
+			<DialogTrigger asChild>{children}</DialogTrigger>
 			<DialogContent>
 				<DialogHeader className="mb-4">
 					<DialogTitle>
