@@ -1,20 +1,20 @@
 import { PencilIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import { cn } from "@lib/utils";
+import { forwardRef } from "react";
 
-export default function EditableButtonText({
-	text,
-	iconClassName,
-	className,
-	iconSize,
-	...props
-}: {
+type EditableButtonTextProps = {
 	text?: string;
 	iconClassName?: string;
 	iconSize?: number;
-} & React.ComponentProps<typeof Button>) {
+} & React.ComponentProps<typeof Button>;
+const EditableButtonText = forwardRef<
+	HTMLButtonElement,
+	EditableButtonTextProps
+>(({ text, iconClassName, className, iconSize, ...props }, ref) => {
 	return (
 		<Button
+			ref={ref}
 			className={cn(
 				"flex items-center justify-center gap-2 text-inherit",
 				className
@@ -24,4 +24,6 @@ export default function EditableButtonText({
 			<PencilIcon className={iconClassName} size={iconSize} />
 		</Button>
 	);
-}
+});
+
+export default EditableButtonText;

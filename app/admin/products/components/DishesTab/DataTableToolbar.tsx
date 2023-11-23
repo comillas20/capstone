@@ -4,7 +4,7 @@ import { Table } from "@tanstack/react-table";
 import { Button } from "@components/ui/button";
 import { Input } from "@components/ui/input";
 import { DataTableViewOptions } from "@app/admin/components//DataTableViewOptions";
-import { Info, PlusCircleIcon } from "lucide-react";
+import { Info, Plus } from "lucide-react";
 import AddEditDialog from "./AddEditDialog";
 import { useState } from "react";
 import useSWR from "swr";
@@ -44,7 +44,7 @@ export function DataTableToolbar<TData>({
 				className="flex"
 				onClick={() => setIsOpen(true)}
 				disabled={categories.data?.length == 0 || courses.data?.length == 0}>
-				<PlusCircleIcon className="mr-2" />
+				<Plus className="mr-2" />
 				Dish
 			</Button>
 			<AddEditDialog open={isOpen} onOpenChange={setIsOpen} />

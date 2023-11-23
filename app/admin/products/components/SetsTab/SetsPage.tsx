@@ -75,6 +75,7 @@ export default function SetsPage() {
 					header: col.header,
 					cell: ({ row, table }) => (
 						<Button
+							key={row.id}
 							variant={"link"}
 							className={cn(
 								"select-none p-0",

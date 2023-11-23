@@ -5,7 +5,7 @@ import { Input } from "@components/ui/input";
 import { DataTableViewOptions } from "@app/admin/components/DataTableViewOptions";
 import { useState } from "react";
 import SetAddEditDialog from "./SetAddEditDialog";
-import { PlusCircleIcon } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Button } from "@components/ui/button";
 
 interface DataTableToolbarProps<TData> {
@@ -30,7 +30,7 @@ export function DataTableToolbar<TData>({
 				<DataTableViewOptions table={table} />
 			</div>
 			<Button size="sm" className="flex" onClick={() => setIsOpen(true)}>
-				<PlusCircleIcon className="mr-2" />
+				<Plus className="mr-2" />
 				Set
 			</Button>
 			<SetAddEditDialog open={isOpen} onOpenChange={setIsOpen} />
