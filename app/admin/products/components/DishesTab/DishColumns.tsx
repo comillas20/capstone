@@ -3,11 +3,16 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@components/ui/checkbox";
 import AddEditDialog from "./AddEditDialog";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { isAvailable } from "../../page";
 import DeleteDialog from "./DeleteDialog";
 import { DataTableColumnHeader } from "@app/admin/components/DataTableColumnHeader";
 import { DataTableRowActions } from "./DataTableRowActions";
+import { CldUploadButton } from "next-cloudinary";
+import { Button } from "@components/ui/button";
+import { saveDishImage } from "../serverActions";
+import { toast } from "@components/ui/use-toast";
+import { mutate } from "swr";
 
 export type Dishes = {
 	id: number;
@@ -47,8 +52,48 @@ export const columns: ColumnDef<Dishes>[] = [
 	{
 		accessorKey: "name",
 		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="Dish" />
+			<DataTableColumnHeader column={column} title="Dish name" />
 		),
+		cell: ({ row }) => {
+			const dishName = row.getValue("name") as string;
+			const [isSaving, startSaving] = useTransition();
+			return (
+				<CldUploadButton
+					uploadPreset="zy3i7msr"
+					className="select-none p-0 hover:underline"
+					onUpload={result => {
+						if (result.info) {
+							if (result.info.hasOwnProperty("public_id")) {
+								const info = result.info as { public_id: string };
+								console.log(info.public_id);
+								if (dishName) {
+									startSaving(async () => {
+										const dishImg = await saveDishImage(info.public_id, dishName);
+
+										if (dishImg) {
+											toast({
+												title: "Success",
+												description:
+													"The image for " + dishName + " is successfully uploaded!",
+												duration: 5000,
+											});
+											mutate("dpGetAllDishes");
+											mutate("aedGetAllCategories");
+											mutate("aedGetAllCourses");
+											mutate("aedGetAllDishes");
+
+											mutate("ssaedGetAllDishes");
+										}
+									});
+								}
+							}
+						}
+					}}
+					options={{ multiple: false }}>
+					{dishName}
+				</CldUploadButton>
+			);
+		},
 	},
 	{
 		accessorKey: "category",
@@ -116,7 +161,7 @@ export const columns: ColumnDef<Dishes>[] = [
 					<DeleteDialog
 						data={row.original}
 						open={isDeleteOpen}
-						onOpenChange={setIsAEOpen}
+						onOpenChange={setIsDeleteOpen}
 					/>
 				</>
 			);

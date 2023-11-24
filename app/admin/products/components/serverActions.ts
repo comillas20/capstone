@@ -54,6 +54,28 @@ export async function editDish(dish: Dish) {
 	return newDish;
 }
 
+export async function saveDishImage(publicID: string, dishName: string) {
+	return await prisma.dish.update({
+		data: {
+			imgHref: publicID,
+		},
+		where: {
+			name: dishName,
+		},
+	});
+}
+
+// export async function deleteDishImage(dishName: string) {
+// 	return await prisma.dish.update({
+// 		data: {
+// 			imgHref: null,
+// 		},
+// 		where: {
+// 			name: dishName,
+// 		},
+// 	});
+// }
+
 export async function deleteDishes(dishes: number[]) {
 	const yeetedDishes = await prisma.dish.deleteMany({
 		where: {

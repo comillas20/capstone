@@ -5,13 +5,14 @@ import React from "react";
 type ProductFiltersProps = {
 	setQuery: React.Dispatch<React.SetStateAction<string>>;
 	setFilters: React.Dispatch<React.SetStateAction<Set<string>>>;
-	categories: string[];
-	sets: string[];
+	categories: {
+		id: number;
+		name: string;
+	}[];
 };
 export default function ProductFilters({
 	setQuery,
 	categories,
-	sets,
 	setFilters,
 }: ProductFiltersProps) {
 	return (
@@ -32,16 +33,16 @@ export default function ProductFilters({
 									// modifying states directly is illegal, so...
 									const newFilters = new Set(prevFilters);
 
-									if (newFilters.has(category)) {
-										newFilters.delete(category);
+									if (newFilters.has(category.name)) {
+										newFilters.delete(category.name);
 									} else {
-										newFilters.add(category);
+										newFilters.add(category.name);
 									}
 
 									return newFilters;
 								});
 							}}>
-							{category}
+							{category.name}
 						</CheckboxWithText>
 					))}
 				</div>

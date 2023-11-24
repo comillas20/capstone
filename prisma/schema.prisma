@@ -25,59 +25,61 @@ model Orders {
 }
 
 model Dish {
-  id          Int       @id @default(autoincrement())
-  name        String    @db.VarChar(50) @unique
+  id          Int      @id @default(autoincrement())
+  name        String   @unique @db.VarChar(50)
   categoryID  Int
-  category    Category  @relation(fields: [categoryID], references: [id], onDelete: Cascade)
+  category    Category @relation(fields: [categoryID], references: [id], onDelete: Cascade)
   courseID    Int
-  course      Course    @relation(fields: [courseID], references: [id], onDelete: Cascade)
+  course      Course   @relation(fields: [courseID], references: [id], onDelete: Cascade)
   subSet      SubSet[] @relation("DishSubSets")
-  orders      Orders[]  @relation("OrderDishes")
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  orders      Orders[] @relation("OrderDishes")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
   isAvailable Boolean
   price       Float
+  imgHref     String?
 }
 
 model Category {
   id   Int    @id @default(autoincrement())
-  name String @db.VarChar(50) @unique
+  name String @unique @db.VarChar(50)
   dish Dish[]
 }
 
 model Course {
-  id   Int    @id @default(autoincrement())
-  name String @db.VarChar(50)
-  dish Dish[]
+  id      Int      @id @default(autoincrement())
+  name    String   @db.VarChar(50) @unique
+  dish    Dish[]
   subsets SubSet[]
 }
 
 model Set {
-  id      Int       @id @default(autoincrement())
-  name    String    @db.VarChar(50)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  subSets SubSet[]
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(50) @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  subSets   SubSet[]
 }
 
 //to allow merging of categories like "Fish/Canton/Vegetable" in the menu/set
 model SubSet {
-  id     Int    @id @default(autoincrement())
-  name   String @db.VarChar(50)
-  setID  Int
-  set    Set    @relation(fields: [setID], references: [id], onDelete: Cascade)
-  dishes Dish[] @relation("DishSubSets")
+  id       Int    @id @default(autoincrement())
+  name     String @db.VarChar(50)
+  setID    Int
+  set      Set    @relation(fields: [setID], references: [id], onDelete: Cascade)
+  dishes   Dish[] @relation("DishSubSets")
   courseID Int
-  course Course @relation(fields: [courseID], references: [id], onDelete: Cascade)
-	@@map("SubSets")
+  course   Course @relation(fields: [courseID], references: [id], onDelete: Cascade)
+
+  @@map("SubSets")
 }
 
 model User {
   id           Int            @id @default(autoincrement())
-  username     String         @db.VarChar(50)
+  username     String         @db.VarChar(50) @unique
   password     String         @db.VarChar(50)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
   preferenceID Int
   preference   UserPreference @relation(fields: [preferenceID], references: [id])
 }
