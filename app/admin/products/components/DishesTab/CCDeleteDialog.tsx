@@ -10,7 +10,7 @@ import { DialogClose } from "@radix-ui/react-dialog";
 import { Button } from "@components/ui/button";
 import { useTransition } from "react";
 import { useSWRConfig } from "swr";
-import { deleteCategory, deleteCourse, deleteDishes } from "../serverActions";
+import { deleteCategory, deleteCourse } from "../serverActions";
 import { toast } from "@components/ui/use-toast";
 
 type CCDeleteDialogProps = {

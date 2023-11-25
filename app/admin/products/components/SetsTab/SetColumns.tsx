@@ -17,7 +17,9 @@ export const columns: ColumnDef<Sets>[] = [
 	{
 		id: "name",
 		accessorKey: "name",
-		header: ({ column }) => <DataTableColumnHeader column={column} title="Set" />,
+		header: ({ column }) => (
+			<DataTableColumnHeader column={column} title="Set name" />
+		),
 		// cell: ({ row }) => (
 		// 	<Button variant={"link"} className="p-0">
 		// 		{row.getValue("name")}
@@ -25,12 +27,14 @@ export const columns: ColumnDef<Sets>[] = [
 		// ),
 	},
 	{
+		id: "Created",
 		accessorKey: "createdAt",
 		header: ({ column }) => (
 			<DataTableColumnHeader column={column} title="Created" />
 		),
 	},
 	{
+		id: "Last Updated",
 		accessorKey: "updatedAt",
 		header: ({ column }) => (
 			<DataTableColumnHeader column={column} title="Last Updated" />

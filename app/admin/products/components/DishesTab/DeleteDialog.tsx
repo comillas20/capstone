@@ -46,7 +46,9 @@ export default function DeleteDialog({
 								onClick={() => {
 									onOpenChange(false);
 									startSaving(async () => {
-										const submitDish = await deleteDishes([data.id]);
+										const submitDish = await deleteDishes([
+											{ id: data.id, imgHref: data.imgHref },
+										]);
 										if (submitDish) {
 											toast({
 												title: "Success",

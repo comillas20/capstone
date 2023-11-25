@@ -10,6 +10,7 @@ import { Separator } from "@components/ui/separator";
 import { useState } from "react";
 import ProductFilters from "./ProductFilters";
 import { CldImage } from "next-cloudinary";
+import ImageNotAvailable from "@components/ImageNotAvailable";
 
 type ProductListProps = {
 	categories: {
@@ -61,14 +62,18 @@ export default function ProductList({ categories, dishes }: ProductListProps) {
 							key={dish.id}
 							className="flex h-fit w-full flex-col drop-shadow-md hover:drop-shadow-xl">
 							<CardContent className="flex flex-1 items-center justify-center p-0">
-								<CldImage
-									width="200"
-									height="240"
-									src={dish.imgHref ? dish.imgHref : ""}
-									sizes="100vw"
-									alt={dish.name}
-									className="bottom-0 left-0 right-0 top-0 h-60 w-full rounded-t-md"
-								/>
+								<ImageNotAvailable className="bottom-0 left-0 right-0 top-0 h-60 w-full">
+									{dish.imgHref && (
+										<CldImage
+											width="200"
+											height="240"
+											src={dish.imgHref}
+											sizes="100vw"
+											alt={dish.name}
+											className="bottom-0 left-0 right-0 top-0 h-60 w-full rounded-t-md"
+										/>
+									)}
+								</ImageNotAvailable>
 							</CardContent>
 							<Separator></Separator>
 							<CardFooter className="flex-col rounded-b-lg bg-primary p-2 text-primary-foreground">

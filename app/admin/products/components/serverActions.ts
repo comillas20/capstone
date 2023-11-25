@@ -1,7 +1,7 @@
 "use server";
 
 import prisma from "@lib/db";
-
+import cloudinary from "cloudinary";
 type Dish = {
 	id: number;
 	name: string;
@@ -54,10 +54,17 @@ export async function editDish(dish: Dish) {
 	return newDish;
 }
 
-export async function saveDishImage(publicID: string, dishName: string) {
+export async function saveDishImage(
+	dishName: string,
+	oldPublicID: string | null,
+	newPublicID: string
+) {
+	if (oldPublicID) {
+		const deleteImg = await deleteImages([oldPublicID]);
+	}
 	return await prisma.dish.update({
 		data: {
-			imgHref: publicID,
+			imgHref: newPublicID,
 		},
 		where: {
 			name: dishName,
@@ -65,25 +72,32 @@ export async function saveDishImage(publicID: string, dishName: string) {
 	});
 }
 
-// export async function deleteDishImage(dishName: string) {
-// 	return await prisma.dish.update({
-// 		data: {
-// 			imgHref: null,
-// 		},
-// 		where: {
-// 			name: dishName,
-// 		},
-// 	});
-// }
+async function deleteImages(public_ids: string[]) {
+	// example: "jakelou/vqupf6q5jlqzxu0rkadm.docx"
+	return await cloudinary.v2.api.delete_resources(public_ids, {
+		type: "upload",
+		resource_type: "image",
+	});
+}
 
-export async function deleteDishes(dishes: number[]) {
+type dishAndImages = { id: number; imgHref: string }[];
+export async function deleteDishes(
+	dishes: { id: number; imgHref: string | null }[]
+) {
 	const yeetedDishes = await prisma.dish.deleteMany({
 		where: {
 			id: {
-				in: dishes,
+				in: dishes.map(dish => dish.id),
 			},
 		},
 	});
+
+	const noNulls = (
+		dishes.filter(dish => dish.imgHref !== null) as dishAndImages
+	).map(dish => dish.imgHref);
+
+	// example: "jakelou/vqupf6q5jlqzxu0rkadm.docx"
+	const yeetImage = await deleteImages(noNulls);
 
 	return yeetedDishes;
 }
@@ -103,6 +117,7 @@ export async function getAllDishes() {
 			createdAt: true,
 			updatedAt: true,
 			isAvailable: true,
+			imgHref: true,
 			price: true,
 		},
 	});

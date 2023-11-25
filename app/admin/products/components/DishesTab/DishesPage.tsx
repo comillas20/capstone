@@ -28,6 +28,7 @@ export default function DishesPage() {
 			course: dish.course.name,
 			createdAt: convertDateToString(dish.createdAt),
 			updatedAt: convertDateToString(dish.updatedAt),
+			imgHref: dish.imgHref,
 			isAvailable: dish.isAvailable ? isAvailable.true : isAvailable.false,
 			price: dish.price,
 		}));
