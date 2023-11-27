@@ -14,6 +14,10 @@ const sidebarNavItems = [
 		title: "Notifications",
 		href: "/admin/settings/notifications",
 	},
+	{
+		title: "Create admin account",
+		href: "/admin/settings/createAccount",
+	},
 ];
 
 export default function SettingsLayout({

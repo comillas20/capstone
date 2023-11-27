@@ -28,6 +28,14 @@
 		},
 		"types": ["@types/d3-ease"]
 	},
-	"include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+	"include": [
+		"next-env.d.ts",
+		"**/*.ts",
+		"**/*.tsx",
+		".next/types/**/*.ts",
+		"app/api/auth/[...nextauth]/options.ts",
+		"app/api/auth/[...nextauth]/options.ts",
+		"app/api/auth/[...nextauth]/options.ts"
+	],
 	"exclude": ["node_modules"]
 }

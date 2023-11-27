@@ -47,3 +47,14 @@ export function convertDateToString(date: Date) {
 
 	return date.toLocaleString("en-US", dateOptions);
 }
+
+export function isEmailValid(email: string): boolean {
+	// Regular expression for a simple email validation
+	const emailRegex = /^[^\s@]+@[^\s@]{3,}\.[^\s@]{2,}$/;
+	return emailRegex.test(email);
+}
+
+export function isPhoneNumberValid(phoneNumber: string): boolean {
+	const phoneNumberRegex = /^(\+63|0)[1-9]\d{9}$/;
+	return phoneNumberRegex.test(phoneNumber);
+}

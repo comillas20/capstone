@@ -19,7 +19,8 @@ export default function RootLayout({
 }) {
 	return (
 		<html lang="en">
-			<body className={twJoin(inter.className, "max-h-screen")}>
+			{/* max-h-screen */}
+			<body className={twJoin(inter.className, "h-screen")}>
 				{children}
 				<Toaster />
 			</body>

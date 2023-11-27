@@ -1,3 +1,5 @@
+import { options } from "@app/api/auth/[...nextauth]/options";
+import SignOutButton from "@app/api/auth/signOut/SignOutButton";
 import { Avatar, AvatarFallback, AvatarImage } from "@components/ui/avatar";
 import { Button } from "@components/ui/button";
 import {
@@ -10,47 +12,67 @@ import {
 	DropdownMenuShortcut,
 	DropdownMenuTrigger,
 } from "@components/ui/dropdown-menu";
+import { UserCircle } from "lucide-react";
+import { getServerSession } from "next-auth";
 import Link from "next/link";
 
-export default function UserNav() {
+export default async function UserNav() {
+	const session = await getServerSession(options);
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
 				<Button variant="ghost" className="relative h-8 w-8 rounded-full">
 					<Avatar className="h-8 w-8">
-						{/* <AvatarImage src="/avatars/01.png" alt="@shadcn" /> */}
-						<AvatarFallback>SC</AvatarFallback>
+						{session && session.user.image && (
+							<AvatarImage src={session.user.image} alt="@shadcn" />
+						)}
+						<AvatarFallback>
+							<UserCircle strokeWidth={1.5} />
+						</AvatarFallback>
 					</Avatar>
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent className="w-56" align="end" forceMount>
 				<DropdownMenuLabel className="font-normal">
 					<div className="flex flex-col space-y-1">
-						<p className="text-sm font-medium leading-none">shadcn</p>
+						<p className="text-sm font-medium leading-none">
+							{session ? session.user.name : "Guest"}
+						</p>
 						<p className="text-xs leading-none text-muted-foreground">
-							m@example.com
+							{session
+								? !!session.user.email
+									? session.user.email
+									: session.user.phoneNumber
+								: "Please sign in"}
 						</p>
 					</div>
 				</DropdownMenuLabel>
 				<DropdownMenuSeparator />
 				<DropdownMenuGroup>
 					<DropdownMenuItem>
-						<Link href="/admin/settings/account">Profile</Link>
+						<Link href="/admin/settings/account" className="h-full w-full">
+							Profile
+						</Link>
 						<DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
 					</DropdownMenuItem>
-					<DropdownMenuItem>
+					{/* <DropdownMenuItem>
 						Billing
 						<DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
-					</DropdownMenuItem>
+					</DropdownMenuItem> */}
 					<DropdownMenuItem>
 						Settings
 						<DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
 					</DropdownMenuItem>
-					<DropdownMenuItem>New Team</DropdownMenuItem>
 				</DropdownMenuGroup>
 				<DropdownMenuSeparator />
 				<DropdownMenuItem>
-					Log out
+					{session ? (
+						<SignOutButton className="flex h-full w-full justify-start p-0" />
+					) : (
+						<Link className="h-full w-full" href="/api/auth/signIn">
+							Sign in
+						</Link>
+					)}
 					<DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
 				</DropdownMenuItem>
 			</DropdownMenuContent>

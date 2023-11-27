@@ -48,14 +48,14 @@ model Category {
 
 model Course {
   id      Int      @id @default(autoincrement())
-  name    String   @db.VarChar(50) @unique
+  name    String   @unique @db.VarChar(50)
   dish    Dish[]
   subsets SubSet[]
 }
 
 model Set {
   id        Int      @id @default(autoincrement())
-  name      String   @db.VarChar(50) @unique
+  name      String   @unique @db.VarChar(50)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   subSets   SubSet[]
@@ -74,20 +74,28 @@ model SubSet {
   @@map("SubSets")
 }
 
-model User {
-  id           Int            @id @default(autoincrement())
-  username     String         @db.VarChar(50) @unique
-  password     String         @db.VarChar(50)
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  preferenceID Int
-  preference   UserPreference @relation(fields: [preferenceID], references: [id])
+model Account {
+  id           Int             @id @default(autoincrement())
+  name         String          @unique
+  email        String?         @unique @db.VarChar(50)
+  phoneNumber  String?         @unique @db.VarChar(11)
+  password     String          @db.Text
+  role         Role            @default(USER)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  preference   UserPreference?
+}
+
+enum Role {
+  USER
+  ADMIN
 }
 
 model UserPreference {
-  id       Int     @id @default(autoincrement())
-  user     User[]
-  darkMode Boolean
+  id        Int     @id @default(autoincrement())
+  account   Account @relation(fields: [accountID], references: [id])
+  accountID Int     @unique
+  darkMode  Boolean
 }
 
 model OtherServices {
