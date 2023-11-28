@@ -73,40 +73,6 @@ export const columns: ColumnDef<Dishes>[] = [
 			const dishName = row.getValue("name") as string;
 			const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
 			return (
-				// <CldUploadButton
-				// 	uploadPreset="zy3i7msr"
-				// 	className="select-none p-0 hover:underline"
-				// 	onUpload={result => {
-				// 		if (result.info) {
-				// 			if (result.info.hasOwnProperty("public_id")) {
-				// 				const info = result.info as { public_id: string };
-				// 				console.log(info.public_id);
-				// 				if (dishName) {
-				// 					startSaving(async () => {
-				// 						const dishImg = await saveDishImage(info.public_id, dishName);
-
-				// 						if (dishImg) {
-				// 							toast({
-				// 								title: "Success",
-				// 								description:
-				// 									"The image for " + dishName + " is successfully uploaded!",
-				// 								duration: 5000,
-				// 							});
-				// 							mutate("dpGetAllDishes");
-				// 							mutate("aedGetAllCategories");
-				// 							mutate("aedGetAllCourses");
-				// 							mutate("aedGetAllDishes");
-
-				// 							mutate("ssaedGetAllDishes");
-				// 						}
-				// 					});
-				// 				}
-				// 			}
-				// 		}
-				// 	}}
-				// 	options={{ multiple: false }}>
-				// 	{dishName}
-				// </CldUploadButton>
 				<div className="flex items-center gap-2">
 					{/* <Button
 						variant={"link"}
@@ -169,16 +135,16 @@ export const columns: ColumnDef<Dishes>[] = [
 		),
 	},
 	{
-		id: "Price/Pack",
+		id: "Price",
 		accessorKey: "price",
 		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="Price/Pack" />
+			<DataTableColumnHeader column={column} title="Price (50 packs)" />
 		),
 		cell: ({ row }) => {
 			const formatted = new Intl.NumberFormat("en-US", {
 				style: "currency",
 				currency: "PHP",
-			}).format(row.getValue("Price/Pack"));
+			}).format(row.getValue("Price"));
 
 			return formatted;
 		},

@@ -1,7 +1,6 @@
-import BranchSwitcher from "@components/BranchSwitcher";
 import { MainNav } from "@components/MainNav";
 import UserNav from "@components/UserNav";
-import Brand from "./components/Brand";
+import Brand from "@components/Brand";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
 	const navBtns = [

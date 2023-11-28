@@ -73,11 +73,20 @@ export async function saveDishImage(
 }
 
 async function deleteImages(public_ids: string[]) {
-	// example: "jakelou/vqupf6q5jlqzxu0rkadm.docx"
-	return await cloudinary.v2.api.delete_resources(public_ids, {
-		type: "upload",
-		resource_type: "image",
+	// example: "jakelou/vqupf6q5jlqzxu0rkadm.png"
+	console.log(public_ids);
+
+	cloudinary.v2.config({
+		cloud_name: "dd16nlxbl",
+		api_key: "985514274842282",
+		api_secret: "yHRVWlXZDIy-MzMa8whumfLwHkM",
 	});
+	try {
+		const deleteResult = await cloudinary.v2.api.delete_resources(public_ids);
+		console.log(deleteResult);
+	} catch (error) {
+		console.error(error);
+	}
 }
 
 type dishAndImages = { id: number; imgHref: string }[];
@@ -95,7 +104,6 @@ export async function deleteDishes(
 	const noNulls = (
 		dishes.filter(dish => dish.imgHref !== null) as dishAndImages
 	).map(dish => dish.imgHref);
-
 	// example: "jakelou/vqupf6q5jlqzxu0rkadm.docx"
 	const yeetImage = await deleteImages(noNulls);
 
@@ -291,10 +299,13 @@ export async function editSubset(subset: subset) {
 		},
 	});
 }
-export async function getAllSubSets() {
+export async function getAllSubSetsInASet(setID: number) {
 	return await prisma.subSet.findMany({
 		include: {
 			dishes: true,
+		},
+		where: {
+			setID: setID,
 		},
 	});
 }
@@ -303,9 +314,27 @@ export async function deleteSubset(id: number) {
 		where: { id: id },
 	});
 }
-async function addDishToSubSet() {
-	await prisma.dish.update({
-		where: { id: 55 },
-		data: { subSet: { connect: { id: 18 } } },
-	});
-}
+
+// async function addDishToSubSet() {
+// 	await prisma.dish.update({
+// 		where: { id: 55 },
+// 		data: { subSet: { connect: { id: 18 } } },
+// 	});
+// }
+
+// export async function isSubSetAlreadyExistsInASet(setID: number, name: string) {
+// 	const result = await prisma.set.findUnique({
+// 		select: {
+// 			subSets: {
+// 				select: {
+// 					name: true,
+// 				},
+// 			},
+// 		},
+// 		where: {
+// 			id: setID,
+// 		},
+// 	});
+
+// 	return !!result?.subSets.find(subSet => subSet.name === name);
+// }

@@ -105,7 +105,7 @@ export default function SetsPage() {
 			{allSets.data && (
 				<div className="grid grid-cols-12 gap-6 pt-4 ">
 					{allSets.data && selectedSet && <SetCard data={selectedSet} />}
-					<div className="col-span-8">
+					<div className="col-span-7">
 						<DataTable
 							data={setTable}
 							columns={setColumns}

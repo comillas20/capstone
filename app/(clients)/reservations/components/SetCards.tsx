@@ -1,111 +1,118 @@
-import { Card, CardHeader, CardTitle, CardContent } from "@components/ui/card";
-import { RadioGroup, RadioGroupItem } from "@components/ui/radio-group";
+import { Card, CardContent, CardHeader, CardTitle } from "@components/ui/card";
 import { Label } from "@components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@components/ui/radio-group";
+import { useEffect } from "react";
 
 type SetCardsProps = {
-	title: string;
-	subSets: {
+	set: {
+		id: number;
 		name: string;
-		dishes: {
-			id: Number;
+		createdAt: Date;
+		updatedAt: Date;
+		subSets: {
+			id: number;
 			name: string;
-			isAvailable: boolean;
-			price: number;
-			category: {
+			dishes: {
 				id: number;
 				name: string;
-			};
+				isAvailable: boolean;
+				price: number;
+				category: {
+					id: number;
+					name: string;
+				};
+			}[];
 			course: {
 				id: number;
 				name: string;
 			};
 		}[];
-	}[];
-	allCategories: {
-		id: number;
-		name: string;
-	}[];
-	selected?: boolean;
-	selectProducts: (
-		dishes:
-			| {
-					id: Number;
-					name: string;
-					isAvailable: boolean;
-					price: number;
-					category: {
-						id: number;
-						name: string;
-					};
-					course: {
-						id: number;
-						name: string;
-					};
-			  }
-			| undefined
-	) => void;
+	};
+	setSelectedDishIDs: React.Dispatch<
+		React.SetStateAction<{ subSetName: string; dishID: number }[]>
+	>;
+	isThisSelected?: boolean;
+	setPrerequisiteToDialog: React.Dispatch<React.SetStateAction<number>>;
 };
 
 export default function SetCards({
-	title,
-	subSets,
-	selected,
-	selectProducts,
-	allCategories,
+	set,
+	setSelectedDishIDs,
+	isThisSelected,
+	setPrerequisiteToDialog,
 }: SetCardsProps) {
-	// Function to check if a category has dishes
-	const categoryHasDishes = (categoryId: number): boolean => {
-		// Find the subset that corresponds to the category
-		const subsetWithCategory = subSets.find(subset =>
-			subset.dishes.some(dish => dish.category.id === categoryId)
-		);
+	//a dictionary where subsets are sorted by courses
+	const subsetsByCourses: { [key: string]: typeof set.subSets } = {};
+	set.subSets.forEach(subSet => {
+		const key = subSet.course.id + "_" + subSet.course.name;
 
-		// If a subset with dishes for the category is found, return true; otherwise, return false
-		return !!subsetWithCategory;
-	};
-
-	// Check all categories
-	const categoriesWithDishes = allCategories.filter(category =>
-		categoryHasDishes(category.id)
-	);
-
-	function findDish(id: string) {
-		for (const subSet of subSets) {
-			const dish = subSet.dishes.find(dish => dish.id.toString() === id);
-			if (dish) return dish;
+		if (!subsetsByCourses[key]) {
+			subsetsByCourses[key] = [];
 		}
-		return undefined;
-	}
+		subsetsByCourses[key].push(subSet);
+	});
+
+	useEffect(() => {
+		setPrerequisiteToDialog(set.subSets.length);
+	}, [set]);
 
 	return (
 		<Card className="w-full border-none">
 			<CardHeader className="text-center">
-				<CardTitle className="text-2xl">{title}</CardTitle>
+				<CardTitle className="text-2xl">{set.name}</CardTitle>
 				<p className="text-muted-foreground">Choose one from each category</p>
 			</CardHeader>
-			<CardContent className="flex flex-row justify-around gap-4">
-				{categoriesWithDishes.map(category => (
-					<div key={category.id}>
-						<h2 className="mb-2 text-lg">{category.name}</h2>
-						<RadioGroup
-							disabled={!selected}
-							onValueChange={e => selectProducts(findDish(e))}
-							defaultValue="none">
+			<CardContent className="flex flex-col justify-center gap-x-16 gap-y-4 lg:flex-row">
+				{Object.keys(subsetsByCourses).map(key => {
+					const [courseID, courseName] = key.split("_");
+					const subSets = subsetsByCourses[key];
+					return (
+						<div
+							key={courseID}
+							className="flex flex-row flex-wrap justify-around gap-8">
 							{subSets
-								.flatMap(subSet =>
-									subSet.dishes.filter(dish => dish.category.name === category.name)
-								)
-								.map(dish => (
-									<Label
-										key={dish.id.toString()}
-										className="flex items-center space-x-2">
-										<RadioGroupItem value={dish.id.toString()} />
-										<span>{dish.name}</span>
-									</Label>
+								.filter(subset => subset.dishes.length !== 0)
+								.map(subSet => (
+									<div key={subSet.id}>
+										<h3 className="text-xs font-medium">{courseName}</h3>
+										<h2 className="mb-2 text-lg font-semibold">{subSet.name}</h2>
+										<RadioGroup
+											disabled={!isThisSelected}
+											onValueChange={e => {
+												const [ssName, dID] = e.split("_jin_");
+												setSelectedDishIDs(selectedDishes => {
+													const doesExistAlready = selectedDishes
+														.map(dish => dish.subSetName)
+														.includes(ssName);
+													return !doesExistAlready
+														? [
+																...selectedDishes,
+																{ subSetName: ssName, dishID: parseInt(dID) },
+														  ]
+														: selectedDishes.map(dish =>
+																dish.subSetName === ssName
+																	? { ...dish, dishID: parseInt(dID) }
+																	: dish
+														  );
+												});
+											}}
+											defaultValue="none">
+											{subSet.dishes.map(dish => (
+												<Label
+													key={dish.id.toString()}
+													className="flex items-center space-x-2">
+													<RadioGroupItem
+														value={subSet.name + "_jin_" + dish.id.toString()}
+													/>
+													<span>{dish.name}</span>
+												</Label>
+											))}
+										</RadioGroup>
+									</div>
 								))}
-						</RadioGroup>
-					</div>
-				))}
+						</div>
+					);
+				})}
 			</CardContent>
 		</Card>
 	);

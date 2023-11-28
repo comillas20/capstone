@@ -1,39 +1,24 @@
 "use client";
 
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { addDays, addYears, isBefore, isSameMonth } from "date-fns";
 import { useState } from "react";
-import { sets, additional_services } from "./temp";
 import { Button, buttonVariants } from "@components/ui/button";
 import { Calendar } from "@components/ui/calendar";
 import { ScrollArea, ScrollBar } from "@components/ui/scroll-area";
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from "@components/ui/dialog";
 import { cn } from "@lib/utils";
-import SetCards from "./SetCards";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@components/ui/tabs";
-import { CheckboxWithText } from "@components/CheckboxWithText";
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from "@components/ui/popover";
-import { PopoverClose } from "@radix-ui/react-popover";
-import { Separator } from "@components/ui/separator";
 import useSWR, { useSWRConfig } from "swr";
-import { getAllCategories, getAllCourses, getAllSets } from "../serverActions";
 import SetPicker from "./SetPicker";
 import PaymentDialog from "./PaymentDialog";
 import { getAllDishes } from "@app/(clients)/clientServerActions";
+import { Session } from "next-auth";
+import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 
-export default function ReservationForm() {
+export default function ReservationForm({
+	session,
+}: {
+	session: Session | null;
+}) {
 	const [selectedDishIDs, setSelectedDishIDs] = useState<
 		{ subSetName: string; dishID: number }[]
 	>([]);
@@ -43,6 +28,7 @@ export default function ReservationForm() {
 	//Note to self: Date type instead of Numbers, so I can use date comparison methods
 	const [month, setMonth] = useState<Date>(currentDate);
 	const allDishes = useSWR("rfGetAllDishes", getAllDishes);
+	const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
 	return (
 		<>
 			<SetPicker
@@ -86,9 +72,10 @@ export default function ReservationForm() {
 					<h3 className="mb-3 text-lg">{date?.toDateString()} - Vacants</h3>
 					<hr className="mb-4" />
 					<ScrollArea>
-						{allDishes.data && (
-							<PaymentDialog
-								dishesByCourse={(() => {
+						{!session && <p>You are not signed in</p>}
+						{allDishes.data &&
+							(() => {
+								const dishesByCourse = (() => {
 									const allSelectedDishes = allDishes.data.filter(dish =>
 										selectedDishIDs.map(d => d.dishID).includes(dish.id)
 									);
@@ -112,12 +99,28 @@ export default function ReservationForm() {
 										});
 									});
 									return dishesByCourses;
-								})()}>
-								<Button disabled={selectedDishIDs.length < prerequisiteToDialog}>
-									9:00am | Brgy. Taft, Narciso St., Surigao City
-								</Button>
-							</PaymentDialog>
-						)}
+								})();
+								return (
+									<>
+										<Button
+											disabled={selectedDishIDs.length < prerequisiteToDialog}
+											onClick={() => {
+												if (session?.user) {
+													setIsPaymentDialogOpen(true);
+												} else {
+													signIn("credentials");
+												}
+											}}>
+											9:00am | Brgy. Taft, Narciso St., Surigao City
+										</Button>
+										<PaymentDialog
+											dishesByCourse={dishesByCourse}
+											open={isPaymentDialogOpen}
+											onOpenChange={setIsPaymentDialogOpen}
+										/>
+									</>
+								);
+							})()}
 
 						<ScrollBar />
 					</ScrollArea>

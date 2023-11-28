@@ -5,7 +5,7 @@ import { Button } from "@components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import useSWR from "swr";
-import SetCards2 from "./SetCards2";
+import SetCards from "./SetCards";
 
 type SetPickerProps = {
 	setSelectedDishIDs: React.Dispatch<
@@ -18,7 +18,12 @@ export default function SetPicker({
 	setPrerequisiteToDialog,
 }: SetPickerProps) {
 	const [selectedSet, setSelectedSet] = useState(0);
-	const allSets = useSWR("spickerGetAllSets", getAllSets);
+	const allSets = useSWR("spickerGetAllSets", async () => {
+		const sets = await getAllSets();
+		return sets.filter(set =>
+			set.subSets.some(subSet => subSet.dishes.length > 0)
+		);
+	});
 
 	return (
 		<div className="mb-14 flex justify-between gap-4 rounded-sm border">
@@ -38,7 +43,7 @@ export default function SetPicker({
 			)}
 			{/* Sets to chose from */}
 			{allSets.data && allSets.data.length !== 0 && (
-				<SetCards2
+				<SetCards
 					set={allSets.data[selectedSet]}
 					setSelectedDishIDs={setSelectedDishIDs}
 					setPrerequisiteToDialog={setPrerequisiteToDialog}

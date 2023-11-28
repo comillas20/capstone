@@ -46,7 +46,7 @@ export default function SetCard({ data }: SetCardProps) {
 		subsetsByCourses[key].push(subSet);
 	});
 	return (
-		<Card className="col-span-4" key={data.id}>
+		<Card className="col-span-5" key={data.id}>
 			<CardHeader className="text-center">
 				<CardTitle className="flex items-center justify-center gap-2 text-2xl">
 					<EditableButtonText
@@ -75,13 +75,13 @@ export default function SetCard({ data }: SetCardProps) {
 							<div key={key} className="mb-2 grid grid-cols-2 gap-x-4">
 								<h5 className="col-span-2 text-primary">{courseName}</h5>
 								{subSets.map(subset => (
-									<div key={subset.id}>
+									<div key={subset.id} className="mb-3">
 										{subSets && (
 											<SubSetAddEditDialog editSubSetData={subset} setID={data.id}>
 												<EditableButtonText
 													text={subset.name}
 													variant={"link"}
-													className="mb-2 p-0 text-lg font-medium"
+													className="p-0 text-lg font-medium"
 													iconClassName="text-primary"
 													iconSize={20}
 												/>

@@ -37,6 +37,7 @@ interface DataTableProps<TData, TValue> {
 	Toolbar: React.ComponentType<DataTableToolbarProps<TData>>;
 	rowClassName?: string;
 	selectFirstRowAsDefault?: boolean;
+	hideAsDefault?: VisibilityState;
 }
 
 export function DataTable<TData, TValue>({
@@ -45,6 +46,7 @@ export function DataTable<TData, TValue>({
 	Toolbar,
 	rowClassName,
 	selectFirstRowAsDefault,
+	hideAsDefault,
 }: DataTableProps<TData, TValue>) {
 	const [rowSelection, setRowSelection] = React.useState({});
 	const [columnVisibility, setColumnVisibility] =
@@ -78,6 +80,7 @@ export function DataTable<TData, TValue>({
 
 	React.useEffect(() => {
 		if (selectFirstRowAsDefault) setRowSelection({ "0": true });
+		if (hideAsDefault) setColumnVisibility(hideAsDefault);
 	}, []);
 	return (
 		<div className="space-y-4">

@@ -300,7 +300,7 @@ export default function AddEditDialog({
 										<FormItem>
 											<div className="flex gap-4 pt-2">
 												<FormLabel className="flex flex-wrap content-center">
-													Price/Pack:
+													Price (50 packs):
 												</FormLabel>
 												<FormControl>
 													<Input

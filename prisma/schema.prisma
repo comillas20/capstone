@@ -17,11 +17,15 @@ model Reservations {
   updatedAt  DateTime @updatedAt
   userID     String
   totalPrice Float
+  status ReservationStatus @default(PENDING)
+  eventDuration DateTime
+  orders Dish[] @relation("ReservationsDishes")
 }
 
-model Orders {
-  id   Int    @id @default(autoincrement())
-  dish Dish[] @relation("OrderDishes")
+enum ReservationStatus {
+  ACCEPTED
+  PENDING
+  DENIED
 }
 
 model Dish {
@@ -32,7 +36,7 @@ model Dish {
   courseID    Int
   course      Course   @relation(fields: [courseID], references: [id], onDelete: Cascade)
   subSet      SubSet[] @relation("DishSubSets")
-  orders      Orders[] @relation("OrderDishes")
+  orders      Reservations[] @relation("ReservationsDishes")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   isAvailable Boolean
@@ -81,6 +85,7 @@ model Account {
   phoneNumber  String?         @unique @db.VarChar(11)
   password     String          @db.Text
   role         Role            @default(USER)
+  image String?
   createdAt    DateTime        @default(now())
   updatedAt    DateTime        @updatedAt
   preference   UserPreference?

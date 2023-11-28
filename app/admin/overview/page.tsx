@@ -12,22 +12,13 @@ import { promises as fs } from "fs";
 import path from "path";
 import { z } from "zod";
 
-import { columns } from "./components/Columns";
+// import { columns } from "./components/Columns";
 import { DataTable } from "@app/admin/components/DataTable";
-import { taskSchema } from "./data/schema";
 import { Separator } from "@components/ui/separator";
 import { DataTableToolbar } from "./components/DataTableToolbar";
 
 // Simulate a database read for tasks.
-async function getTasks() {
-	const data = await fs.readFile(
-		path.join(process.cwd(), "app/admin/overview/data/tasks.json")
-	);
-
-	const tasks = JSON.parse(data.toString());
-
-	return z.array(taskSchema).parse(tasks);
-}
+async function getTasks() {}
 
 export default async function Overview() {
 	const tasks = await getTasks();
@@ -41,7 +32,7 @@ export default async function Overview() {
 					<TabsTrigger value="notifications">Notifications</TabsTrigger>
 				</TabsList>
 			</div>
-			<Separator></Separator>
+			<Separator />
 			<TabsContent value="overview" className="flex flex-col space-y-4 md:block">
 				<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
 					<Card>
@@ -109,7 +100,9 @@ export default async function Overview() {
 					</Card>
 					<Card>
 						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-							<CardTitle className="text-sm font-medium">Active Now</CardTitle>
+							<CardTitle className="text-sm font-medium">
+								Active Reservations
+							</CardTitle>
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
 								viewBox="0 0 24 24"
@@ -123,8 +116,7 @@ export default async function Overview() {
 							</svg>
 						</CardHeader>
 						<CardContent>
-							<div className="text-2xl font-bold">+573</div>
-							<p className="text-xs text-muted-foreground">+201 since last hour</p>
+							<div className="text-2xl font-bold">3</div>
 						</CardContent>
 					</Card>
 				</div>
@@ -150,7 +142,7 @@ export default async function Overview() {
 			</TabsContent>
 			<TabsContent value="reports">
 				<div className="hidden h-full flex-1 flex-col space-y-8 md:flex">
-					<DataTable data={tasks} columns={columns} Toolbar={DataTableToolbar} />
+					{/* <DataTable data={tasks} columns={columns} Toolbar={DataTableToolbar} /> */}
 				</div>
 			</TabsContent>
 		</Tabs>

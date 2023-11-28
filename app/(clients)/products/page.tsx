@@ -14,6 +14,8 @@ export default async function ProductPage() {
 			course: true,
 			imgHref: true,
 			price: true,
+		},
+		where: {
 			isAvailable: true,
 		},
 	});

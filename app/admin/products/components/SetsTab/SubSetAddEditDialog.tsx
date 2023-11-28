@@ -14,7 +14,7 @@ import {
 	editSubset,
 	getAllCourses,
 	getAllDishes,
-	getAllSubSets,
+	getAllSubSetsInASet,
 } from "../serverActions";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -52,6 +52,7 @@ import {
 	DropdownMenuTrigger,
 } from "@components/ui/dropdown-menu";
 import SubSetDeleteDialog from "./SubSetDeleteDialog";
+import SubSetAddDishesByCommand from "./SubSetAddDishesByCommand";
 
 type SubSetAddEditDialogProps = {
 	editSubSetData?: {
@@ -76,7 +77,9 @@ export default function SubSetAddEditDialog({
 	...props
 }: SubSetAddEditDialogProps & React.ComponentProps<typeof Dialog>) {
 	const [isSaving, startSaving] = useTransition();
-	const allSets = useSWR("ssaedGetAllSets", getAllSubSets);
+	const allSubSetsInASet = useSWR("ssaedGetAllSets", () =>
+		getAllSubSetsInASet(setID)
+	);
 	const allDishes = useSWR("ssaedGetAllDishes", getAllDishes);
 
 	const allCourses = useSWR("ssaedGetAllCourses", getAllCourses);
@@ -89,11 +92,11 @@ export default function SubSetAddEditDialog({
 			})
 			.refine(
 				e =>
-					!allSets.data?.find(f => {
+					!allSubSetsInASet.data?.find(subSet => {
 						//If user is editing, then exclude the current name in searching for duplicate
 						const checker = editSubSetData
-							? f.name !== editSubSetData?.name && f.name === e
-							: f.name === e;
+							? subSet.name !== editSubSetData?.name && subSet.name === e
+							: subSet.name === e;
 						return checker;
 					}),
 				{
@@ -137,7 +140,8 @@ export default function SubSetAddEditDialog({
 		form.reset();
 	}, [props.open]);
 	function onSubmit(values: z.infer<typeof formSchema>) {
-		if (props.onOpenChange) props.onOpenChange(false);
+		// if (props.onOpenChange) props.onOpenChange(false);
+		setIsThisDialogOpen(false);
 		startSaving(async () => {
 			const modValues = { ...values, courseID: parseInt(values.courseID) };
 			const submitSubSet = editSubSetData
@@ -158,14 +162,18 @@ export default function SubSetAddEditDialog({
 			}
 		});
 	}
+	const [isThisDialogOpen, setIsThisDialogOpen] = useState(false);
 	const [isOpenDishCommand, setIsOpenDishCommand] = useState(false);
+	const [courseFilterDishes, setCourseFilterDishes] = useState<string>();
 	return (
-		<Dialog>
+		<Dialog open={isThisDialogOpen} onOpenChange={setIsThisDialogOpen}>
 			<DialogTrigger asChild>{children}</DialogTrigger>
 			<DialogContent>
 				<DialogHeader className="mb-4">
-					<DialogTitle>Create</DialogTitle>
-					<DialogDescription>Create a new subset</DialogDescription>
+					<DialogTitle>{editSubSetData ? "Edit" : "Create"}</DialogTitle>
+					<DialogDescription>
+						{editSubSetData ? "Edit subset" : "Create a new subset"}
+					</DialogDescription>
 				</DialogHeader>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -235,7 +243,7 @@ export default function SubSetAddEditDialog({
 											</Button>
 										</div>
 										<FormControl>
-											<CommandDialog
+											{/* <CommandDialog
 												open={isOpenDishCommand}
 												onOpenChange={setIsOpenDishCommand}>
 												<CommandInput placeholder="Search dishes..." />
@@ -270,7 +278,17 @@ export default function SubSetAddEditDialog({
 																))}
 													</CommandGroup>
 												</CommandList>
-											</CommandDialog>
+											</CommandDialog> */}
+											{allDishes.data && (
+												<SubSetAddDishesByCommand
+													dishes={allDishes.data}
+													value={field.value}
+													onChange={field.onChange}
+													open={isOpenDishCommand}
+													onOpenChange={setIsOpenDishCommand}
+													courseFilter={courseFilterDishes}
+												/>
+											)}
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -304,7 +322,10 @@ export default function SubSetAddEditDialog({
 												<DropdownMenuContent className="w-56">
 													<DropdownMenuRadioGroup
 														value={field.value}
-														onValueChange={field.onChange}>
+														onValueChange={e => {
+															field.onChange(e);
+															setCourseFilterDishes(e);
+														}}>
 														{allCourses.data?.map(course => (
 															<DropdownMenuRadioItem
 																key={course.id}

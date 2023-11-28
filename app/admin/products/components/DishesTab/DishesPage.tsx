@@ -42,6 +42,7 @@ export default function DishesPage() {
 	// const [isEditCourseModalOpen, setIsEditCourseModalOpen] = useState(false);
 	//Had to do this to bypass TS type check, @data will only be undefined during loading (e.g. slow internet)
 	const d2 = dishes.data ? dishes.data : [];
+	const hideOnDefault = { Created: true, "Last Updated": false };
 	return (
 		<div className="flex flex-col space-y-2">
 			<div className="flex gap-6 pt-4">
@@ -102,7 +103,12 @@ export default function DishesPage() {
 					</Card>
 				</div>
 				<div className="flex-1">
-					<DataTable data={d2} columns={columns} Toolbar={DataTableToolbar} />
+					<DataTable
+						data={d2}
+						columns={columns}
+						Toolbar={DataTableToolbar}
+						hideAsDefault={hideOnDefault}
+					/>
 				</div>
 			</div>
 		</div>

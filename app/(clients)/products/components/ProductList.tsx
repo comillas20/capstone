@@ -20,7 +20,6 @@ type ProductListProps = {
 	dishes: {
 		id: number;
 		name: string;
-		isAvailable: boolean;
 		price: number;
 		imgHref: string | null;
 		category: {

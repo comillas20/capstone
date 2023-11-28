@@ -21,6 +21,7 @@ import { PopoverClose } from "@radix-ui/react-popover";
 import { addDays } from "date-fns";
 import { useState } from "react";
 import { CheckboxWithText } from "@components/CheckboxWithText";
+import { Input } from "@components/ui/input";
 type PaymentDialogProps = {
 	dishesByCourse: {
 		[courseName: string]: {
@@ -29,11 +30,10 @@ type PaymentDialogProps = {
 			price: number;
 		}[];
 	};
-	children: React.ReactElement<typeof Button>;
-};
+} & React.ComponentProps<typeof Dialog>;
 export default function PaymentDialog({
 	dishesByCourse,
-	children,
+	...props
 }: PaymentDialogProps) {
 	const [numberOfPacks, setNumberOfPacks] = useState<number>(50);
 	const currentDate = new Date();
@@ -47,8 +47,7 @@ export default function PaymentDialog({
 	const [timeLinkName, setTimeLinkName] = useState<string>(defaultTimeLinkName);
 	const [timeUse, setTimeUse] = useState<number>(4);
 	return (
-		<Dialog>
-			<DialogTrigger asChild>{children}</DialogTrigger>
+		<Dialog {...props}>
 			<DialogContent className="sm:max-w-[425px] md:max-w-[500px]">
 				<Tabs defaultValue="confirmation">
 					<TabsContent value="confirmation" className="mt-0 flex flex-col gap-4">
@@ -127,7 +126,7 @@ export default function PaymentDialog({
 											<span className="text-xs font-bold">Hour</span>
 											<span className="text-xs font-bold">Minute</span>
 											<span className="text-xs font-bold">am/pm</span>
-											<input
+											<Input
 												type="number"
 												max={12}
 												min={1}
@@ -143,7 +142,7 @@ export default function PaymentDialog({
 													);
 												}}
 											/>
-											<input
+											<Input
 												type="number"
 												max={59}
 												min={1}
@@ -161,7 +160,6 @@ export default function PaymentDialog({
 											/>
 											<Button
 												variant={"outline"}
-												className="h-8"
 												onClick={() => setMeridiem(meridiem === "am" ? "pm" : "am")}>
 												{meridiem}
 											</Button>
@@ -195,8 +193,8 @@ export default function PaymentDialog({
 											Minimum of <strong className="font-bold">4 hours</strong>
 										</p>
 										<Separator className="my-2"></Separator>
-										<div className="flex justify-around text-base">
-											<input
+										<div className="flex items-center justify-around gap-2 text-base">
+											<Input
 												type="number"
 												max={10}
 												min={4}
