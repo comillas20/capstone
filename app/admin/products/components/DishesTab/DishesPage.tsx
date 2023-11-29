@@ -42,14 +42,14 @@ export default function DishesPage() {
 	// const [isEditCourseModalOpen, setIsEditCourseModalOpen] = useState(false);
 	//Had to do this to bypass TS type check, @data will only be undefined during loading (e.g. slow internet)
 	const d2 = dishes.data ? dishes.data : [];
-	const hideOnDefault = { Created: true, "Last Updated": false };
+	const hideOnDefault = { Created: false, "Last Updated": false };
 	return (
 		<div className="flex flex-col space-y-2">
-			<div className="flex gap-6 pt-4">
+			<div className="grid grid-cols-4 gap-6 pt-4">
 				<div className="mt-12">
 					<Card className="flex flex-col pt-4">
-						<CardContent className="flex flex-1 justify-center">
-							<div>
+						<CardContent className="flex flex-1">
+							<div className="flex-1">
 								<h3 className="mb-3 text-sm font-semibold">Categories</h3>
 								<div className="flex flex-col space-y-1">
 									{categories.data &&
@@ -68,7 +68,7 @@ export default function DishesPage() {
 								</div>
 							</div>
 							<Separator orientation="vertical" className="mx-4 h-auto" />
-							<div>
+							<div className="flex-1">
 								<h3 className="mb-3 text-sm font-semibold">Courses</h3>
 								<div className="flex flex-col space-y-1">
 									{courses.data &&
@@ -88,21 +88,21 @@ export default function DishesPage() {
 							</div>
 						</CardContent>
 						<Separator />
-						<CardFooter className="flex justify-center gap-4 py-0">
+						<CardFooter className="flex gap-4 py-0">
 							<CategoryCourseDialog isCategory={true}>
-								<Button size="sm" variant={"link"} className="flex p-0 ">
+								<Button size="sm" variant={"link"} className="flex flex-1 p-0">
 									<span className="text-xs">New Category</span>
 								</Button>
 							</CategoryCourseDialog>
 							<CategoryCourseDialog isCategory={false}>
-								<Button size="sm" variant={"link"} className="flex p-0">
+								<Button size="sm" variant={"link"} className="flex flex-1 p-0">
 									<span className="text-xs">New Course</span>
 								</Button>
 							</CategoryCourseDialog>
 						</CardFooter>
 					</Card>
 				</div>
-				<div className="flex-1">
+				<div className="col-span-3">
 					<DataTable
 						data={d2}
 						columns={columns}

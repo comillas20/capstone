@@ -169,7 +169,7 @@ export const columns: ColumnDef<Dishes>[] = [
 						onOpenChange={setIsAEOpen}
 					/>
 					<DeleteDialog
-						data={row.original}
+						data={[row.original]}
 						open={isDeleteOpen}
 						onOpenChange={setIsDeleteOpen}
 					/>

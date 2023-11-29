@@ -14,7 +14,7 @@ import { deleteDishes } from "../serverActions";
 import { toast } from "@components/ui/use-toast";
 
 type DeleteDialogProps = {
-	data: Dishes;
+	data: Dishes[];
 	onOpenChange: React.Dispatch<React.SetStateAction<boolean>>;
 } & React.ComponentProps<typeof Dialog>;
 
@@ -31,7 +31,10 @@ export default function DeleteDialog({
 			<DialogContent>
 				<DialogHeader className="mb-4">
 					<DialogTitle className="text-destructive">Delete</DialogTitle>
-					<DialogDescription>Deleting {data.name}</DialogDescription>
+					<DialogDescription>
+						Deleting{" "}
+						{data.length > 1 ? "selected dishes" : data[0] ? data[0].name : "ERROR"}
+					</DialogDescription>
 					<div className="text-destructive">This action cannot be undo. Delete?</div>
 					<div className="flex justify-end gap-4">
 						<DialogClose asChild>
@@ -44,11 +47,14 @@ export default function DeleteDialog({
 								type="button"
 								variant={"destructive"}
 								onClick={() => {
-									onOpenChange(false);
+									const toBeYeeted: { id: number; imgHref: string | null }[] = data.map(
+										d => ({
+											id: d.id,
+											imgHref: d.imgHref,
+										})
+									);
 									startSaving(async () => {
-										const submitDish = await deleteDishes([
-											{ id: data.id, imgHref: data.imgHref },
-										]);
+										const submitDish = await deleteDishes(toBeYeeted);
 										if (submitDish) {
 											toast({
 												title: "Success",
@@ -60,6 +66,7 @@ export default function DeleteDialog({
 											mutate("ssaedGetAllDishes");
 										}
 									});
+									onOpenChange(false);
 								}}
 								disabled={isSaving}>
 								Delete

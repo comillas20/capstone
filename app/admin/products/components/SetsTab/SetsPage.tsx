@@ -42,14 +42,14 @@ export default function SetsPage() {
 	);
 	const selectedSetIndex = useRef(0);
 
-	function changeSet(name: string) {
+	function changeSet(rowData: Sets) {
 		const set =
 			allSets.data && allSets.data.length != 0
-				? allSets.data.find(set => set.name === name)
+				? allSets.data.find(set => set.name === rowData.name)
 				: "N/A";
 		const setIndex =
 			allSets.data && allSets.data.length != 0
-				? allSets.data.findIndex(set => set.name === name)
+				? allSets.data.findIndex(set => set.name === rowData.name)
 				: -1;
 		if (set !== "N/A") {
 			selectedSetIndex.current =
@@ -66,35 +66,35 @@ export default function SetsPage() {
 		  }))
 		: [];
 
-	const setColumns: typeof columns = columns.map(col => {
-		const isSetName = col.id === "name";
-		return isSetName
-			? {
-					id: col.id,
-					accessorKey: "name",
-					header: col.header,
-					cell: ({ row, table }) => (
-						<Button
-							key={row.id}
-							variant={"link"}
-							className={cn(
-								"select-none p-0",
-								selectedSet?.name === row.getValue("name")
-									? "text-primary-foreground"
-									: ""
-							)}
-							onClick={() => {
-								changeSet(row.getValue("name"));
-								table.toggleAllRowsSelected(false);
-								row.toggleSelected(true);
-							}}
-							disabled={row.getIsSelected()}>
-							{row.getValue("name")}
-						</Button>
-					),
-			  }
-			: col;
-	});
+	// const setColumns: typeof columns = columns.map(col => {
+	// 	const isSetName = col.id === "name";
+	// 	return isSetName
+	// 		? {
+	// 				id: col.id,
+	// 				accessorKey: "name",
+	// 				header: col.header,
+	// 				cell: ({ row, table }) => (
+	// 					<Button
+	// 						key={row.id}
+	// 						variant={"link"}
+	// 						className={cn(
+	// 							"select-none p-0",
+	// 							selectedSet?.name === row.getValue("name")
+	// 								? "text-primary-foreground"
+	// 								: ""
+	// 						)}
+	// 						onClick={() => {
+	// 							changeSet(row.getValue("name"));
+	// 							table.toggleAllRowsSelected(false);
+	// 							row.toggleSelected(true);
+	// 						}}
+	// 						disabled={row.getIsSelected()}>
+	// 						{row.getValue("name")}
+	// 					</Button>
+	// 				),
+	// 		  }
+	// 		: col;
+	// });
 
 	useEffect(() => {
 		if (allSets.data) setSelectedSet(allSets.data[selectedSetIndex.current]);
@@ -108,10 +108,10 @@ export default function SetsPage() {
 					<div className="col-span-7">
 						<DataTable
 							data={setTable}
-							columns={setColumns}
+							columns={columns}
 							Toolbar={DataTableToolbar}
-							rowClassName="data-[state=selected]:bg-primary data-[state=selected]:text-primary-foreground"
 							selectFirstRowAsDefault
+							singleSelection={changeSet}
 						/>
 					</div>
 				</div>
