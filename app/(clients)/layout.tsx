@@ -25,7 +25,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 	];
 	return (
 		<div className="flex flex-col md:flex">
-			<nav className="border-b">
+			<nav className="z-50 border-b drop-shadow-2xl">
 				<div className="flex h-16 items-center px-4">
 					<Brand />
 					<MainNav className="mx-6" navBtns={navBtns} />

@@ -43,7 +43,7 @@ export default function ProductList({ categories, dishes }: ProductListProps) {
 				setFilters={setFilters}
 				setQuery={setQuery}
 			/>
-			<div className="grid flex-1 grid-cols-3 gap-4 md:grid-cols-4 lg:grid-cols-5">
+			<div className="flex flex-1 flex-wrap gap-4">
 				{dishes
 					.filter(dish => {
 						// Cannot be attached to the return statement, idk why
@@ -59,7 +59,7 @@ export default function ProductList({ categories, dishes }: ProductListProps) {
 					.map(dish => (
 						<Card
 							key={dish.id}
-							className="flex h-fit w-full flex-col drop-shadow-md hover:drop-shadow-xl">
+							className="flex min-h-[15rem] w-52 flex-col drop-shadow-md hover:drop-shadow-xl">
 							<CardContent className="flex flex-1 items-center justify-center p-0">
 								<ImageNotAvailable className="bottom-0 left-0 right-0 top-0 h-60 w-full">
 									{dish.imgHref && (

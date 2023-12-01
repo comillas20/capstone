@@ -33,7 +33,7 @@ export function DataTablePagination<TData>({
 				</div>
 			)}
 
-			{table.getFilteredRowModel().rows.length >= 5 && (
+			{table.getFilteredRowModel().rows.length > 5 && (
 				<div className="flex items-center space-x-6 lg:space-x-8">
 					<div className="flex items-center space-x-2">
 						<p className="text-sm font-medium">Rows per page</p>

@@ -1,10 +1,8 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { useState } from "react";
 import { DataTableColumnHeader } from "@app/admin/components/DataTableColumnHeader";
 import SetDeleteDialog from "./SetDeleteDialog";
-import { Button } from "@components/ui/button";
 
 export type Sets = {
 	id: number;
@@ -15,7 +13,6 @@ export type Sets = {
 
 export const columns: ColumnDef<Sets>[] = [
 	{
-		id: "name",
 		accessorKey: "name",
 		header: ({ column }) => (
 			<DataTableColumnHeader column={column} title="Set name" />

@@ -4,17 +4,12 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@components/ui/checkbox";
 import { DataTableColumnHeader } from "../../components/DataTableColumnHeader";
 import { DataTableRowActions } from "./DataTableRowActions";
-import { status } from "../page";
-import { convertDateToString } from "@lib/utils";
 
-export type Reservations = {
+type Reservations = {
 	customerName: string;
-	email: string;
-	mobileNumber: string;
 	reservationTime: string;
 	eventTime: string;
 	initialEventDuration: number;
-	status: status;
 };
 export const columns: ColumnDef<Reservations>[] = [
 	{
@@ -46,27 +41,11 @@ export const columns: ColumnDef<Reservations>[] = [
 		),
 	},
 	{
-		accessorKey: "email",
-		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="Email" />
-		),
-	},
-	{
-		id: "Mobile Number",
-		accessorKey: "mobileNumber",
-		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="Mobile Number" />
-		),
-	},
-	{
-		id: "Reserved",
+		id: "Reservation Time",
 		accessorKey: "reservationTime",
 		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="Reserved" />
+			<DataTableColumnHeader column={column} title="Reservation Time" />
 		),
-		cell: ({ cell }) => {
-			return convertDateToString(new Date(cell.getValue() as string));
-		},
 	},
 	{
 		id: "Event Time",
@@ -74,9 +53,6 @@ export const columns: ColumnDef<Reservations>[] = [
 		header: ({ column }) => (
 			<DataTableColumnHeader column={column} title="Event Time" />
 		),
-		cell: ({ cell }) => {
-			return convertDateToString(new Date(cell.getValue() as string));
-		},
 	},
 	{
 		id: "Initial Duration",
@@ -84,9 +60,6 @@ export const columns: ColumnDef<Reservations>[] = [
 		header: ({ column }) => (
 			<DataTableColumnHeader column={column} title="Initial Duration" />
 		),
-		cell: ({ cell }) => {
-			return (cell.getValue() as string) + " hours";
-		},
 	},
 	{
 		accessorKey: "status",

@@ -44,6 +44,7 @@ export default function ReservationForm({
 					onSelect={setDate}
 					month={month}
 					onMonthChange={date => {
+						//Note to self: reading this is @currentDate isBefore @date ?, same way with isSameMonth
 						if (isBefore(currentDate, date) || isSameMonth(currentDate, date))
 							setMonth(date);
 						// where @date is the current date the user is looking at and @currentdate is today's date
@@ -117,6 +118,9 @@ export default function ReservationForm({
 											dishesByCourse={dishesByCourse}
 											open={isPaymentDialogOpen}
 											onOpenChange={setIsPaymentDialogOpen}
+											selectedMonth={month}
+											selectedDate={date}
+											currentDate={currentDate}
 										/>
 									</>
 								);

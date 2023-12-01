@@ -11,15 +11,16 @@ datasource db {
 }
 
 model Reservations {
-  id         Int      @id @default(autoincrement())
-  date       DateTime
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  userID     String
-  totalPrice Float
-  status ReservationStatus @default(PENDING)
-  eventDuration DateTime
-  orders Dish[] @relation("ReservationsDishes")
+  id            Int               @id @default(autoincrement())
+  eventDate     DateTime
+  reservedAt    DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  userID        Int
+  user          Account           @relation(fields: [userID], references: [id])
+  totalPrice    Float
+  status        ReservationStatus @default(PENDING)
+  eventDuration Int
+  orders        Dish[]            @relation("ReservationsDishes")
 }
 
 enum ReservationStatus {
@@ -29,16 +30,16 @@ enum ReservationStatus {
 }
 
 model Dish {
-  id          Int      @id @default(autoincrement())
-  name        String   @unique @db.VarChar(50)
+  id          Int            @id @default(autoincrement())
+  name        String         @unique @db.VarChar(50)
   categoryID  Int
-  category    Category @relation(fields: [categoryID], references: [id], onDelete: Cascade)
+  category    Category       @relation(fields: [categoryID], references: [id], onDelete: Cascade)
   courseID    Int
-  course      Course   @relation(fields: [courseID], references: [id], onDelete: Cascade)
-  subSet      SubSet[] @relation("DishSubSets")
+  course      Course         @relation(fields: [courseID], references: [id], onDelete: Cascade)
+  subSet      SubSet[]       @relation("DishSubSets")
   orders      Reservations[] @relation("ReservationsDishes")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
   isAvailable Boolean
   price       Float
   imgHref     String?
@@ -85,10 +86,11 @@ model Account {
   phoneNumber  String?         @unique @db.VarChar(11)
   password     String          @db.Text
   role         Role            @default(USER)
-  image String?
+  image        String?
   createdAt    DateTime        @default(now())
   updatedAt    DateTime        @updatedAt
   preference   UserPreference?
+  reservations Reservations[]
 }
 
 enum Role {

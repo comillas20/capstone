@@ -47,6 +47,20 @@ export function convertDateToString(date: Date) {
 
 	return date.toLocaleString("en-US", dateOptions);
 }
+/**
+ *
+ * @param time must be in hh:mm format
+ * @returns time in 12 hour format
+ */
+export function convertTimeTo12HourFormat(time: string) {
+	const date = new Date(`2000-01-01T${time}`);
+	const dateOptions = {
+		hour: "numeric",
+		minute: "numeric",
+		hour12: true,
+	} as Intl.DateTimeFormatOptions;
+	return date.toLocaleTimeString([], dateOptions);
+}
 
 export function isEmailValid(email: string): boolean {
 	// Regular expression for a simple email validation

@@ -18,10 +18,11 @@ import {
 import { Separator } from "@components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@components/ui/tabs";
 import { PopoverClose } from "@radix-ui/react-popover";
-import { addDays } from "date-fns";
 import { useState } from "react";
 import { CheckboxWithText } from "@components/CheckboxWithText";
 import { Input } from "@components/ui/input";
+import { convertTimeTo12HourFormat } from "@lib/utils";
+import TimePicker, { Meridiem } from "@components/TimePicker";
 type PaymentDialogProps = {
 	dishesByCourse: {
 		[courseName: string]: {
@@ -30,22 +31,26 @@ type PaymentDialogProps = {
 			price: number;
 		}[];
 	};
+	selectedMonth: Date;
+	selectedDate: Date | undefined;
+	currentDate: Date;
 } & React.ComponentProps<typeof Dialog>;
 export default function PaymentDialog({
 	dishesByCourse,
+	selectedMonth,
+	selectedDate,
+	currentDate,
 	...props
 }: PaymentDialogProps) {
-	const [numberOfPacks, setNumberOfPacks] = useState<number>(50);
-	const currentDate = new Date();
-	const [date, setDate] = useState<Date | undefined>(addDays(currentDate, 3));
-	//Note to self: Date type instead of Numbers, so I can use date comparison methods
-	const [month, setMonth] = useState<Date>(currentDate);
-	const [hour, setHour] = useState<number>(currentDate.getHours() % 12 || 12);
-	const [minutes, setMinutes] = useState<number>(0);
-	const [meridiem, setMeridiem] = useState<"am" | "pm">("am");
 	const defaultTimeLinkName = "Set time";
-	const [timeLinkName, setTimeLinkName] = useState<string>(defaultTimeLinkName);
+	const [timeLinkName, setTimeLinkName] = useState<string>(defaultTimeLinkName); // for display, data not important
+
+	const [numberOfPacks, setNumberOfPacks] = useState<number>(50);
+	const [hour, setHour] = useState<number>(currentDate.getHours() % 12 || 12); //replace with the earliest available slot
+	const [minutes, setMinutes] = useState<number>(0); //replace with the earliest available slot
+	const [meridiem, setMeridiem] = useState<Meridiem>("AM"); //replace with the earliest available slot
 	const [timeUse, setTimeUse] = useState<number>(4);
+	const [time, setTime] = useState<string>(); //24 hour, to store in database
 	return (
 		<Dialog {...props}>
 			<DialogContent className="sm:max-w-[425px] md:max-w-[500px]">
@@ -69,7 +74,7 @@ export default function PaymentDialog({
 							})}
 						</div>
 						<div className="grid grid-cols-2 gap-9">
-							<span className="text-sm font-bold">Number of packs:</span>
+							<span className="text-sm font-bold">Number of packs/dish:</span>
 							<Popover>
 								<PopoverTrigger asChild>
 									<a className="inline cursor-pointer text-primary">{numberOfPacks}</a>
@@ -107,7 +112,7 @@ export default function PaymentDialog({
 						</div>
 						<div className="grid grid-cols-2 gap-x-9">
 							<div className="order-1 text-sm font-bold">Date and Time</div>
-							<span className="order-3">{date?.toDateString()}</span>
+							<span className="order-3">{selectedDate?.toDateString()}</span>
 							<div className="order-2 row-span-2 grid grid-cols-[1fr_auto_1fr]">
 								<div className="text-sm font-bold">Start of event</div>
 								<Separator
@@ -118,19 +123,19 @@ export default function PaymentDialog({
 									<PopoverTrigger asChild>
 										<a className="inline cursor-pointer text-primary">{timeLinkName}</a>
 									</PopoverTrigger>
-									<PopoverContent className="w-60 drop-shadow">
-										<div className="grid grid-cols-3 gap-2">
-											<div className="col-span-3 text-sm font-bold">
-												When do you want to start?
+									<PopoverContent className="w-64 drop-shadow">
+										<div className="flex flex-col gap-4">
+											<div className="text-sm font-bold">
+												What time do you want to start?
 											</div>
-											<span className="text-xs font-bold">Hour</span>
-											<span className="text-xs font-bold">Minute</span>
-											<span className="text-xs font-bold">am/pm</span>
+											{/* <span className="text-center text-xs font-bold">Hour</span>
+											<span className="text-center text-xs font-bold">Minute</span>
+											<span className="text-center text-xs font-bold">am/pm</span>
 											<Input
 												type="number"
 												max={12}
 												min={1}
-												value={hour.toString()}
+												value={hour}
 												onChange={e => {
 													const numericValue = parseInt(e.target.value, 10);
 													setHour(
@@ -146,7 +151,7 @@ export default function PaymentDialog({
 												type="number"
 												max={59}
 												min={1}
-												value={minutes.toString()}
+												value={minutes}
 												onChange={e => {
 													const numericValue = parseInt(e.target.value, 10);
 													setMinutes(
@@ -162,9 +167,17 @@ export default function PaymentDialog({
 												variant={"outline"}
 												onClick={() => setMeridiem(meridiem === "am" ? "pm" : "am")}>
 												{meridiem}
-											</Button>
-											<Separator className="col-span-3 my-2"></Separator>
-											<div className="col-span-3 flex justify-end">
+											</Button> */}
+											<TimePicker
+												hours={hour}
+												onHoursChange={setHour}
+												minutes={minutes}
+												onMinutesChange={setMinutes}
+												meridiem={meridiem}
+												onMeridiemChange={setMeridiem}
+											/>
+											<Separator className="my-2" />
+											<div className="flex justify-end">
 												<PopoverClose asChild>
 													<Button
 														onClick={() => {
@@ -172,6 +185,7 @@ export default function PaymentDialog({
 																minutes < 10
 																	? "0".concat(minutes.toString())
 																	: minutes.toString();
+															setTime((meridiem === "AM" ? hour : hour + 12) + ":" + min);
 															setTimeLinkName(hour + ":" + min + meridiem);
 														}}>
 														Save
@@ -257,6 +271,36 @@ export default function PaymentDialog({
 									<Button>Next</Button>
 								</TabsTrigger>
 							</TabsList>
+						</DialogFooter>
+					</TabsContent>
+					<TabsContent value="payment" className="mt-0 flex flex-col gap-4">
+						<DialogHeader className="mb-4">
+							<DialogTitle>Payment</DialogTitle>
+						</DialogHeader>
+						<div>Number of packs: {numberOfPacks}</div>
+						<div>Month: {selectedMonth.getMonth()}</div>
+						<div>Event Time: {time}</div>
+						<div>Time use: {timeUse}</div>
+						<div className="grid grid-cols-2 gap-9">
+							{Object.keys(dishesByCourse).map(courseName => {
+								const dishes = dishesByCourse[courseName];
+								return (
+									<ul key={courseName}>
+										<span className="text-sm font-bold">{courseName}</span>
+										{dishes.map(dish => (
+											<li key={dish.id.toString()}>{dish.name}</li>
+										))}
+									</ul>
+								);
+							})}
+						</div>
+						<DialogFooter className="mt-4 flex gap-4">
+							<TabsList className="bg-inherit">
+								<TabsTrigger asChild value="additional" type="button">
+									<Button variant={"secondary"}>Back</Button>
+								</TabsTrigger>
+							</TabsList>
+							<Button>Reserve</Button>
 						</DialogFooter>
 					</TabsContent>
 				</Tabs>
