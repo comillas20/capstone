@@ -8,6 +8,7 @@ export async function getAllSets() {
 			name: true,
 			subSets: {
 				select: {
+					id: true,
 					name: true,
 					dishes: {
 						select: {
@@ -19,8 +20,17 @@ export async function getAllSets() {
 							price: true,
 						},
 					},
+					course: {
+						select: {
+							id: true,
+							name: true,
+						},
+					},
+					selectionQuantity: true,
 				},
 			},
+			createdAt: true,
+			updatedAt: true,
 		},
 	});
 

@@ -22,6 +22,7 @@ export default function ReservationForm({
 	const [selectedDishIDs, setSelectedDishIDs] = useState<
 		{ subSetName: string; dishID: number }[]
 	>([]);
+	const [selectedDishIDsViaCB, setSelectedDishIDsViaCB] = useState<string[]>([]);
 	const [prerequisiteToDialog, setPrerequisiteToDialog] = useState<number>(1);
 	const currentDate = new Date();
 	const [date, setDate] = useState<Date | undefined>(addDays(currentDate, 3));
@@ -32,6 +33,7 @@ export default function ReservationForm({
 	return (
 		<>
 			<SetPicker
+				setSelectedDishIDsViaCB={setSelectedDishIDsViaCB}
 				setSelectedDishIDs={setSelectedDishIDs}
 				setPrerequisiteToDialog={setPrerequisiteToDialog}
 			/>
@@ -76,9 +78,14 @@ export default function ReservationForm({
 						{!session && <p>You are not signed in</p>}
 						{allDishes.data &&
 							(() => {
+								const selectedByCheckBoxes = selectedDishIDsViaCB.map(selectedIDs => {
+									const [subSetName, dishID] = selectedIDs.split("_jin_");
+									return { subSetName, dishID: parseInt(dishID) };
+								});
+								const mergedSelectedIDs = selectedDishIDs.concat(selectedByCheckBoxes);
 								const dishesByCourse = (() => {
 									const allSelectedDishes = allDishes.data.filter(dish =>
-										selectedDishIDs.map(d => d.dishID).includes(dish.id)
+										mergedSelectedIDs.map(d => d.dishID).includes(dish.id)
 									);
 									const dishesByCourses: {
 										[key: string]: {
@@ -125,7 +132,6 @@ export default function ReservationForm({
 									</>
 								);
 							})()}
-
 						<ScrollBar />
 					</ScrollArea>
 				</div>

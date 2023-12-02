@@ -14,7 +14,7 @@ type SetCardProps = {
 		updatedAt: Date;
 		subSets: {
 			id: number;
-			name: string;
+			name: string | null;
 			dishes: {
 				id: number;
 				name: string;
@@ -29,6 +29,7 @@ type SetCardProps = {
 				id: number;
 				name: string;
 			};
+			selectionQuantity: number;
 		}[];
 	};
 };
@@ -79,7 +80,7 @@ export default function SetCard({ data }: SetCardProps) {
 										{subSets && (
 											<SubSetAddEditDialog editSubSetData={subset} setID={data.id}>
 												<EditableButtonText
-													text={subset.name}
+													text={subset.name ?? "(No name)"}
 													variant={"link"}
 													className="p-0 text-lg font-medium"
 													iconClassName="text-primary"

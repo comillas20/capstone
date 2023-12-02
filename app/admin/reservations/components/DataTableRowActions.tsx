@@ -1,32 +1,24 @@
 "use client";
 
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
-import { Row } from "@tanstack/react-table";
 
 import { Button } from "@components/ui/button";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
-	DropdownMenuRadioGroup,
-	DropdownMenuRadioItem,
-	DropdownMenuSeparator,
-	DropdownMenuShortcut,
-	DropdownMenuSub,
-	DropdownMenuSubContent,
-	DropdownMenuSubTrigger,
 	DropdownMenuTrigger,
 } from "@components/ui/dropdown-menu";
 
-interface DataTableRowActionsProps<TData> {
-	row: Row<TData>;
+interface DataTableRowActionsProps {
+	onOpenAcceptDialogChange: React.Dispatch<React.SetStateAction<boolean>>;
+	onOpenDenyDialogChange: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export function DataTableRowActions<TData>({
-	row,
-}: DataTableRowActionsProps<TData>) {
-	// const task = taskSchema.parse(row.original);
-
+export function DataTableRowActions({
+	onOpenAcceptDialogChange,
+	onOpenDenyDialogChange,
+}: DataTableRowActionsProps) {
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
@@ -38,26 +30,11 @@ export function DataTableRowActions<TData>({
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end" className="w-[160px]">
-				<DropdownMenuItem>Edit</DropdownMenuItem>
-				<DropdownMenuItem>Make a copy</DropdownMenuItem>
-				<DropdownMenuItem>Favorite</DropdownMenuItem>
-				<DropdownMenuSeparator />
-				<DropdownMenuSub>
-					<DropdownMenuSubTrigger>Labels</DropdownMenuSubTrigger>
-					<DropdownMenuSubContent>
-						{/* <DropdownMenuRadioGroup value={task.label}>
-							{labels.map(label => (
-								<DropdownMenuRadioItem key={label.value} value={label.value}>
-									{label.label}
-								</DropdownMenuRadioItem>
-							))}
-						</DropdownMenuRadioGroup> */}
-					</DropdownMenuSubContent>
-				</DropdownMenuSub>
-				<DropdownMenuSeparator />
-				<DropdownMenuItem>
-					Delete
-					<DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
+				<DropdownMenuItem onSelect={() => onOpenAcceptDialogChange(true)}>
+					Accept
+				</DropdownMenuItem>
+				<DropdownMenuItem onSelect={() => onOpenDenyDialogChange(true)}>
+					Deny
 				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>

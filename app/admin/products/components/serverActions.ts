@@ -233,6 +233,7 @@ export async function getAllSets() {
 							name: true,
 						},
 					},
+					selectionQuantity: true,
 				},
 			},
 			createdAt: true,
@@ -256,10 +257,11 @@ export async function deleteSet(id: number) {
 
 type subset = {
 	id: number;
-	name: string;
+	name: string | null;
 	setID: number;
 	dishes: number[];
 	courseID: number;
+	selectionQuantity: number;
 };
 export async function createSubset(subset: subset) {
 	return await prisma.subSet.create({
@@ -270,6 +272,7 @@ export async function createSubset(subset: subset) {
 			dishes: {
 				connect: subset.dishes.map(dishID => ({ id: dishID })),
 			},
+			selectionQuantity: subset.selectionQuantity,
 		},
 		include: {
 			dishes: true,
@@ -288,6 +291,7 @@ export async function editSubset(subset: subset) {
 				disconnect: [],
 				connect: subset.dishes.map(dishID => ({ id: dishID })),
 			},
+			selectionQuantity: subset.selectionQuantity,
 		},
 		where: {
 			id: subset.id,

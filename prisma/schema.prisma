@@ -69,15 +69,17 @@ model Set {
 //to allow merging of categories like "Fish/Canton/Vegetable" in the menu/set
 model SubSet {
   id       Int    @id @default(autoincrement())
-  name     String @db.VarChar(50)
+  name     String? @db.VarChar(50)
   setID    Int
   set      Set    @relation(fields: [setID], references: [id], onDelete: Cascade)
   dishes   Dish[] @relation("DishSubSets")
   courseID Int
   course   Course @relation(fields: [courseID], references: [id], onDelete: Cascade)
-
+  selectionQuantity Int @default(1) //0 means all dishes are compulsory
   @@map("SubSets")
 }
+
+
 
 model Account {
   id           Int             @id @default(autoincrement())

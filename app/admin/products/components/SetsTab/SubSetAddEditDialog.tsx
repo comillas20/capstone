@@ -42,7 +42,7 @@ import { CheckIcon, TriangleDownIcon } from "@radix-ui/react-icons";
 import { cn } from "@lib/utils";
 import { ScrollArea } from "@components/ui/scroll-area";
 import { Badge } from "@components/ui/badge";
-import { Plus, X } from "lucide-react";
+import { Loader2Icon, Plus, X } from "lucide-react";
 import SubSetAddDishesByCategory from "./SubSetAddDishesByCategory";
 import {
 	DropdownMenu,
@@ -57,7 +57,7 @@ import SubSetAddDishesByCommand from "./SubSetAddDishesByCommand";
 type SubSetAddEditDialogProps = {
 	editSubSetData?: {
 		id: number;
-		name: string;
+		name: string | null;
 		dishes: {
 			id: number;
 			name: string;
@@ -66,6 +66,7 @@ type SubSetAddEditDialogProps = {
 			id: number;
 			name: string;
 		};
+		selectionQuantity: number;
 	};
 	setID: number;
 	children: React.ReactElement<typeof Button>;
@@ -85,39 +86,38 @@ export default function SubSetAddEditDialog({
 	const allCourses = useSWR("ssaedGetAllCourses", getAllCourses);
 	const formSchema = z.object({
 		id: z.number(),
-		name: z
-			.string()
-			.min(1, {
-				message: "Subset name must contain at least 1 character",
-			})
-			.refine(
-				e =>
-					!allSubSetsInASet.data?.find(subSet => {
-						//If user is editing, then exclude the current name in searching for duplicate
-						const checker = editSubSetData
-							? subSet.name !== editSubSetData?.name && subSet.name === e
-							: subSet.name === e;
-						return checker;
-					}),
-				{
-					message: "This subset name already exists!",
-				}
-			),
+		// system will ignore subsets with no names, duplication of them is allowed
+		name: z.string().refine(
+			e =>
+				e === "" ||
+				!allSubSetsInASet.data?.find(subSet => {
+					//If user is editing, then exclude the current name in searching for duplicate
+					const checker = editSubSetData
+						? subSet.name !== editSubSetData.name && subSet.name === e
+						: subSet.name === e;
+					return checker;
+				}),
+			{
+				message: "This subset name already exists!",
+			}
+		),
 		setID: z.number().min(1),
 		dishes: z.array(z.number().min(1)).min(1, {
 			message: "Dishes must contain at least 1 elements",
 		}),
 		courseID: z.string().min(1),
+		selectionQuantity: z.number(),
 	});
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: editSubSetData
 			? {
 					id: editSubSetData.id,
-					name: editSubSetData.name,
+					name: editSubSetData.name ?? "",
 					setID: setID,
 					dishes: editSubSetData.dishes.map(dish => dish.id),
 					courseID: editSubSetData.course.id.toString(),
+					selectionQuantity: editSubSetData.selectionQuantity,
 			  }
 			: {
 					id: -1,
@@ -125,25 +125,36 @@ export default function SubSetAddEditDialog({
 					setID: setID,
 					dishes: [],
 					courseID: "",
+					selectionQuantity: 1,
 			  },
 	});
 	useEffect(() => {
 		form.reset({
 			id: editSubSetData ? editSubSetData.id : -1,
-			name: editSubSetData ? editSubSetData.name : "",
+			name: editSubSetData ? editSubSetData.name ?? "" : "",
 			setID: setID,
 			dishes: editSubSetData ? editSubSetData.dishes.map(dish => dish.id) : [],
 			courseID: editSubSetData ? editSubSetData.course.id.toString() : "",
+			selectionQuantity: editSubSetData ? editSubSetData.selectionQuantity : 1,
 		});
 	}, [editSubSetData, form.reset]);
 	useEffect(() => {
 		form.reset();
 	}, [props.open]);
 	function onSubmit(values: z.infer<typeof formSchema>) {
-		// if (props.onOpenChange) props.onOpenChange(false);
-		setIsThisDialogOpen(false);
+		const modSelectionQuantity =
+			values.selectionQuantity > values.dishes.length
+				? values.dishes.length
+				: values.selectionQuantity;
+		const modName =
+			values.name === "(No Name)" || values.name === "" ? null : values.name;
 		startSaving(async () => {
-			const modValues = { ...values, courseID: parseInt(values.courseID) };
+			const modValues = {
+				...values,
+				name: modName,
+				courseID: parseInt(values.courseID),
+				selectionQuantity: modSelectionQuantity,
+			};
 			const submitSubSet = editSubSetData
 				? await editSubset(modValues)
 				: await createSubset(modValues);
@@ -152,8 +163,8 @@ export default function SubSetAddEditDialog({
 				toast({
 					title: "Success",
 					description: editSubSetData
-						? values.name + " is successfully modified!"
-						: values.name + " is successfully created!",
+						? (modName ?? "(No Name)") + " is successfully modified!"
+						: (modName ?? "(No Name)") + " is successfully created!",
 					duration: 5000,
 				});
 
@@ -161,6 +172,7 @@ export default function SubSetAddEditDialog({
 				mutate("ssaedGetAllSets");
 			}
 		});
+		setIsThisDialogOpen(false);
 	}
 	const [isThisDialogOpen, setIsThisDialogOpen] = useState(false);
 	const [isOpenDishCommand, setIsOpenDishCommand] = useState(false);
@@ -197,7 +209,6 @@ export default function SubSetAddEditDialog({
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>Dishes</FormLabel>
-
 										<div className="grid grid-cols-3 grid-rows-3 gap-x-4 gap-y-2">
 											<ScrollArea className="col-span-2 row-span-3 border">
 												{field.value.map(dish => (
@@ -238,47 +249,13 @@ export default function SubSetAddEditDialog({
 												type="button"
 												variant={"outline"}
 												size={"sm"}
-												onClick={() => field.onChange([])}>
+												onClick={() => {
+													field.onChange([]);
+												}}>
 												Clear all
 											</Button>
 										</div>
 										<FormControl>
-											{/* <CommandDialog
-												open={isOpenDishCommand}
-												onOpenChange={setIsOpenDishCommand}>
-												<CommandInput placeholder="Search dishes..." />
-												<CommandList>
-													<CommandEmpty>No results found.</CommandEmpty>
-													<CommandGroup>
-														{allDishes.data &&
-															allDishes.data
-																.sort((a, b) => a.name.localeCompare(b.name))
-																.map(dish => (
-																	<CommandItem
-																		key={dish.id}
-																		onSelect={() => {
-																			const alreadyExists = field.value.find(id => id === dish.id);
-																			if (alreadyExists) {
-																				const updatedValue = field.value.filter(
-																					id => id !== dish.id
-																				);
-																				field.onChange(updatedValue);
-																			} else field.onChange([...field.value, dish.id]);
-																		}}>
-																		{dish.name}
-																		<CheckIcon
-																			className={cn(
-																				"ml-auto h-4 w-4",
-																				field.value.find(id => id === dish.id)
-																					? "opacity-100"
-																					: "opacity-0"
-																			)}
-																		/>
-																	</CommandItem>
-																))}
-													</CommandGroup>
-												</CommandList>
-											</CommandDialog> */}
 											{allDishes.data && (
 												<SubSetAddDishesByCommand
 													dishes={allDishes.data}
@@ -295,58 +272,85 @@ export default function SubSetAddEditDialog({
 								)}
 							/>
 						)}
-						{allCourses.data && (
+						<div className="grid grid-cols-2 gap-x-2">
+							{allCourses.data && (
+								<FormField
+									control={form.control}
+									name="courseID"
+									render={({ field }) => (
+										<FormItem className="space-x-4">
+											<FormLabel>Course:</FormLabel>
+											<FormControl>
+												<DropdownMenu>
+													<DropdownMenuTrigger asChild>
+														<Button variant="outline">
+															{
+																allCourses.data?.find(
+																	value => value.id === parseInt(field.value, 10)
+																)?.name
+																	? allCourses.data?.find(
+																			value => value.id === parseInt(field.value, 10)
+																	  )?.name
+																	: "--select--"
+																//default name for creating
+															}
+															<TriangleDownIcon className="ml-2" />
+														</Button>
+													</DropdownMenuTrigger>
+													<DropdownMenuContent className="w-56">
+														<DropdownMenuRadioGroup
+															value={field.value}
+															onValueChange={e => {
+																field.onChange(e);
+																setCourseFilterDishes(e);
+															}}>
+															{allCourses.data?.map(course => (
+																<DropdownMenuRadioItem
+																	key={course.id}
+																	value={course.id.toString()}>
+																	{course.name}
+																</DropdownMenuRadioItem>
+															))}
+														</DropdownMenuRadioGroup>
+													</DropdownMenuContent>
+												</DropdownMenu>
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+							)}
 							<FormField
 								control={form.control}
-								name="courseID"
+								name="selectionQuantity"
 								render={({ field }) => (
-									<FormItem className="space-x-4">
-										<FormLabel>Course:</FormLabel>
-										<FormControl>
-											<DropdownMenu>
-												<DropdownMenuTrigger asChild>
-													<Button variant="outline">
-														{
-															allCourses.data?.find(
-																value => value.id === parseInt(field.value, 10)
-															)?.name
-																? allCourses.data?.find(
-																		value => value.id === parseInt(field.value, 10)
-																  )?.name
-																: "--select--"
-															//default name for creating
-														}
-														<TriangleDownIcon className="ml-2" />
-													</Button>
-												</DropdownMenuTrigger>
-												<DropdownMenuContent className="w-56">
-													<DropdownMenuRadioGroup
-														value={field.value}
-														onValueChange={e => {
-															field.onChange(e);
-															setCourseFilterDishes(e);
-														}}>
-														{allCourses.data?.map(course => (
-															<DropdownMenuRadioItem
-																key={course.id}
-																value={course.id.toString()}>
-																{course.name}
-															</DropdownMenuRadioItem>
-														))}
-													</DropdownMenuRadioGroup>
-												</DropdownMenuContent>
-											</DropdownMenu>
-										</FormControl>
+									<FormItem>
+										<div className="grid grid-cols-3 items-center gap-x-4">
+											<FormLabel className="col-span-1">
+												Select quantity of selection:
+											</FormLabel>
+											<FormControl className="col-span-2">
+												<Input
+													type="number"
+													min={0}
+													{...field}
+													onChange={e => field.onChange(parseInt(e.target.value))}
+												/>
+											</FormControl>
+										</div>
 										<FormMessage />
 									</FormItem>
 								)}
 							/>
-						)}
+						</div>
 
 						<div className="flex justify-between gap-4">
 							{editSubSetData && (
 								<SubSetDeleteDialog
-									subSet={{ id: editSubSetData.id, name: editSubSetData.name }}>
+									subSet={{
+										id: editSubSetData.id,
+										name: editSubSetData.name ?? "(No Name)",
+									}}>
 									<Button type="button" variant={"outline"}>
 										Delete
 									</Button>
@@ -363,6 +367,7 @@ export default function SubSetAddEditDialog({
 									</Button>
 								</DialogClose>
 								<Button type="submit" disabled={isSaving}>
+									{isSaving && <Loader2Icon className="mr-2 animate-spin" />}
 									Save
 								</Button>
 							</div>

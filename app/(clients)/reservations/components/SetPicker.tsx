@@ -1,6 +1,6 @@
 "use client";
 
-import { getAllSets } from "@app/(clients)/clientServerActions";
+import { getAllSets } from "../serverActions";
 import { Button } from "@components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
@@ -8,12 +8,14 @@ import useSWR from "swr";
 import SetCards from "./SetCards";
 
 type SetPickerProps = {
+	setSelectedDishIDsViaCB: React.Dispatch<React.SetStateAction<string[]>>;
 	setSelectedDishIDs: React.Dispatch<
 		React.SetStateAction<{ subSetName: string; dishID: number }[]>
 	>;
 	setPrerequisiteToDialog: React.Dispatch<React.SetStateAction<number>>;
 };
 export default function SetPicker({
+	setSelectedDishIDsViaCB,
 	setSelectedDishIDs,
 	setPrerequisiteToDialog,
 }: SetPickerProps) {
@@ -45,6 +47,7 @@ export default function SetPicker({
 			{allSets.data && allSets.data.length !== 0 && (
 				<SetCards
 					set={allSets.data[selectedSet]}
+					setSelectedDishIDsViaCB={setSelectedDishIDsViaCB}
 					setSelectedDishIDs={setSelectedDishIDs}
 					setPrerequisiteToDialog={setPrerequisiteToDialog}
 					isThisSelected
