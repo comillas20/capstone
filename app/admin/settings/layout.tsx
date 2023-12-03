@@ -7,10 +7,6 @@ const sidebarNavItems = [
 		href: "/admin/settings/account",
 	},
 	{
-		title: "Appearance",
-		href: "/admin/settings/appearance",
-	},
-	{
 		title: "Notifications",
 		href: "/admin/settings/notifications",
 	},

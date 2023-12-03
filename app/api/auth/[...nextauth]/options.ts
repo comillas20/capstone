@@ -11,6 +11,7 @@ export const options: NextAuthOptions = {
 	},
 	pages: {
 		signIn: "/api/auth/signIn",
+		error: "/api/auth/signIn",
 	},
 	providers: [
 		CredentialsProvider({
@@ -47,7 +48,8 @@ export const options: NextAuthOptions = {
 					userFound.password
 				);
 
-				if (!password) return null;
+				if (!password)
+					throw new Error("Incorrect email/mobile number and password");
 
 				return {
 					id: `${userFound.id}`,

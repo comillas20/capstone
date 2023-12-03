@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { twJoin } from "tailwind-merge";
 import { Inter } from "next/font/google";
 import { Toaster } from "@components/ui/toaster";
+import { ThemeProvider } from "@components/ThemeProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,10 +19,16 @@ export default function RootLayout({
 	children: React.ReactNode;
 }) {
 	return (
-		<html lang="en">
+		<html lang="en" suppressHydrationWarning>
 			{/* max-h-screen */}
 			<body className={twJoin(inter.className, "h-screen")}>
-				{children}
+				<ThemeProvider
+					attribute="class"
+					defaultTheme="system"
+					enableSystem
+					disableTransitionOnChange>
+					{children}
+				</ThemeProvider>
 				<Toaster />
 			</body>
 		</html>

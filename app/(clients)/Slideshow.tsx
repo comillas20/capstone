@@ -40,6 +40,8 @@ export default function Slideshow() {
 	return (
 		<>
 			<Fade
+				pauseOnHover={false}
+				transitionDuration={1000}
 				cssClass="h-[40rem] w-full bg-secondary"
 				arrows={false}
 				autoplay

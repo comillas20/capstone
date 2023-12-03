@@ -41,6 +41,7 @@
 		"next": "^14.0.2",
 		"next-auth": "^4.24.5",
 		"next-cloudinary": "^5.7.0",
+		"next-themes": "^0.2.1",
 		"react": "latest",
 		"react-day-picker": "^8.8.2",
 		"react-dom": "latest",

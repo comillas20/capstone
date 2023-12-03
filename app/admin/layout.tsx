@@ -1,4 +1,5 @@
 import { MainNav } from "@components/MainNav";
+import { ThemeModeSwitcher } from "@components/ThemeModeSwitcher";
 import UserNav from "@components/UserNav";
 
 export async function generateMetadata() {
@@ -46,6 +47,7 @@ export default function AdminLayout({
 					<MainNav className="mx-6" navBtns={navBtns} />
 					<div className="ml-auto flex items-center space-x-4">
 						{/* <Search /> */}
+						<ThemeModeSwitcher />
 						<UserNav />
 					</div>
 				</div>

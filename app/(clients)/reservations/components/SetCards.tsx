@@ -81,7 +81,9 @@ export default function SetCards({
 									.filter(subset => subset.dishes.length !== 0)
 									.map(subSet => (
 										<div key={subSet.id}>
-											<h2 className="mb-2 text-lg font-semibold">{subSet.name}</h2>
+											<h2 className="mb-2 h-[26px] text-lg font-semibold">
+												{subSet.name}
+											</h2>
 											{subSet.selectionQuantity === 1 ? (
 												<RadioGroup
 													disabled={!isThisSelected}

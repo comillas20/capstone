@@ -48,23 +48,41 @@ export default async function UserNav() {
 					</div>
 				</DropdownMenuLabel>
 				<DropdownMenuSeparator />
-				<DropdownMenuGroup>
-					<DropdownMenuItem>
-						<Link href="/admin/settings/account" className="h-full w-full">
-							Profile
-						</Link>
-						<DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
-					</DropdownMenuItem>
-					{/* <DropdownMenuItem>
-						Billing
-						<DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
-					</DropdownMenuItem> */}
-					<DropdownMenuItem>
-						Settings
-						<DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
-					</DropdownMenuItem>
-				</DropdownMenuGroup>
+				{session && (
+					<DropdownMenuGroup>
+						<DropdownMenuItem>
+							{session && session.user.role === "ADMIN" ? (
+								<Link href="/admin/settings/account" className="h-full w-full">
+									Profile
+								</Link>
+							) : (
+								<Link href="/settings/account" className="h-full w-full">
+									Profile
+								</Link>
+							)}
+						</DropdownMenuItem>
+						<DropdownMenuItem>
+							{session && session.user.role === "ADMIN" ? (
+								<Link href="/admin/settings/notifications" className="h-full w-full">
+									Notifications
+								</Link>
+							) : (
+								<Link href="/settings/notifications" className="h-full w-full">
+									Notifications
+								</Link>
+							)}
+						</DropdownMenuItem>
+					</DropdownMenuGroup>
+				)}
+
 				<DropdownMenuSeparator />
+				{session && session.user.role === "ADMIN" && (
+					<DropdownMenuItem>
+						<Link href="/admin/overview" className="h-full w-full text-primary">
+							ADMIN
+						</Link>
+					</DropdownMenuItem>
+				)}
 				<DropdownMenuItem>
 					{session ? (
 						<SignOutButton className="flex h-full w-full justify-start p-0" />
@@ -73,7 +91,6 @@ export default async function UserNav() {
 							Sign in
 						</Link>
 					)}
-					<DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
 				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>

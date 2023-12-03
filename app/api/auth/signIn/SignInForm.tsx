@@ -24,8 +24,8 @@ import {
 } from "@components/ui/form";
 import { useTransition } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 export default function SignInForm() {
 	const signInSchema = z.object({
@@ -48,13 +48,17 @@ export default function SignInForm() {
 	});
 
 	const [isSubmitting, startSubmitting] = useTransition();
-	const router = useRouter();
-	const onSubmit = async (data: z.infer<typeof signInSchema>) => {
-		const signInData = await signIn("credentials", {
-			emailOrPhoneNumber: data.emailOrPhoneNumber,
-			password: data.password,
-			redirect: true,
-			callbackUrl: "/",
+	const errors = useSearchParams();
+	const onSubmit = (data: z.infer<typeof signInSchema>) => {
+		startSubmitting(async () => {
+			const signInData = await signIn("credentials", {
+				emailOrPhoneNumber: data.emailOrPhoneNumber,
+				password: data.password,
+				redirect: true,
+				callbackUrl: "/",
+			});
+
+			console.log(signInData);
 		});
 	};
 	return (
@@ -128,10 +132,16 @@ export default function SignInForm() {
 							</div>
 						</CardContent>
 						<CardFooter className="flex flex-col gap-4">
-							<Button className="w-full" disabled={isSubmitting}>
-								{isSubmitting && <Loader2 className="animate-spin" />}
-								Sign in
-							</Button>
+							<div className="w-full space-y-2">
+								<Button className="w-full" disabled={isSubmitting}>
+									{isSubmitting && <Loader2 className="animate-spin" />}
+									Sign in
+								</Button>
+								<p className="text-center text-sm font-medium text-destructive">
+									{errors.get("error")}
+								</p>
+							</div>
+
 							<div className="flex w-full justify-between">
 								<Button
 									variant={"link"}
