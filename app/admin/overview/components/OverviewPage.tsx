@@ -1,3 +1,4 @@
+"use client";
 import {
 	Card,
 	CardContent,
@@ -9,10 +10,15 @@ import { Sales } from "@app/admin/overview/components/Sales";
 import { RecentClients } from "@app/admin/overview/components/RecentClients";
 import { Separator } from "@components/ui/separator";
 import { MonthYearPicker } from "@app/admin/overview/components/MonthYearPicker";
-import OverviewCard from "./components/OverviewCard";
+import OverviewCard from ".//OverviewCard";
 import { Activity, DollarSign, UserPlus, UsersIcon } from "lucide-react";
 
-export default async function OverviewPage() {
+type OverviewProps = {
+	cards: {
+		title: string;
+	};
+};
+export default function Overview() {
 	const cards = [
 		{
 			title: "Total Revenue",
@@ -64,7 +70,7 @@ export default async function OverviewPage() {
 				/>
 			),
 			content: "3",
-			description: "1 Accepted, 2 Pending",
+			description: undefined,
 		},
 	];
 	return (
@@ -86,7 +92,6 @@ export default async function OverviewPage() {
 					<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
 						{cards.map(card => (
 							<OverviewCard
-								key={card.title}
 								title={card.title}
 								svg={card.svg}
 								content={card.content}

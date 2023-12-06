@@ -2,9 +2,19 @@ import { Separator } from "@components/ui/separator";
 import { AccountForm } from "./AccountForm";
 import { getServerSession } from "next-auth";
 import { options } from "@app/api/auth/[...nextauth]/options";
+import prisma from "@lib/db";
 
 export default async function SettingsAccountPage() {
 	const session = await getServerSession(options);
+	// session details is static(?), until user log outs
+	const data =
+		session && session.user.provider === "CREDENTIALS"
+			? await prisma.account.findUnique({
+					where: {
+						id: parseInt(session.user.userID),
+					},
+			  })
+			: undefined;
 	return (
 		<div className="space-y-6">
 			<div>
@@ -14,7 +24,9 @@ export default async function SettingsAccountPage() {
 				</p>
 			</div>
 			<Separator />
-			{/* <AccountForm name={session.user.name} /> */}
+			{session && session.user && (
+				<AccountForm user={data ? data : session.user} />
+			)}
 		</div>
 	);
 }

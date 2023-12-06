@@ -8,15 +8,7 @@ import { mutate } from "swr";
 import { saveDishImage } from "../serverActions";
 import { toast } from "@components/ui/use-toast";
 import { DialogClose } from "@radix-ui/react-dialog";
-export default function DishProfileDialog({
-	data,
-	openDialog,
-	onOpenChange,
-}: {
-	data: Dishes;
-	openDialog: boolean;
-	onOpenChange: React.Dispatch<React.SetStateAction<boolean>>;
-}) {
+export default function DishProfileDialog({ data }: { data: Dishes }) {
 	const [isSaving, startSaving] = useTransition();
 	return (
 		<CldUploadWidget
@@ -25,7 +17,6 @@ export default function DishProfileDialog({
 				if (result.info) {
 					if (result.info.hasOwnProperty("public_id")) {
 						const info = result.info as { public_id: string };
-						console.log(info.public_id);
 						if (data.name) {
 							startSaving(async () => {
 								const dishImg = await saveDishImage(

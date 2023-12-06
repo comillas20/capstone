@@ -61,7 +61,7 @@ export default function ProductList({ categories, dishes }: ProductListProps) {
 							key={dish.id}
 							className="flex min-h-[15rem] w-52 flex-col drop-shadow-md hover:drop-shadow-xl">
 							<CardContent className="flex flex-1 items-center justify-center p-0">
-								<ImageNotAvailable className="bottom-0 left-0 right-0 top-0 h-60 w-full">
+								<ImageNotAvailable className="bottom-0 left-0 right-0 top-0 h-60 w-full overflow-hidden">
 									{dish.imgHref && (
 										<CldImage
 											width="200"
@@ -69,7 +69,7 @@ export default function ProductList({ categories, dishes }: ProductListProps) {
 											src={dish.imgHref}
 											sizes="100vw"
 											alt={dish.name}
-											className="bottom-0 left-0 right-0 top-0 h-60 w-full rounded-t-md"
+											className="bottom-0 left-0 right-0 top-0 h-60 w-full rounded-t-md transition-all hover:scale-105"
 										/>
 									)}
 								</ImageNotAvailable>

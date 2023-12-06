@@ -1,19 +1,16 @@
 import NextAuth from "next-auth";
 
-type Role = "ADMIN" | "USER";
+type Roles = "ADMIN" | "USER";
+type Providers = "CREDENTIALS" | "GOOGLE";
 declare module "next-auth" {
 	interface User {
-		phoneNumber: string | null;
-		role: Role;
+		userID: string;
+		phoneNumber?: string | null;
+		role: Roles;
+		provider: Providers;
 	}
 	interface Session {
-		user: User & {
-			phoneNumber: string | null;
-			role: Role;
-		};
-		token: {
-			phoneNumber: string | null;
-			role: Role;
-		};
+		user: User;
+		token: User;
 	}
 }

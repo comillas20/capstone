@@ -17,68 +17,173 @@ import {
 } from "@components/ui/form";
 import { Input } from "@components/ui/input";
 import { toast } from "@components/ui/use-toast";
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import {
+	doesEmailExists,
+	doesNameExists,
+	doesPhoneNumberExists,
+	editAdminAccount,
+	getAccountID,
+} from "./serverActions";
+import { Loader2 } from "lucide-react";
+import AvatarPicker from "@components/AvatarPicker";
 
-const accountFormSchema = z
-	.object({
-		name: z.string().min(2, {
-			message: "Name must be at least 2 characters.",
-		}),
-		email: z
-			.string()
-			.optional()
-			.refine(email => (email ? isEmailValid(email) : true), {
-				message: "Please provide a valid email",
-			}),
-		phone: z
-			.string()
-			.optional()
-			.refine(phone => (phone ? isPhoneNumberValid(phone) : true), {
-				message: "Please provide a valid phone number",
-			}),
-		password: z.string().refine(pass => pass.length >= 8, {
-			message: "Password must have atleast 8 characters",
-		}),
-		confirmPassword: z.string(),
-	})
-	.refine(data => data.password === data.confirmPassword, {
-		message: "Passwords don't match",
-		path: ["confirmPassword"], // path of error
-	});
-
-type AccountFormValues = z.infer<typeof accountFormSchema>;
 type AccountFormProps = {
-	name: string;
+	user: {
+		name?: string | null | undefined;
+		email?: string | null | undefined;
+		image?: string | null | undefined;
+		phoneNumber?: string | null | undefined;
+	};
 };
 
-export function AccountForm({ name }: AccountFormProps) {
+export function AccountForm({ user }: AccountFormProps) {
 	const [isEmailPhoneBothEmpty, setIsEmailPhoneBothEmpty] = useState(false);
-	const defaultValues: Partial<AccountFormValues> = {
-		name: name ? name : "",
-	};
+	const accountFormSchema = z
+		.object({
+			name: z
+				.string()
+				.min(2, {
+					message: "Name must be at least 2 characters.",
+				})
+				.refine(async name => name === user.name || !(await doesNameExists(name)), {
+					message: "Name already exists",
+				}),
+			image: z.string(),
+			email: z
+				.string()
+				.optional()
+				.superRefine(async (email, ctx) => {
+					if (!email) {
+						return email; // Return early if email is empty
+					}
+
+					if (!isEmailValid(email)) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.custom,
+							message: "Please provide a valid email",
+							fatal: true,
+						});
+						return z.NEVER;
+					}
+
+					if (email !== user.email && (await doesEmailExists(email))) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.custom,
+							message: "Email already exists",
+						});
+					}
+
+					return email;
+				}),
+			phone: z
+				.string()
+				.optional()
+				.superRefine(async (phone, ctx) => {
+					if (!phone) {
+						return phone; // Return early if email is empty
+					}
+
+					if (!isPhoneNumberValid(phone)) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.custom,
+							message: "Please provide a valid phone number",
+							fatal: true,
+						});
+						return z.NEVER;
+					}
+
+					if (phone !== user.phoneNumber && (await doesPhoneNumberExists(phone))) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.custom,
+							message: "Phone number already exists",
+						});
+					}
+
+					return phone;
+				}),
+			password: z
+				.string()
+				// either value is empty (no modification) or value have more than or equal 8 characters (modifying)
+				.refine(value => value.length === 0 || value.length >= 8, {
+					message: "Password must have atleast 8 characters",
+				})
+				.optional(),
+			confirmPassword: z.string().optional(),
+		})
+		.refine(data => data.password === data.confirmPassword, {
+			message: "Passwords don't match",
+			path: ["confirmPassword"], // path of error
+		});
+
+	type AccountFormValues = z.infer<typeof accountFormSchema>;
+
 	const form = useForm<AccountFormValues>({
 		resolver: zodResolver(accountFormSchema),
-		defaultValues,
+		defaultValues: {
+			name: user.name ? user.name : "",
+			image: user.image ? user.image : "",
+			email: user.email ? user.email : "",
+			phone: user.phoneNumber ? user.phoneNumber : "",
+			password: "",
+			confirmPassword: "",
+		},
 	});
 
+	const [isSubmitting, startSubmitting] = useTransition();
 	function onSubmit(data: AccountFormValues) {
 		if (!data.email && !data.phone) {
 			setIsEmailPhoneBothEmpty(true);
 			return;
+		} else {
+			startSubmitting(async () => {
+				type AdminData = {
+					id: number;
+					name?: string;
+					image?: string;
+					email?: string;
+					phoneNumber?: string;
+					password?: string;
+				};
+				// Note to self: id apparently always undefined in session
+				// so I had to get the user's id via the user's name
+				if (!user.name) return;
+				const updateData: AdminData = {
+					id: await getAccountID(user.name),
+					name: data.name,
+					image: data.image,
+					email: data.email,
+					phoneNumber: data.phone,
+					password: data.password,
+				};
+				console.log(updateData.id);
+				const admin = await editAdminAccount(updateData);
+
+				if (admin) {
+					toast({
+						title: "Success",
+						description: "Changes are saved successfully.",
+						duration: 5000,
+					});
+				} else {
+					toast({
+						variant: "destructive",
+						title: "Failed",
+						description: "Changed failed to save.",
+						duration: 5000,
+					});
+				}
+				form.reset();
+			});
 		}
-		toast({
-			title: "You submitted the following values:",
-			description: (
-				<pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-					<code className="text-white">{JSON.stringify(data, null, 2)}</code>
-				</pre>
-			),
-		});
 	}
 
 	return (
 		<Form {...form}>
-			<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+			<form
+				onSubmit={form.handleSubmit(onSubmit)}
+				className="space-y-8"
+				encType="multipart/form-data">
 				<FormField
 					control={form.control}
 					name="name"
@@ -88,9 +193,23 @@ export function AccountForm({ name }: AccountFormProps) {
 							<FormControl>
 								<Input placeholder="Your name" {...field} />
 							</FormControl>
-							<FormDescription>
-								This is the name that will be displayed on your profile and in emails.
-							</FormDescription>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+				<FormField
+					control={form.control}
+					name="image"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Profile Image</FormLabel>
+							<FormControl>
+								<AvatarPicker value={field.value} onValueChange={field.onChange}>
+									<Button className="block" variant={"outline"}>
+										Select an image
+									</Button>
+								</AvatarPicker>
+							</FormControl>
 							<FormMessage />
 						</FormItem>
 					)}
@@ -169,7 +288,10 @@ export function AccountForm({ name }: AccountFormProps) {
 						</FormItem>
 					)}
 				/>
-				<Button type="submit">Update account</Button>
+				<Button type="submit" disabled={isSubmitting}>
+					{isSubmitting && <Loader2 className="mr-2 animate-spin" />}
+					Save Changes
+				</Button>
 			</form>
 		</Form>
 	);

@@ -2,13 +2,18 @@ import { Separator } from "@components/ui/separator";
 import { SidebarNav } from "@components/SideBarNav";
 
 const sidebarNavItems = [
+	{ title: "General", href: "/admin/settings/general" },
 	{
 		title: "Account",
 		href: "/admin/settings/account",
 	},
+	// {
+	// 	title: "Notifications",
+	// 	href: "/admin/settings/notifications",
+	// },
 	{
-		title: "Notifications",
-		href: "/admin/settings/notifications",
+		title: "Backup & Restore",
+		href: "/admin/settings/snapshot",
 	},
 	{
 		title: "Create admin account",

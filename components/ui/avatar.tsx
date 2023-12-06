@@ -4,6 +4,7 @@ import * as React from "react";
 import * as AvatarPrimitive from "@radix-ui/react-avatar";
 
 import { cn } from "@lib/utils";
+import { CldImage } from "next-cloudinary";
 
 const Avatar = React.forwardRef<
 	React.ElementRef<typeof AvatarPrimitive.Root>,
@@ -47,4 +48,19 @@ const AvatarFallback = React.forwardRef<
 ));
 AvatarFallback.displayName = AvatarPrimitive.Fallback.displayName;
 
-export { Avatar, AvatarImage, AvatarFallback };
+const AvatarCloudinaryImage = (
+	props: React.ComponentProps<typeof CldImage>
+) => {
+	return (
+		<CldImage
+			width={props.width}
+			height={props.height}
+			src={props.src}
+			sizes={props.sizes ?? "100vw"}
+			alt={props.alt}
+			className={cn("h-full w-full")}
+		/>
+	);
+};
+
+export { Avatar, AvatarImage, AvatarFallback, AvatarCloudinaryImage };

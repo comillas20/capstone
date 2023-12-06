@@ -1,6 +1,10 @@
 import { options } from "@app/api/auth/[...nextauth]/options";
 import SignOutButton from "@app/api/auth/signOut/SignOutButton";
-import { Avatar, AvatarFallback, AvatarImage } from "@components/ui/avatar";
+import {
+	Avatar,
+	AvatarCloudinaryImage,
+	AvatarImage,
+} from "@components/ui/avatar";
 import { Button } from "@components/ui/button";
 import {
 	DropdownMenu,
@@ -9,26 +13,57 @@ import {
 	DropdownMenuItem,
 	DropdownMenuLabel,
 	DropdownMenuSeparator,
-	DropdownMenuShortcut,
 	DropdownMenuTrigger,
 } from "@components/ui/dropdown-menu";
+import prisma from "@lib/db";
 import { UserCircle } from "lucide-react";
 import { getServerSession } from "next-auth";
 import Link from "next/link";
 
 export default async function UserNav() {
 	const session = await getServerSession(options);
+	// session details is static(?), until user log outs
+	const data =
+		session &&
+		session.user.userID &&
+		session.user.provider === "CREDENTIALS" &&
+		(await prisma.account.findUnique({
+			where: {
+				id: parseInt(session.user.userID),
+			},
+		}));
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
-				<Button variant="ghost" className="relative h-8 w-8 rounded-full">
-					<Avatar className="h-8 w-8">
-						{session && session.user.image && (
-							<AvatarImage src={session.user.image} alt="@shadcn" />
-						)}
-						<AvatarFallback>
-							<UserCircle strokeWidth={1.5} />
-						</AvatarFallback>
+				<Button variant="outline" size={"icon"} className="relative rounded-full">
+					<Avatar className="flex h-full w-full items-center justify-center rounded-full bg-muted">
+						{session &&
+							(() => {
+								if (data && data.image && session.user.provider === "CREDENTIALS") {
+									return (
+										<AvatarCloudinaryImage
+											width={200}
+											height={240}
+											src={data.image}
+											sizes="100vw"
+											alt={data.name ?? "User image"}
+											className="h-full w-full"
+										/>
+									);
+								} else if (
+									session.user.name &&
+									session.user.image &&
+									session.user.provider === "GOOGLE"
+								) {
+									return (
+										<AvatarImage
+											src={session.user.image}
+											alt={session.user.name ?? "User image"}
+										/>
+									);
+								}
+							})()}
+						{(!session || !session.user.image) && <UserCircle strokeWidth={1.5} />}
 					</Avatar>
 				</Button>
 			</DropdownMenuTrigger>
@@ -85,7 +120,7 @@ export default async function UserNav() {
 				)}
 				<DropdownMenuItem>
 					{session ? (
-						<SignOutButton className="flex h-full w-full justify-start p-0" />
+						<SignOutButton className="flex h-full w-full justify-start p-0 hover:no-underline" />
 					) : (
 						<Link className="h-full w-full" href="/api/auth/signIn">
 							Sign in

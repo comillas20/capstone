@@ -4,6 +4,8 @@ import { columns } from "./components/Columns";
 import { DataTable } from "@app/admin/components/DataTable";
 import { DataTableToolbar } from "./components/DataTableToolbar";
 import dummyReservations from "./dummyData";
+import { Calendar } from "@components/ui/calendar";
+import AdminCalendar from "./components/AdminCalendar";
 
 // Simulate a database read for tasks.
 async function getTasks() {}
@@ -19,11 +21,14 @@ export default async function ReservationsPage() {
 					</p>
 				</div>
 			</div>
-			<DataTable
-				data={dummyReservations}
-				columns={columns}
-				Toolbar={DataTableToolbar}
-			/>
+			<div className="flex gap-4">
+				<AdminCalendar />
+				<DataTable
+					data={dummyReservations}
+					columns={columns}
+					Toolbar={DataTableToolbar}
+				/>
+			</div>
 		</div>
 	);
 }

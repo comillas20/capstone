@@ -35,10 +35,10 @@ export default function AdminLayout({
 			name: "Products",
 			href: "/admin/products",
 		},
-		{
-			name: "Settings",
-			href: "/admin/settings",
-		},
+		// {
+		// 	name: "Settings",
+		// 	href: "/admin/settings",
+		// },
 	];
 	return (
 		<div className="flex flex-col md:flex">

@@ -52,11 +52,14 @@ export const options: NextAuthOptions = {
 					throw new Error("Incorrect email/mobile number and password");
 
 				return {
-					id: `${userFound.id}`,
+					id: userFound.id.toString(), //doesnt work, but causes an error when deleted
+					userID: userFound.id.toString(),
 					name: userFound.name,
+					image: userFound.image,
 					email: userFound.email,
 					phoneNumber: userFound.phoneNumber,
 					role: userFound.role,
+					provider: "CREDENTIALS",
 				};
 			},
 		}),
@@ -70,9 +73,10 @@ export const options: NextAuthOptions = {
 
 				return {
 					...profile,
-					id: profile.sub,
+					userID: profile.sub,
 					role: userRole,
 					image: profile.picture,
+					provider: "GOOGLE",
 				};
 			},
 			clientId: process.env.GOOGLE_ID as string,
@@ -84,8 +88,10 @@ export const options: NextAuthOptions = {
 			if (user) {
 				return {
 					...token,
+					userID: user.userID,
 					phoneNumber: user.phoneNumber,
 					role: user.role,
+					provider: user.provider,
 				};
 			}
 			return token;
@@ -95,8 +101,10 @@ export const options: NextAuthOptions = {
 				...session,
 				user: {
 					...session.user,
+					userID: token.userID,
 					phoneNumber: token.phoneNumber,
 					role: token.role,
+					provider: token.provider,
 				},
 			};
 		},

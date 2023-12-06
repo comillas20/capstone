@@ -26,7 +26,7 @@ interface CheckboxGroupProps {
 	className?: string;
 	maxChecks: number;
 	onCheckedValuesChange: (checkedValues: string[]) => void;
-	disabled?: boolean; //outside usage, e.g. when the set this CBG is under is not selected
+	disabled?: boolean; //outside usage, e.g. when the set this CBG is under is not selected/visible
 }
 
 // The group component
