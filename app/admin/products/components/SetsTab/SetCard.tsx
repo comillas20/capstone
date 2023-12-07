@@ -10,6 +10,7 @@ type SetCardProps = {
 	data: {
 		id: number;
 		name: string;
+		minimumPerHead: number;
 		createdAt: Date;
 		updatedAt: Date;
 		subSets: {
@@ -35,7 +36,11 @@ type SetCardProps = {
 };
 export default function SetCard({ data }: SetCardProps) {
 	const [isEditSetOpen, setIsEditSetOpen] = useState(false);
-	const editSetNameData = data && { id: data?.id, name: data?.name };
+	const editSetData = data && {
+		id: data.id,
+		name: data.name,
+		minimumPerHead: data.minimumPerHead,
+	};
 
 	const subsetsByCourses: { [key: string]: typeof data.subSets } = {};
 	data.subSets.forEach(subSet => {
@@ -52,15 +57,15 @@ export default function SetCard({ data }: SetCardProps) {
 				<CardTitle className="flex items-center justify-center gap-2 text-2xl">
 					<EditableButtonText
 						key={data.name}
-						text={data?.name}
+						text={data.name}
 						variant={"link"}
 						className="p-0 text-2xl"
 						iconClassName="text-primary"
 						onClick={() => setIsEditSetOpen(true)}
 					/>
-					{editSetNameData && (
+					{editSetData && (
 						<SetAddEditDialog
-							editSetNameData={editSetNameData}
+							editSetData={editSetData}
 							open={isEditSetOpen}
 							onOpenChange={setIsEditSetOpen}
 						/>

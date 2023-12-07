@@ -72,6 +72,7 @@ interface CheckboxItemProps {
 	value: string;
 	name: string;
 	className?: string;
+	disabled?: boolean;
 }
 
 // The item component
@@ -79,6 +80,7 @@ export const CheckboxItem: React.FC<CheckboxItemProps> = ({
 	value,
 	name,
 	className,
+	disabled,
 }) => {
 	// Use the context to access the checked values and function to change them
 	const { checkedValues, setCheckedValues, isDisabled, maxChecks } = useContext(
@@ -106,7 +108,7 @@ export const CheckboxItem: React.FC<CheckboxItemProps> = ({
 				className="group/check"
 				checked={isChecked}
 				onCheckedChange={toggleCheck}
-				disabled={maxChecks === 0 || (isDisabled && !isChecked)}
+				disabled={disabled || maxChecks === 0 || (isDisabled && !isChecked)}
 			/>
 			{name}
 		</label>

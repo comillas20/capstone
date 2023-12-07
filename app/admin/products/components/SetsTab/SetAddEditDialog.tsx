@@ -9,7 +9,12 @@ import {
 } from "@components/ui/dialog";
 import { useEffect, useTransition } from "react";
 import useSWR, { mutate } from "swr";
-import { createSet, editSet, getAllSets } from "../serverActions";
+import {
+	createSet,
+	doesSetExists,
+	editSet,
+	getAllSets,
+} from "../serverActions";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,54 +30,61 @@ import { DialogClose } from "@radix-ui/react-dialog";
 import { Input } from "@components/ui/input";
 import { toast } from "@components/ui/use-toast";
 
+type SetAddEditDialogProps = {
+	editSetData?: { id: number; name: string; minimumPerHead: number };
+} & React.ComponentProps<typeof Dialog>;
 export default function SetAddEditDialog({
-	editSetNameData,
+	editSetData,
 	...props
-}: { editSetNameData?: { id: number; name: string } } & React.ComponentProps<
-	typeof Dialog
->) {
+}: SetAddEditDialogProps) {
 	const [isSaving, startSaving] = useTransition();
-	const { data } = useSWR("saedGetAllSets", getAllSets, {
-		revalidateOnReconnect: true,
-	});
 	const formSchema = z.object({
 		id: z.number(),
 		name: z
 			.string()
 			.min(1)
-			.refine(e => !data?.find(f => f.name === e), {
-				message: "This set name already exists!",
-			}),
+			.refine(
+				// ignore own name in checking duplicate name when editing
+				async value =>
+					editSetData ? value === editSetData.name : !(await doesSetExists(value)),
+				{
+					message: "This set name already exists!",
+				}
+			),
+		minimumPerHead: z.number(),
 	});
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
-		defaultValues: editSetNameData
+		defaultValues: editSetData
 			? {
-					id: editSetNameData.id,
-					name: editSetNameData.name,
+					id: editSetData.id,
+					name: editSetData.name,
+					minimumPerHead: editSetData.minimumPerHead,
 			  }
 			: {
 					id: -1,
 					name: "",
+					minimumPerHead: 50,
 			  },
 	});
 	useEffect(() => {
 		form.reset({
-			id: editSetNameData ? editSetNameData.id : -1,
-			name: editSetNameData ? editSetNameData.name : "",
+			id: editSetData ? editSetData.id : -1,
+			name: editSetData ? editSetData.name : "",
+			minimumPerHead: editSetData ? editSetData.minimumPerHead : 50,
 		});
-	}, [editSetNameData, form.reset]);
+	}, [editSetData, form.reset]);
 	function onSubmit(values: z.infer<typeof formSchema>) {
 		if (props.onOpenChange) props.onOpenChange(false);
 		startSaving(async () => {
-			const submitSet = editSetNameData
-				? await editSet(values)
-				: await createSet(values.name);
+			const submitSet = editSetData
+				? await editSet(values.id, values.name, values.minimumPerHead)
+				: await createSet(values.name, values.minimumPerHead);
 
 			if (submitSet) {
 				toast({
 					title: "Success",
-					description: editSetNameData
+					description: editSetData
 						? values.name + " is successfully modified!"
 						: values.name + " is successfully created!",
 					duration: 5000,
@@ -87,9 +99,9 @@ export default function SetAddEditDialog({
 		<Dialog {...props}>
 			<DialogContent>
 				<DialogHeader className="mb-4">
-					<DialogTitle>{editSetNameData ? "Edit" : "Create"}</DialogTitle>
+					<DialogTitle>{editSetData ? "Edit" : "Create"}</DialogTitle>
 					<DialogDescription>
-						{editSetNameData ? "Edit " + editSetNameData.name : "Create a new set"}
+						{editSetData ? "Edit " + editSetData.name : "Create a new set"}
 					</DialogDescription>
 				</DialogHeader>
 				<Form {...form}>
@@ -102,6 +114,19 @@ export default function SetAddEditDialog({
 									<FormLabel>Name</FormLabel>
 									<FormControl>
 										<Input {...field} />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
+							name="minimumPerHead"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Minimum/head</FormLabel>
+									<FormControl>
+										<Input type="number" {...field} />
 									</FormControl>
 									<FormMessage />
 								</FormItem>

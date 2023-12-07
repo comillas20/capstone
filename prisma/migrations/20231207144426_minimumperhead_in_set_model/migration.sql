@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `set` ADD COLUMN `minimumPerHead` INTEGER NOT NULL DEFAULT 50;

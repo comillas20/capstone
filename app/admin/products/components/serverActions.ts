@@ -192,14 +192,19 @@ export async function deleteCourse(id: number) {
 	});
 }
 
-export async function createSet(name: string) {
+export async function createSet(name: string, minimumPerHead: number) {
 	return await prisma.set.create({
 		data: {
 			name: name,
+			minimumPerHead: minimumPerHead,
 		},
 	});
 }
-export async function editSet({ id, name }: { id: number; name: string }) {
+export async function editSet(
+	id: number,
+	name: string,
+	minimumPerHead: number
+) {
 	return await prisma.set.update({
 		data: {
 			name: name,
@@ -209,11 +214,15 @@ export async function editSet({ id, name }: { id: number; name: string }) {
 		},
 	});
 }
+export async function doesSetExists(name: string) {
+	return !!(await prisma.set.findUnique({ where: { name: name } }));
+}
 export async function getAllSets() {
 	return await prisma.set.findMany({
 		select: {
 			id: true,
 			name: true,
+			minimumPerHead: true,
 			subSets: {
 				select: {
 					id: true,

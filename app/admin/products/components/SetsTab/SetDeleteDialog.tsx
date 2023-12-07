@@ -64,7 +64,6 @@ export default function SetDeleteDialog({
 											mutate("dpGetAllDishes");
 
 											mutate("spGetAllSets");
-											mutate("saedGetAllSets");
 										}
 									});
 								}}

@@ -1,13 +1,12 @@
 "use client";
-import useSWR, { mutate } from "swr";
+import useSWR from "swr";
 import { getAllSets } from "../serverActions";
 import SetCard from "./SetCard";
 import { DataTable } from "@app/admin/components/DataTable";
 import { Sets, columns } from "./SetColumns";
 import { DataTableToolbar } from "./DataTableToolbar";
-import { cn, convertDateToString } from "@lib/utils";
+import { convertDateToString } from "@lib/utils";
 import { useEffect, useRef, useState } from "react";
-import { Button } from "@components/ui/button";
 
 type set = {
 	id: number;
@@ -34,9 +33,7 @@ type set = {
 	}[];
 };
 export default function SetsPage() {
-	const allSets = useSWR("spGetAllSets", getAllSets, {
-		revalidateOnReconnect: true,
-	});
+	const allSets = useSWR("spGetAllSets", getAllSets);
 	const [selectedSet, setSelectedSet] = useState(
 		allSets.data && allSets.data[0]
 	);
@@ -65,36 +62,6 @@ export default function SetsPage() {
 				updatedAt: convertDateToString(set.updatedAt),
 		  }))
 		: [];
-
-	// const setColumns: typeof columns = columns.map(col => {
-	// 	const isSetName = col.id === "name";
-	// 	return isSetName
-	// 		? {
-	// 				id: col.id,
-	// 				accessorKey: "name",
-	// 				header: col.header,
-	// 				cell: ({ row, table }) => (
-	// 					<Button
-	// 						key={row.id}
-	// 						variant={"link"}
-	// 						className={cn(
-	// 							"select-none p-0",
-	// 							selectedSet?.name === row.getValue("name")
-	// 								? "text-primary-foreground"
-	// 								: ""
-	// 						)}
-	// 						onClick={() => {
-	// 							changeSet(row.getValue("name"));
-	// 							table.toggleAllRowsSelected(false);
-	// 							row.toggleSelected(true);
-	// 						}}
-	// 						disabled={row.getIsSelected()}>
-	// 						{row.getValue("name")}
-	// 					</Button>
-	// 				),
-	// 		  }
-	// 		: col;
-	// });
 
 	useEffect(() => {
 		if (allSets.data) setSelectedSet(allSets.data[selectedSetIndex.current]);
