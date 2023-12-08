@@ -17,7 +17,6 @@ type SubSetAddDishesByCategoryProps = {
 		createdAt: Date;
 		updatedAt: Date;
 		isAvailable: boolean;
-		price: number;
 		category: {
 			name: string;
 			id: number;

@@ -14,7 +14,7 @@ export default async function BackUpRestorePage() {
 			</div>
 			<Separator />
 			<RestoreBackUpForm />
-			<DownloadBackUp dishes={getAllDishCatCourses} />
+			<DownloadBackUp />
 		</div>
 	);
 }
@@ -33,24 +33,4 @@ async function restoreBackUp(file: File) {
 	// Log the value of cell A1
 	// console.log(worksheet.getCell("A1").value);
 	worksheet.getCell("id");
-}
-
-async function getAllDishCatCourses() {
-	"use server";
-	const dishes = await prisma.dish.findMany({
-		select: {
-			name: true,
-			createdAt: true,
-			updatedAt: true,
-			isAvailable: true,
-			price: true,
-			category: {
-				select: { name: true },
-			},
-			course: {
-				select: { name: true },
-			},
-		},
-	});
-	return dishes;
 }

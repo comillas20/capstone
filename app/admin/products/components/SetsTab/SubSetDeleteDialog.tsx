@@ -54,7 +54,6 @@ export default function SubSetDeleteDialog({
 										}
 
 										mutate("spGetAllSets");
-										mutate("ssaedGetAllSets");
 									});
 								}}
 								disabled={isSaving}>

@@ -15,6 +15,7 @@ import {
 	getAllCourses,
 	getAllDishes,
 	getAllSubSetsInASet,
+	isSubSetAlreadyExistsInASet,
 } from "../serverActions";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -57,7 +58,7 @@ import SubSetAddDishesByCommand from "./SubSetAddDishesByCommand";
 type SubSetAddEditDialogProps = {
 	editSubSetData?: {
 		id: number;
-		name: string | null;
+		name: string;
 		dishes: {
 			id: number;
 			name: string;
@@ -78,25 +79,18 @@ export default function SubSetAddEditDialog({
 	...props
 }: SubSetAddEditDialogProps & React.ComponentProps<typeof Dialog>) {
 	const [isSaving, startSaving] = useTransition();
-	const allSubSetsInASet = useSWR("ssaedGetAllSets", () =>
-		getAllSubSetsInASet(setID)
-	);
 	const allDishes = useSWR("ssaedGetAllDishes", getAllDishes);
 
 	const allCourses = useSWR("ssaedGetAllCourses", getAllCourses);
 	const formSchema = z.object({
 		id: z.number(),
-		// system will ignore subsets with no names, duplication of them is allowed
 		name: z.string().refine(
-			e =>
-				e === "" ||
-				!allSubSetsInASet.data?.find(subSet => {
-					//If user is editing, then exclude the current name in searching for duplicate
-					const checker = editSubSetData
-						? subSet.name !== editSubSetData.name && subSet.name === e
-						: subSet.name === e;
-					return checker;
-				}),
+			async value =>
+				// Ignore own name when editing
+				editSubSetData
+					? value === editSubSetData.name ||
+					  !isSubSetAlreadyExistsInASet(setID, value)
+					: !isSubSetAlreadyExistsInASet(setID, value),
 			{
 				message: "This subset name already exists!",
 			}
@@ -131,7 +125,7 @@ export default function SubSetAddEditDialog({
 	useEffect(() => {
 		form.reset({
 			id: editSubSetData ? editSubSetData.id : -1,
-			name: editSubSetData ? editSubSetData.name ?? "" : "",
+			name: editSubSetData ? editSubSetData.name : "",
 			setID: setID,
 			dishes: editSubSetData ? editSubSetData.dishes.map(dish => dish.id) : [],
 			courseID: editSubSetData ? editSubSetData.course.id.toString() : "",
@@ -146,12 +140,9 @@ export default function SubSetAddEditDialog({
 			values.selectionQuantity > values.dishes.length
 				? values.dishes.length
 				: values.selectionQuantity;
-		const modName =
-			values.name === "(No Name)" || values.name === "" ? null : values.name;
 		startSaving(async () => {
 			const modValues = {
 				...values,
-				name: modName,
 				courseID: parseInt(values.courseID),
 				selectionQuantity: modSelectionQuantity,
 			};
@@ -163,13 +154,12 @@ export default function SubSetAddEditDialog({
 				toast({
 					title: "Success",
 					description: editSubSetData
-						? (modName ?? "(No Name)") + " is successfully modified!"
-						: (modName ?? "(No Name)") + " is successfully created!",
+						? modValues.name + " is successfully modified!"
+						: modValues.name + " is successfully created!",
 					duration: 5000,
 				});
 
 				mutate("spGetAllSets");
-				mutate("ssaedGetAllSets");
 			}
 		});
 		setIsThisDialogOpen(false);

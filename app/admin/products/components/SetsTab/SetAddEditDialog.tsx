@@ -47,7 +47,9 @@ export default function SetAddEditDialog({
 			.refine(
 				// ignore own name in checking duplicate name when editing
 				async value =>
-					editSetData ? value === editSetData.name : !(await doesSetExists(value)),
+					editSetData
+						? value === editSetData.name || !(await doesSetExists(value))
+						: !(await doesSetExists(value)),
 				{
 					message: "This set name already exists!",
 				}

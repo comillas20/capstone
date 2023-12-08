@@ -233,7 +233,7 @@ export async function deleteSet(id: number) {
 
 type subset = {
 	id: number;
-	name: string | null;
+	name: string;
 	setID: number;
 	dishes: number[];
 	courseID: number;
@@ -302,19 +302,19 @@ export async function deleteSubset(id: number) {
 // 	});
 // }
 
-// export async function isSubSetAlreadyExistsInASet(setID: number, name: string) {
-// 	const result = await prisma.set.findUnique({
-// 		select: {
-// 			subSets: {
-// 				select: {
-// 					name: true,
-// 				},
-// 			},
-// 		},
-// 		where: {
-// 			id: setID,
-// 		},
-// 	});
+export async function isSubSetAlreadyExistsInASet(setID: number, name: string) {
+	const result = await prisma.set.findUnique({
+		select: {
+			subSets: {
+				select: {
+					name: true,
+				},
+			},
+		},
+		where: {
+			id: setID,
+		},
+	});
 
-// 	return !!result?.subSets.find(subSet => subSet.name === name);
-// }
+	return !!result?.subSets.find(subSet => subSet.name === name);
+}

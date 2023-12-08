@@ -14,7 +14,7 @@ type SetCardsProps = {
 		price: number;
 		subSets: {
 			id: number;
-			name: string | null;
+			name: string;
 			dishes: {
 				id: number;
 				name: string;
@@ -59,8 +59,9 @@ export default function SetCards({
 	useEffect(() => {
 		let counter = 0;
 		set.subSets.forEach(subset => {
-			if (subset.selectionQuantity !== 0) counter++;
+			counter = counter + subset.selectionQuantity;
 		});
+		console.log(counter);
 		setPrerequisiteToDialog(counter);
 	}, [set]);
 

@@ -28,7 +28,6 @@ type PaymentDialogProps = {
 		[courseName: string]: {
 			id: Number;
 			name: string;
-			price: number;
 		}[];
 	};
 	selectedMonth: Date;

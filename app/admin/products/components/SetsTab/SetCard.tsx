@@ -16,7 +16,7 @@ type SetCardProps = {
 		updatedAt: Date;
 		subSets: {
 			id: number;
-			name: string | null;
+			name: string;
 			dishes: {
 				id: number;
 				name: string;

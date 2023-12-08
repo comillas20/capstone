@@ -91,7 +91,6 @@ export default function ReservationForm({
 										[key: string]: {
 											id: Number;
 											name: string;
-											price: number;
 										}[];
 									} = {};
 									allSelectedDishes.forEach(dish => {
@@ -103,7 +102,6 @@ export default function ReservationForm({
 										dishesByCourses[key].push({
 											id: dish.id,
 											name: dish.name,
-											price: dish.price,
 										});
 									});
 									return dishesByCourses;

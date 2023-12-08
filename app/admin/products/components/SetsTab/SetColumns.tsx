@@ -37,7 +37,7 @@ export const columns: ColumnDef<Sets>[] = [
 	{
 		accessorKey: "minimumPerHead",
 		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="Minimum Packs/Head" />
+			<DataTableColumnHeader column={column} title="Minimum Packs" />
 		),
 	},
 	{
