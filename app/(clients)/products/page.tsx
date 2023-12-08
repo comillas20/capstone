@@ -13,7 +13,6 @@ export default async function ProductPage() {
 			category: true,
 			course: true,
 			imgHref: true,
-			price: true,
 		},
 		where: {
 			isAvailable: true,

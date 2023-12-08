@@ -30,16 +30,11 @@ export default function DishesPage() {
 			updatedAt: convertDateToString(dish.updatedAt),
 			imgHref: dish.imgHref,
 			isAvailable: dish.isAvailable ? isAvailable.true : isAvailable.false,
-			price: dish.price,
 		}));
 		return dishes;
 	});
 	const categories = useSWR("dpGetAllCategories", getAllCategories);
 	const courses = useSWR("dpGetAllCourses", getAllCourses);
-	// const [isAddCategoryModalOpen, setIsAddCategoryModalOpen] = useState(false);
-	// const [isAddCourseModalOpen, setIsAddCourseModalOpen] = useState(false);
-	// const [isEditCategoryModalOpen, setIsEditCategoryModalOpen] = useState(false);
-	// const [isEditCourseModalOpen, setIsEditCourseModalOpen] = useState(false);
 	//Had to do this to bypass TS type check, @data will only be undefined during loading (e.g. slow internet)
 	const d2 = dishes.data ? dishes.data : [];
 	const hideOnDefault = { Created: false, "Last Updated": false };

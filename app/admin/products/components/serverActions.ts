@@ -8,7 +8,6 @@ type Dish = {
 	categoryID: number;
 	courseID: number;
 	isAvailable: string;
-	price: number;
 };
 
 enum isAvailable {
@@ -21,7 +20,6 @@ export async function createDish(dish: Dish) {
 		data: {
 			name: dish.name,
 			isAvailable: dish.isAvailable === isAvailable.true,
-			price: dish.price,
 			categoryID: dish.categoryID,
 			courseID: dish.courseID,
 		},
@@ -44,7 +42,6 @@ export async function editDish(dish: Dish) {
 				},
 			},
 			isAvailable: dish.isAvailable === isAvailable.true,
-			price: dish.price,
 		},
 		where: {
 			id: dish.id,
@@ -126,7 +123,6 @@ export async function getAllDishes() {
 			updatedAt: true,
 			isAvailable: true,
 			imgHref: true,
-			price: true,
 		},
 	});
 
@@ -191,64 +187,35 @@ export async function deleteCourse(id: number) {
 		},
 	});
 }
-
-export async function createSet(name: string, minimumPerHead: number) {
+type Set = {
+	id: number;
+	name: string;
+	minimumPerHead: number;
+	price: number;
+};
+export async function createSet(values: Set) {
 	return await prisma.set.create({
 		data: {
-			name: name,
-			minimumPerHead: minimumPerHead,
+			name: values.name,
+			minimumPerHead: values.minimumPerHead,
+			price: values.price,
 		},
 	});
 }
-export async function editSet(
-	id: number,
-	name: string,
-	minimumPerHead: number
-) {
+export async function editSet(values: Set) {
 	return await prisma.set.update({
 		data: {
-			name: name,
+			name: values.name,
+			minimumPerHead: values.minimumPerHead,
+			price: values.price,
 		},
 		where: {
-			id: id,
+			id: values.id,
 		},
 	});
 }
 export async function doesSetExists(name: string) {
 	return !!(await prisma.set.findUnique({ where: { name: name } }));
-}
-export async function getAllSets() {
-	return await prisma.set.findMany({
-		select: {
-			id: true,
-			name: true,
-			minimumPerHead: true,
-			subSets: {
-				select: {
-					id: true,
-					name: true,
-					dishes: {
-						select: {
-							id: true,
-							name: true,
-							category: true,
-							isAvailable: true,
-							price: true,
-						},
-					},
-					course: {
-						select: {
-							id: true,
-							name: true,
-						},
-					},
-					selectionQuantity: true,
-				},
-			},
-			createdAt: true,
-			updatedAt: true,
-		},
-	});
 }
 
 export async function deleteSet(id: number) {

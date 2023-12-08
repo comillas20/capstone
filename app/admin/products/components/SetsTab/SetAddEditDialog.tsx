@@ -9,12 +9,8 @@ import {
 } from "@components/ui/dialog";
 import { useEffect, useTransition } from "react";
 import useSWR, { mutate } from "swr";
-import {
-	createSet,
-	doesSetExists,
-	editSet,
-	getAllSets,
-} from "../serverActions";
+import { createSet, doesSetExists, editSet } from "../serverActions";
+import { getAllSets } from "@app/serverActionsGlobal";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -31,7 +27,12 @@ import { Input } from "@components/ui/input";
 import { toast } from "@components/ui/use-toast";
 
 type SetAddEditDialogProps = {
-	editSetData?: { id: number; name: string; minimumPerHead: number };
+	editSetData?: {
+		id: number;
+		name: string;
+		minimumPerHead: number;
+		price: number;
+	};
 } & React.ComponentProps<typeof Dialog>;
 export default function SetAddEditDialog({
 	editSetData,
@@ -52,6 +53,7 @@ export default function SetAddEditDialog({
 				}
 			),
 		minimumPerHead: z.number(),
+		price: z.number().gte(1),
 	});
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
@@ -60,11 +62,13 @@ export default function SetAddEditDialog({
 					id: editSetData.id,
 					name: editSetData.name,
 					minimumPerHead: editSetData.minimumPerHead,
+					price: editSetData.price,
 			  }
 			: {
 					id: -1,
 					name: "",
 					minimumPerHead: 50,
+					price: undefined,
 			  },
 	});
 	useEffect(() => {
@@ -72,14 +76,15 @@ export default function SetAddEditDialog({
 			id: editSetData ? editSetData.id : -1,
 			name: editSetData ? editSetData.name : "",
 			minimumPerHead: editSetData ? editSetData.minimumPerHead : 50,
+			price: editSetData ? editSetData.price : undefined,
 		});
 	}, [editSetData, form.reset]);
 	function onSubmit(values: z.infer<typeof formSchema>) {
 		if (props.onOpenChange) props.onOpenChange(false);
 		startSaving(async () => {
 			const submitSet = editSetData
-				? await editSet(values.id, values.name, values.minimumPerHead)
-				: await createSet(values.name, values.minimumPerHead);
+				? await editSet(values)
+				: await createSet(values);
 
 			if (submitSet) {
 				toast({
@@ -124,9 +129,30 @@ export default function SetAddEditDialog({
 							name="minimumPerHead"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Minimum/head</FormLabel>
+									<FormLabel>Minimum/Head</FormLabel>
 									<FormControl>
-										<Input type="number" {...field} />
+										<Input
+											type="number"
+											{...field}
+											onChange={value => field.onChange(parseInt(value.target.value))}
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
+							name="price"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Price/Head</FormLabel>
+									<FormControl>
+										<Input
+											type="number"
+											{...field}
+											onChange={value => field.onChange(parseInt(value.target.value))}
+										/>
 									</FormControl>
 									<FormMessage />
 								</FormItem>

@@ -91,9 +91,6 @@ export default function AddEditDialog({
 					"Please choose a course the dish will fall under (e.g. Dessert for Fruit Salad)",
 			}),
 		isAvailable: z.string(),
-		price: z.string().min(1, {
-			message: "Please put a price.",
-		}),
 	});
 
 	const form = useForm<z.infer<typeof formSchema>>({
@@ -105,7 +102,6 @@ export default function AddEditDialog({
 					categoryID: data.categoryID.toString(),
 					courseID: data.courseID.toString(),
 					isAvailable: data.isAvailable,
-					price: data.price.toString(),
 			  }
 			: {
 					id: -1,
@@ -113,7 +109,6 @@ export default function AddEditDialog({
 					categoryID: defaultDDM,
 					courseID: defaultDDM,
 					isAvailable: iaEnum.true,
-					price: "",
 			  },
 	});
 
@@ -127,7 +122,6 @@ export default function AddEditDialog({
 			categoryID: parseInt(values.categoryID),
 			courseID: parseInt(values.courseID),
 			isAvailable: values.isAvailable,
-			price: parseFloat(values.price),
 		};
 		startSaving(async () => {
 			const submitDish = data ? await editDish(orig) : await createDish(orig);
@@ -289,27 +283,6 @@ export default function AddEditDialog({
 													</DropdownMenuContent>
 												</DropdownMenu>
 											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-								<FormField
-									control={form.control}
-									name="price"
-									render={({ field }) => (
-										<FormItem>
-											<div className="flex gap-4 pt-2">
-												<FormLabel className="flex flex-wrap content-center">
-													Price (50 packs):
-												</FormLabel>
-												<FormControl>
-													<Input
-														type="number"
-														onChange={field.onChange}
-														value={field.value}
-													/>
-												</FormControl>
-											</div>
 											<FormMessage />
 										</FormItem>
 									)}

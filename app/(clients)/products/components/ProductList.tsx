@@ -20,7 +20,6 @@ type ProductListProps = {
 	dishes: {
 		id: number;
 		name: string;
-		price: number;
 		imgHref: string | null;
 		category: {
 			id: number;

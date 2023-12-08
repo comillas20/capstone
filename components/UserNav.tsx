@@ -83,32 +83,43 @@ export default async function UserNav() {
 					</div>
 				</DropdownMenuLabel>
 				<DropdownMenuSeparator />
-				{session && (
-					<DropdownMenuGroup>
-						<DropdownMenuItem>
-							{session && session.user.role === "ADMIN" ? (
-								<Link href="/admin/settings/account" className="h-full w-full">
-									Profile
-								</Link>
-							) : (
-								<Link href="/settings/account" className="h-full w-full">
-									Profile
-								</Link>
-							)}
-						</DropdownMenuItem>
-						<DropdownMenuItem>
-							{session && session.user.role === "ADMIN" ? (
-								<Link href="/admin/settings/notifications" className="h-full w-full">
-									Notifications
-								</Link>
-							) : (
-								<Link href="/settings/notifications" className="h-full w-full">
-									Notifications
-								</Link>
-							)}
-						</DropdownMenuItem>
-					</DropdownMenuGroup>
-				)}
+				{(() => {
+					if (session) {
+						if (session.user.role === "ADMIN") {
+							return (
+								<DropdownMenuGroup>
+									<DropdownMenuItem asChild>
+										<Link href="/admin/settings/general" className="h-full w-full">
+											General
+										</Link>
+									</DropdownMenuItem>
+									<DropdownMenuItem asChild>
+										<Link href="/admin/settings/account" className="h-full w-full">
+											Account
+										</Link>
+									</DropdownMenuItem>
+									<DropdownMenuItem asChild>
+										<Link href="/admin/settings/snapshot" className="h-full w-full">
+											Back up & Restore
+										</Link>
+									</DropdownMenuItem>
+								</DropdownMenuGroup>
+							);
+						} else {
+							// regular user
+							return (
+								<DropdownMenuGroup>
+									<DropdownMenuItem asChild>
+										<Link href="/settings/account" className="h-full w-full">
+											Profile
+										</Link>
+									</DropdownMenuItem>
+								</DropdownMenuGroup>
+							);
+						}
+					}
+					// no session
+				})()}
 
 				<DropdownMenuSeparator />
 				{session && session.user.role === "ADMIN" && (

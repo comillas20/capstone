@@ -1,6 +1,6 @@
 "use client";
 import useSWR from "swr";
-import { getAllSets } from "../serverActions";
+import { getAllSets } from "@app/serverActionsGlobal";
 import SetCard from "./SetCard";
 import { DataTable } from "@app/admin/components/DataTable";
 import { Sets, columns } from "./SetColumns";
@@ -8,37 +8,12 @@ import { DataTableToolbar } from "./DataTableToolbar";
 import { convertDateToString } from "@lib/utils";
 import { useEffect, useRef, useState } from "react";
 
-type set = {
-	id: number;
-	name: string;
-	createdAt: Date;
-	updatedAt: Date;
-	subSets: {
-		id: number;
-		name: string;
-		dishes: {
-			id: number;
-			name: string;
-			isAvailable: boolean;
-			price: number;
-			category: {
-				id: number;
-				name: string;
-			};
-		}[];
-		course: {
-			id: number;
-			name: string;
-		};
-	}[];
-};
 export default function SetsPage() {
 	const allSets = useSWR("spGetAllSets", getAllSets);
 	const [selectedSet, setSelectedSet] = useState(
 		allSets.data && allSets.data[0]
 	);
 	const selectedSetIndex = useRef(0);
-
 	function changeSet(rowData: Sets) {
 		const set =
 			allSets.data && allSets.data.length != 0
@@ -60,13 +35,15 @@ export default function SetsPage() {
 				name: set.name,
 				createdAt: convertDateToString(set.createdAt),
 				updatedAt: convertDateToString(set.updatedAt),
+				minimumPerHead: set.minimumPerHead,
+				price: set.price,
 		  }))
 		: [];
 
 	useEffect(() => {
 		if (allSets.data) setSelectedSet(allSets.data[selectedSetIndex.current]);
 	}, [allSets.data]);
-
+	const hideOnDefault = { Created: false, "Last Updated": false };
 	return (
 		<div>
 			{allSets.data && (
@@ -79,6 +56,7 @@ export default function SetsPage() {
 							Toolbar={DataTableToolbar}
 							selectFirstRowAsDefault
 							singleSelection={changeSet}
+							hideAsDefault={hideOnDefault}
 						/>
 					</div>
 				</div>

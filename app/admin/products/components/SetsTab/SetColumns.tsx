@@ -9,6 +9,8 @@ export type Sets = {
 	name: string;
 	createdAt: string;
 	updatedAt: string;
+	minimumPerHead: number;
+	price: number;
 };
 
 export const columns: ColumnDef<Sets>[] = [
@@ -17,11 +19,6 @@ export const columns: ColumnDef<Sets>[] = [
 		header: ({ column }) => (
 			<DataTableColumnHeader column={column} title="Set name" />
 		),
-		// cell: ({ row }) => (
-		// 	<Button variant={"link"} className="p-0">
-		// 		{row.getValue("name")}
-		// 	</Button>
-		// ),
 	},
 	{
 		id: "Created",
@@ -36,6 +33,26 @@ export const columns: ColumnDef<Sets>[] = [
 		header: ({ column }) => (
 			<DataTableColumnHeader column={column} title="Last Updated" />
 		),
+	},
+	{
+		accessorKey: "minimumPerHead",
+		header: ({ column }) => (
+			<DataTableColumnHeader column={column} title="Minimum Packs/Head" />
+		),
+	},
+	{
+		accessorKey: "price",
+		header: ({ column }) => (
+			<DataTableColumnHeader column={column} title="Price/Head" />
+		),
+		cell: ({ row }) => {
+			const formatted = new Intl.NumberFormat("en-US", {
+				style: "currency",
+				currency: "PHP",
+			}).format(row.getValue("price"));
+
+			return formatted;
+		},
 	},
 	{
 		id: "actions",

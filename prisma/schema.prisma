@@ -41,7 +41,6 @@ model Dish {
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
   isAvailable Boolean
-  price       Float
   imgHref     String?
 }
 
@@ -64,7 +63,8 @@ model Set {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   subSets        SubSet[]
-  minimumPerHead Int      
+  minimumPerHead Int
+  price          Float
 }
 
 //to allow merging of categories like "Fish/Canton/Vegetable" in the menu/set

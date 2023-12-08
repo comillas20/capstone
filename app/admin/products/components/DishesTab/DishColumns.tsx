@@ -38,7 +38,6 @@ export type Dishes = {
 	updatedAt: string;
 	imgHref: string | null;
 	isAvailable: isAvailable;
-	price: number;
 };
 
 export const columns: ColumnDef<Dishes>[] = [
@@ -70,21 +69,9 @@ export const columns: ColumnDef<Dishes>[] = [
 			<DataTableColumnHeader column={column} title="Dish name" />
 		),
 		cell: ({ row }) => {
-			const dishName = row.getValue("name") as string;
-			const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
 			return (
 				<div className="flex items-center gap-2">
-					{/* <Button
-						variant={"link"}
-						className="select-none p-0 font-medium text-inherit"
-						onClick={() => setIsDialogOpen(true)}>
-						{row.original.name}
-					</Button> */}
-					<DishProfileDialog
-						data={row.original}
-						openDialog={isDialogOpen}
-						onOpenChange={setIsDialogOpen}
-					/>
+					<DishProfileDialog data={row.original} />
 					{!row.original.imgHref && (
 						<TooltipProvider>
 							<Tooltip>
@@ -133,21 +120,6 @@ export const columns: ColumnDef<Dishes>[] = [
 		header: ({ column }) => (
 			<DataTableColumnHeader column={column} title="Availability" />
 		),
-	},
-	{
-		id: "Price",
-		accessorKey: "price",
-		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="Price (50 packs)" />
-		),
-		cell: ({ row }) => {
-			const formatted = new Intl.NumberFormat("en-US", {
-				style: "currency",
-				currency: "PHP",
-			}).format(row.getValue("Price"));
-
-			return formatted;
-		},
 	},
 	{
 		id: "actions",

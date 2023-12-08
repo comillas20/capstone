@@ -1,6 +1,6 @@
 "use client";
 
-import { getAllSets } from "../serverActions";
+import { getAllSets } from "@app/serverActionsGlobal";
 import { Button } from "@components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";

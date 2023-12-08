@@ -10,6 +10,8 @@ type SetCardsProps = {
 		name: string;
 		createdAt: Date;
 		updatedAt: Date;
+		minimumPerHead: number;
+		price: number;
 		subSets: {
 			id: number;
 			name: string | null;
@@ -17,7 +19,6 @@ type SetCardsProps = {
 				id: number;
 				name: string;
 				isAvailable: boolean;
-				price: number;
 				category: {
 					id: number;
 					name: string;
