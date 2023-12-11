@@ -1,7 +1,7 @@
 "use client";
 
 import { addDays, addYears, isBefore, isSameMonth } from "date-fns";
-import { useState } from "react";
+import { createContext, useState } from "react";
 import { Button, buttonVariants } from "@components/ui/button";
 import { Calendar } from "@components/ui/calendar";
 import { ScrollArea, ScrollBar } from "@components/ui/scroll-area";
@@ -13,7 +13,22 @@ import { getAllDishes } from "@app/(clients)/clientServerActions";
 import { Session } from "next-auth";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
+export type ReservationFormContextProps = {
+	setSelectedDishIDsViaCB: React.Dispatch<React.SetStateAction<string[]>>;
+	setSelectedDishIDs: React.Dispatch<
+		React.SetStateAction<
+			{
+				subSetName: string;
+				dishID: number;
+			}[]
+		>
+	>;
+	setPrerequisiteToDialog: React.Dispatch<React.SetStateAction<number>>;
+};
 
+export const ReservationFormContext = createContext<
+	ReservationFormContextProps | undefined
+>(undefined);
 export default function ReservationForm({
 	session,
 }: {
@@ -32,11 +47,15 @@ export default function ReservationForm({
 	const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
 	return (
 		<>
-			<SetPicker
-				setSelectedDishIDsViaCB={setSelectedDishIDsViaCB}
-				setSelectedDishIDs={setSelectedDishIDs}
-				setPrerequisiteToDialog={setPrerequisiteToDialog}
-			/>
+			<ReservationFormContext.Provider
+				value={{
+					setSelectedDishIDsViaCB,
+					setSelectedDishIDs,
+					setPrerequisiteToDialog,
+				}}>
+				<SetPicker />
+			</ReservationFormContext.Provider>
+
 			{/* Bottom half */}
 			<div className="flex gap-12">
 				<Calendar
@@ -109,7 +128,7 @@ export default function ReservationForm({
 								return (
 									<>
 										<Button
-											disabled={selectedDishIDs.length < prerequisiteToDialog}
+											disabled={mergedSelectedIDs.length < prerequisiteToDialog}
 											onClick={() => {
 												if (session?.user) {
 													setIsPaymentDialogOpen(true);

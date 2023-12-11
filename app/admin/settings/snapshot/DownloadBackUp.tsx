@@ -7,9 +7,9 @@ import {
 	DialogTrigger,
 } from "@components/ui/dialog";
 import { Separator } from "@components/ui/separator";
-import { Dialog } from "@radix-ui/react-dialog";
+import { Dialog, DialogClose } from "@radix-ui/react-dialog";
 import saveAs from "file-saver";
-import { Loader2 } from "lucide-react";
+import { AlertCircle, Loader2 } from "lucide-react";
 import { useState, useTransition } from "react";
 import ExcelJS from "exceljs";
 import { Form, FormControl, FormField, FormItem } from "@components/ui/form";
@@ -21,6 +21,13 @@ import {
 	retrieveAllDishCatCoursesForBackUp,
 	retrieveSetsForBackUp,
 } from "./serverActions";
+import { DCC, WorksheetNames } from "./page";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
+} from "@components/ui/tooltip";
 
 const optionsSchema = z.object({
 	dishCatCourses: z.boolean(),
@@ -71,12 +78,15 @@ export default function DownloadBackUp() {
 	return (
 		<Dialog>
 			<DialogTrigger asChild>
-				<Button variant="outline">Back up files</Button>
+				<div className="space-y-2">
+					<p className="text-sm font-medium">Back up files</p>
+					<Button>Back up files</Button>
+				</div>
 			</DialogTrigger>
 			<DialogContent>
 				<DialogHeader className="space-y-2">
 					<h4 className="font-medium leading-none">Back up files</h4>
-					<p className="text-sm text-muted-foreground">Some description</p>
+					<p className="text-sm text-muted-foreground">Back up data for later use</p>
 				</DialogHeader>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -91,6 +101,16 @@ export default function DownloadBackUp() {
 												onCheckedChange={field.onChange}
 												checked={field.value}>
 												Products/Dishes, Categories, and Courses
+												<TooltipProvider>
+													<Tooltip>
+														<TooltipTrigger asChild>
+															<AlertCircle size={15} className="text-primary" />
+														</TooltipTrigger>
+														<TooltipContent>
+															<p>Images cannot be saved</p>
+														</TooltipContent>
+													</Tooltip>
+												</TooltipProvider>
 											</CheckboxWithText>
 										</FormControl>
 									</FormItem>
@@ -131,7 +151,12 @@ export default function DownloadBackUp() {
 						/>
 						<DialogFooter className="flex space-x-0 space-y-2 sm:flex-col">
 							<div className="flex justify-end space-x-2">
-								<Button variant={"ghost"}>Cancel</Button>
+								<DialogClose asChild>
+									<Button type="button" variant={"ghost"}>
+										Cancel
+									</Button>
+								</DialogClose>
+
 								<Button type="submit" disabled={isDownloading}>
 									{isDownloading && <Loader2 className="mr-2 animate-spin" />}Download
 								</Button>
@@ -148,15 +173,8 @@ export default function DownloadBackUp() {
 		</Dialog>
 	);
 }
-type DCC = {
-	name: string;
-	isAvailable: boolean;
-	category: string;
-	course: string;
-	createdAt: Date;
-}[];
-async function createDCCWorksheet(data: DCC, workbook: ExcelJS.Workbook) {
-	const dishesSheet = workbook.addWorksheet("Products-Dishes");
+async function createDCCWorksheet(data: DCC[], workbook: ExcelJS.Workbook) {
+	const dishesSheet = workbook.addWorksheet(WorksheetNames.DCC);
 	dishesSheet.columns = [
 		{ header: "Name", key: "name", width: 20 },
 		{ header: "Date Created", key: "createdAt", width: 20 },
@@ -180,17 +198,15 @@ type Set = {
 	}[];
 }[];
 async function createSetWorksheet(data: Set, workbook: ExcelJS.Workbook) {
-	const setsSheet = workbook.addWorksheet("Sets");
+	const setsSheet = workbook.addWorksheet(WorksheetNames.Set);
 	setsSheet.columns = [
 		{ header: "Name", key: "name", width: 20 },
 		{ header: "Date Created", key: "createdAt", width: 20 },
 		{ header: "Minimum Packs", key: "minimumPerHead", width: 20 },
 		{ header: "Price/Head", key: "price", width: 20 },
-		{},
 		{ header: "Subsets", key: "subsetName", width: 20 },
 		{ header: "Course", key: "course", width: 20 },
 		{ header: "selectionQuantity", key: "selectionQuantity", width: 20 },
-		{},
 		{ header: "Dishes", key: "dishes", width: 20 },
 	];
 

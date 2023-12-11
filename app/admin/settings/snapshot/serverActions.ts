@@ -23,30 +23,64 @@ export async function retrieveAllDishCatCoursesForBackUp() {
 	}));
 }
 type DCC = {
-	category: string;
-	course: string;
 	name: string;
 	createdAt: Date;
 	isAvailable: boolean;
-}[];
-export async function restoreAllDishCatCourses(values: DCC) {
-	return await prisma.dish.create({
-		data: {
-			name: values[0].name,
-			isAvailable: values[0].isAvailable,
+	category: string;
+	course: string;
+};
+export async function restoreDishCatCourse(values: DCC) {
+	return await prisma.dish.upsert({
+		create: {
+			name: values.name,
+			isAvailable: values.isAvailable,
+			createdAt: values.createdAt,
 			course: {
 				connectOrCreate: {
 					where: {
-						name: values[0].course,
+						name: values.course,
 					},
 					create: {
-						name: values[0].course,
+						name: values.course,
 					},
 				},
 			},
 			category: {
-				create: {
-					name: values[0].category,
+				connectOrCreate: {
+					where: {
+						name: values.category,
+					},
+					create: {
+						name: values.category,
+					},
+				},
+			},
+		},
+		where: {
+			name: values.name,
+		},
+		update: {
+			name: values.name,
+			isAvailable: values.isAvailable,
+			createdAt: values.createdAt,
+			course: {
+				connectOrCreate: {
+					where: {
+						name: values.course,
+					},
+					create: {
+						name: values.course,
+					},
+				},
+			},
+			category: {
+				connectOrCreate: {
+					where: {
+						name: values.category,
+					},
+					create: {
+						name: values.category,
+					},
 				},
 			},
 		},
@@ -88,4 +122,82 @@ export async function retrieveSetsForBackUp() {
 			dishes: subSet.dishes.map(dish => dish.name),
 		})),
 	}));
+}
+
+type Set = {
+	name: string;
+	createdAt: Date;
+	minimumPerHead: number;
+	price: number;
+	subSets: {
+		course: string;
+		dishes: string[];
+		name: string;
+		selectionQuantity: number;
+	}[];
+};
+export async function restoreSets(values: Set) {
+	const newSet = await prisma.set.upsert({
+		create: {
+			name: values.name,
+			createdAt: values.createdAt,
+			minimumPerHead: values.minimumPerHead,
+			price: values.price,
+		},
+		where: {
+			name: values.name,
+		},
+		update: {
+			name: values.name,
+			createdAt: values.createdAt,
+			minimumPerHead: values.minimumPerHead,
+			price: values.price,
+		},
+	});
+	const newSubSets = await Promise.all(
+		values.subSets.map(async subSet => {
+			// First, find the course
+			let course = await prisma.course.findUnique({
+				where: { name: subSet.course },
+			});
+
+			// If the course doesn't exist, create it
+			if (!course) {
+				course = await prisma.course.create({
+					data: { name: subSet.course },
+				});
+			}
+
+			return prisma.subSet.upsert({
+				create: {
+					name: subSet.name,
+					setID: newSet.id,
+					courseID: course.id,
+					dishes: {
+						connect: subSet.dishes.map(dish => ({
+							name: dish,
+						})),
+					},
+				},
+				where: {
+					name_setID: {
+						name: subSet.name,
+						setID: newSet.id,
+					},
+				},
+				update: {
+					name: subSet.name,
+					setID: newSet.id,
+					courseID: course.id,
+					dishes: {
+						connect: subSet.dishes.map(dish => ({
+							name: dish,
+						})),
+					},
+				},
+			});
+		})
+	);
+
+	return { ...newSet, subSets: newSubSets };
 }

@@ -57,8 +57,6 @@ export default function SignInForm() {
 				redirect: true,
 				callbackUrl: "/",
 			});
-
-			console.log(signInData);
 		});
 	};
 	return (

@@ -79,6 +79,7 @@ model SubSet {
   selectionQuantity Int    @default(1) //0 means all dishes are compulsory
 
   @@map("SubSets")
+  @@unique([name, setID])
 }
 
 model Account {

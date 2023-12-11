@@ -34,3 +34,29 @@ async function restoreBackUp(file: File) {
 	// console.log(worksheet.getCell("A1").value);
 	worksheet.getCell("id");
 }
+
+export enum WorksheetNames {
+	DCC = "Products-Dishes",
+	Set = "Sets",
+}
+
+export type DCC = {
+	name: string;
+	createdAt: Date;
+	isAvailable: boolean;
+	category: string;
+	course: string;
+};
+
+export type Set = {
+	name: string;
+	createdAt: Date;
+	minimumPerHead: number;
+	price: number;
+	subSets: {
+		course: string;
+		dishes: string[];
+		name: string;
+		selectionQuantity: number;
+	}[];
+};

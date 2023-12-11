@@ -72,3 +72,79 @@ export function isPhoneNumberValid(phoneNumber: string): boolean {
 	const phoneNumberRegex = /^(\+63|0)[1-9]\d{9}$/;
 	return phoneNumberRegex.test(phoneNumber);
 }
+
+/**
+ * Converts an Excel serial number or date string to a formatted date and time string.
+ *
+ * @param {string} excelCellValue - The Excel serial number or date string to convert.
+ * @returns {string | null} The formatted date and time string or null if the date is not valid.
+ *
+ * @example
+ * const validExcelSerialNumber: string = "45258.1173611111";
+ * const formattedDate1: string | null = convertExcelValueToDateString(validExcelSerialNumber);
+ * console.log(formattedDate1); // Output: "20/11/2023 08:25:25"
+ *
+ * @example
+ * const validExcelDateString: string = "20/11/2023";
+ * const formattedDate2: string | null = convertExcelValueToDateString(validExcelDateString);
+ * console.log(formattedDate2); // Output: "20/11/2023 00:00:00" (start of the day)
+ *
+ * @example
+ * const invalidExcelCellValue: string = "Not a valid input";
+ * const formattedDate3: string | null = convertExcelValueToDateString(invalidExcelCellValue);
+ * console.log(formattedDate3); // Output: null
+ */
+export function convertExcelValueToDateString(
+	excelCellValue: string
+): string | null {
+	let excelSerialNumber: number;
+
+	// Try parsing the input string as a date
+	const dateValue = new Date(excelCellValue);
+
+	// Check if the parsing was successful and the date is valid
+	if (!isNaN(dateValue.getTime())) {
+		// Calculate the Excel serial number from the parsed date
+		const excelBaseDate = new Date("1900-01-01");
+		const daysDifference = Math.floor(
+			(dateValue.getTime() - excelBaseDate.getTime()) / (24 * 60 * 60 * 1000)
+		);
+		const fractionOfDay =
+			(dateValue.getHours() * 3600 +
+				dateValue.getMinutes() * 60 +
+				dateValue.getSeconds()) /
+			(24 * 60 * 60);
+		excelSerialNumber = daysDifference + fractionOfDay;
+	} else {
+		// Return null if the input string is not a valid date
+		return null;
+	}
+
+	// Continue with the existing logic for Excel serial numbers
+	// Extract days and fraction of a day
+	const days = Math.floor(excelSerialNumber);
+	const fractionOfDay = excelSerialNumber - days;
+
+	// Convert days to milliseconds and add to the Excel base date
+	const excelBaseDate = new Date("1900-01-01");
+	const resultDate = new Date(
+		excelBaseDate.getTime() + days * 24 * 60 * 60 * 1000
+	);
+
+	// Check if the result date is a valid date
+	if (isNaN(resultDate.getTime())) {
+		// Return null if not a valid date
+		return null;
+	}
+
+	// Convert fraction of a day to hours, minutes, and seconds
+	const totalSeconds = fractionOfDay * 24 * 60 * 60;
+	const hours = Math.floor(totalSeconds / 3600);
+	const minutes = Math.floor((totalSeconds % 3600) / 60);
+	const seconds = Math.floor(totalSeconds % 60);
+
+	// Format the result as a string
+	const formattedResult = `${resultDate.toLocaleDateString()} ${hours}:${minutes}:${seconds}`;
+
+	return formattedResult;
+}

@@ -2,7 +2,11 @@ import { CheckboxGroup, CheckboxItem } from "@components/CheckBoxGroup";
 import { Card, CardContent, CardHeader, CardTitle } from "@components/ui/card";
 import { Label } from "@components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@components/ui/radio-group";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import {
+	ReservationFormContext,
+	ReservationFormContextProps,
+} from "./ReservationForm";
 
 type SetCardsProps = {
 	set: {
@@ -31,21 +35,15 @@ type SetCardsProps = {
 			selectionQuantity: number;
 		}[];
 	};
-	setSelectedDishIDs: React.Dispatch<
-		React.SetStateAction<{ subSetName: string; dishID: number }[]>
-	>;
-	setSelectedDishIDsViaCB: React.Dispatch<React.SetStateAction<string[]>>;
 	isThisSelected?: boolean;
-	setPrerequisiteToDialog: React.Dispatch<React.SetStateAction<number>>;
 };
 
-export default function SetCards({
-	set,
-	setSelectedDishIDsViaCB,
-	setSelectedDishIDs,
-	isThisSelected,
-	setPrerequisiteToDialog,
-}: SetCardsProps) {
+export default function SetCards({ set, isThisSelected }: SetCardsProps) {
+	const {
+		setPrerequisiteToDialog,
+		setSelectedDishIDs,
+		setSelectedDishIDsViaCB,
+	} = useContext(ReservationFormContext) as ReservationFormContextProps;
 	//a dictionary where subsets are sorted by courses
 	const subsetsByCourses: { [key: string]: typeof set.subSets } = {};
 	set.subSets.forEach(subSet => {
@@ -59,9 +57,11 @@ export default function SetCards({
 	useEffect(() => {
 		let counter = 0;
 		set.subSets.forEach(subset => {
-			counter = counter + subset.selectionQuantity;
+			//Note to self: selectionQuantity == 0 means all dishes are required
+			//so I count them and include them in counter
+			if (subset.selectionQuantity == 0) counter += subset.dishes.length;
+			counter += subset.selectionQuantity;
 		});
-		console.log(counter);
 		setPrerequisiteToDialog(counter);
 	}, [set]);
 
