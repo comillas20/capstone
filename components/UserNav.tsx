@@ -1,5 +1,5 @@
 import { options } from "@app/api/auth/[...nextauth]/options";
-import SignOutButton from "@app/api/auth/signOut/SignOutButton";
+import SignOutButton from "@app/authentication/sign-out/SignOutButton";
 import {
 	Avatar,
 	AvatarCloudinaryImage,
@@ -119,7 +119,7 @@ export default async function UserNav() {
 					{session ? (
 						<SignOutButton className="flex h-full w-full justify-start p-0 hover:no-underline" />
 					) : (
-						<Link className="h-full w-full" href="/api/auth/signIn">
+						<Link className="h-full w-full" href="/authentication/sign-in">
 							Sign in
 						</Link>
 					)}

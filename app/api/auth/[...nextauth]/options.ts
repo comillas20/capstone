@@ -10,8 +10,8 @@ export const options: NextAuthOptions = {
 		strategy: "jwt",
 	},
 	pages: {
-		signIn: "/api/auth/signIn",
-		error: "/api/auth/signIn",
+		signIn: "/authentication/sign-in",
+		error: "/authentication/sign-in",
 	},
 	providers: [
 		CredentialsProvider({
