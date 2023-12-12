@@ -1,16 +1,5 @@
 import { Separator } from "@components/ui/separator";
-import { SidebarNav } from "@components/SideBarNav";
-
-const sidebarNavItems = [
-	{
-		title: "Account",
-		href: "/settings/account",
-	},
-	{
-		title: "Notifications",
-		href: "/settings/notifications",
-	},
-];
+import { SidebarNav } from "./SideBarNav";
 
 export default function SettingsLayout({
 	children,
@@ -28,7 +17,7 @@ export default function SettingsLayout({
 			<Separator className="my-6" />
 			<div className="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">
 				<aside className="lg:-mx-4 lg:w-1/5">
-					<SidebarNav items={sidebarNavItems} />
+					<SidebarNav />
 				</aside>
 				<div className="flex-1 lg:max-w-2xl">{children}</div>
 			</div>

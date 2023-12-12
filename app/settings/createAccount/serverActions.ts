@@ -39,7 +39,7 @@ export async function doesPhoneNumberExists(phoneNumber: string) {
 	return !!isPhoneNumberFound;
 }
 
-type UserData = {
+type AdminData = {
 	name: string;
 	email?: string;
 	phoneNumber?: string;
@@ -47,10 +47,11 @@ type UserData = {
 	role: "ADMIN" | "USER";
 };
 
-export async function createNewAccount(data: UserData) {
+export async function createNewAdmin(data: AdminData) {
 	const hashedPassword = await bcrypt.hash(data.password, 10);
-	console.log(data);
-	return await prisma.account.create({
+	const newAdmin = await prisma.account.create({
 		data: { ...data, password: hashedPassword },
 	});
+	const { password, ...rest } = newAdmin;
+	return rest;
 }

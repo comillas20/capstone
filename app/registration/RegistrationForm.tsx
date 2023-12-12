@@ -118,8 +118,8 @@ export function RegistrationForm() {
 		resolver: zodResolver(accountFormSchema),
 		defaultValues: {
 			name: "",
-			email: "",
-			phone: "",
+			email: undefined,
+			phone: undefined,
 			password: "",
 			confirmPassword: "",
 		},

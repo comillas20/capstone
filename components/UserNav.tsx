@@ -83,52 +83,38 @@ export default async function UserNav() {
 					</div>
 				</DropdownMenuLabel>
 				<DropdownMenuSeparator />
-				{(() => {
-					if (session) {
-						if (session.user.role === "ADMIN") {
+				<DropdownMenuGroup>
+					<DropdownMenuItem asChild>
+						<Link href="/settings/general" className="h-full w-full">
+							General
+						</Link>
+					</DropdownMenuItem>
+					<DropdownMenuItem asChild>
+						<Link href="/settings/account" className="h-full w-full">
+							Account
+						</Link>
+					</DropdownMenuItem>
+					{(() => {
+						if (session && session.user.role === "ADMIN") {
 							return (
-								<DropdownMenuGroup>
+								<>
+									<DropdownMenuSeparator />
 									<DropdownMenuItem asChild>
-										<Link href="/admin/settings/general" className="h-full w-full">
-											General
-										</Link>
-									</DropdownMenuItem>
-									<DropdownMenuItem asChild>
-										<Link href="/admin/settings/account" className="h-full w-full">
-											Account
-										</Link>
-									</DropdownMenuItem>
-									<DropdownMenuItem asChild>
-										<Link href="/admin/settings/snapshot" className="h-full w-full">
+										<Link href="/settings/snapshot" className="h-full w-full">
 											Back up & Restore
 										</Link>
 									</DropdownMenuItem>
-								</DropdownMenuGroup>
-							);
-						} else {
-							// regular user
-							return (
-								<DropdownMenuGroup>
 									<DropdownMenuItem asChild>
-										<Link href="/settings/account" className="h-full w-full">
-											Profile
+										<Link href="/settings/createAccount" className="h-full w-full">
+											Create Admin Account
 										</Link>
 									</DropdownMenuItem>
-								</DropdownMenuGroup>
+								</>
 							);
 						}
-					}
-					// no session
-				})()}
-
+					})()}
+				</DropdownMenuGroup>
 				<DropdownMenuSeparator />
-				{session && session.user.role === "ADMIN" && (
-					<DropdownMenuItem>
-						<Link href="/admin/overview" className="h-full w-full text-primary">
-							ADMIN
-						</Link>
-					</DropdownMenuItem>
-				)}
 				<DropdownMenuItem>
 					{session ? (
 						<SignOutButton className="flex h-full w-full justify-start p-0 hover:no-underline" />
