@@ -2,6 +2,7 @@ import prisma from "@lib/db";
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
+import FacebookProvider from "next-auth/providers/facebook";
 import bcrypt from "bcrypt";
 
 export const options: NextAuthOptions = {
@@ -81,6 +82,38 @@ export const options: NextAuthOptions = {
 			},
 			clientId: process.env.GOOGLE_ID as string,
 			clientSecret: process.env.GOOGLE_SECRET as string,
+		}),
+		FacebookProvider({
+			profile(profile) {
+				let userRole = "USER";
+
+				if (profile?.email == "comillasjin20@gmail.com") {
+					userRole = "ADMIN";
+				}
+				// SAMPLE DATA from profile object
+				// {
+				//   id: '1716939068772456',
+				//   name: 'Jino Joy Comillas',
+				//   email: 'jinojoycomillas20@gmail.com',
+				//   picture: {
+				//     data: {
+				//       height: 50,
+				//       is_silhouette: false,
+				//       url: 'https://platform-lookaside.fbsbx.com/platform/profilepic/?asid=1716939068772456&height=50&width=50&ext=1705041784&hash=AfpgKa4OPmjnklL3mrVTlzbu0Cg7NZj0jCbprV1JarowjA',
+				//       width: 50
+				//     }
+				//   }
+				// }
+				return {
+					...profile,
+					userID: profile.id,
+					role: userRole,
+					image: profile.picture.data.url,
+					provider: "FACEBOOK",
+				};
+			},
+			clientId: process.env.FACEBOOK_ID as string,
+			clientSecret: process.env.FACEBOOK_SECRET as string,
 		}),
 	],
 	callbacks: {

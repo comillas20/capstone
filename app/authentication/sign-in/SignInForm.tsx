@@ -87,7 +87,7 @@ export default function SignInForm() {
 									<FormItem className="grid gap-2">
 										<FormLabel>Email or mobile number</FormLabel>
 										<FormControl>
-											<Input type="text" placeholder="john.doe@example.com" {...field} />
+											<Input type="text" placeholder="Email/Mobile number" {...field} />
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -100,7 +100,7 @@ export default function SignInForm() {
 									<FormItem className="grid gap-2">
 										<FormLabel>Password</FormLabel>
 										<FormControl>
-											<Input type="password" {...field} />
+											<Input type="password" {...field} placeholder="Password" />
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -117,7 +117,15 @@ export default function SignInForm() {
 								</div>
 							</div>
 							<div className="grid grid-cols-2 gap-6">
-								<Button variant="outline" type="button">
+								<Button
+									variant="outline"
+									type="button"
+									onClick={async () => {
+										const signInData = await signIn("facebook", {
+											redirect: true,
+											callbackUrl: searchParams.get("callbackUrl") ?? "/",
+										});
+									}}>
 									<FacebookIcon className="mr-2 h-4 w-4" />
 									Facebook
 								</Button>
@@ -127,7 +135,7 @@ export default function SignInForm() {
 									onClick={async () => {
 										const signInData = await signIn("google", {
 											redirect: true,
-											callbackUrl: "/",
+											callbackUrl: searchParams.get("callbackUrl") ?? "/",
 										});
 									}}>
 									<svg role="img" viewBox="0 0 24 24" className="mr-2 h-4 w-4">

@@ -1,7 +1,7 @@
 import NextAuth from "next-auth";
 
 type Roles = "ADMIN" | "USER";
-type Providers = "CREDENTIALS" | "GOOGLE";
+type Providers = "CREDENTIALS" | "GOOGLE" | "FACEBOOK";
 declare module "next-auth" {
 	interface User {
 		userID: string;

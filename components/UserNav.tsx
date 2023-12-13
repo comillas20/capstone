@@ -61,6 +61,17 @@ export default async function UserNav() {
 											alt={session.user.name ?? "User image"}
 										/>
 									);
+								} else if (
+									session.user.name &&
+									session.user.image &&
+									session.user.provider === "FACEBOOK"
+								) {
+									return (
+										<AvatarImage
+											src={session.user.image}
+											alt={session.user.name ?? "User image"}
+										/>
+									);
 								}
 							})()}
 						{(!session || !session.user.image) && <UserCircle strokeWidth={1.5} />}
