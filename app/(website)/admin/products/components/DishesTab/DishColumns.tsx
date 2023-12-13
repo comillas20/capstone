@@ -8,18 +8,7 @@ import { isAvailable } from "../../page";
 import DeleteDialog from "./DeleteDialog";
 import { DataTableColumnHeader } from "@app/(website)/admin/components/DataTableColumnHeader";
 import { DataTableRowActions } from "./DataTableRowActions";
-import { CldUploadButton } from "next-cloudinary";
-import { saveDishImage } from "../serverActions";
-import { toast } from "@components/ui/use-toast";
-import { mutate } from "swr";
-import DishProfileDialog from "./DishProfileDialog";
-import { Button } from "@components/ui/button";
 import { AlertCircle } from "lucide-react";
-import {
-	HoverCard,
-	HoverCardContent,
-	HoverCardTrigger,
-} from "@components/ui/hover-card";
 import {
 	Tooltip,
 	TooltipContent,
@@ -71,7 +60,7 @@ export const columns: ColumnDef<Dishes>[] = [
 		cell: ({ row }) => {
 			return (
 				<div className="flex items-center gap-2">
-					<DishProfileDialog data={row.original} />
+					{row.original.name}
 					{!row.original.imgHref && (
 						<TooltipProvider>
 							<Tooltip>

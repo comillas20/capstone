@@ -148,3 +148,39 @@ export function convertExcelValueToDateString(
 
 	return formattedResult;
 }
+
+export const DISHES_IMAGE_FOLDER = "jakelou/dishes/";
+type CloudinaryPresets = "DISHES" | "PROFILE_IMAGES";
+
+/**
+ *
+ * @param file The image file to be uploaded
+ * @param filename The filename of the image to be uploaded.
+ * @param upload_preset The upload preset, set in cloudinary -> upload tab
+ * @returns response data
+ */
+export async function uploadImage(
+	file: File,
+	filename: string,
+	upload_preset: CloudinaryPresets
+) {
+	const formData = new FormData();
+	formData.append("file", file);
+	formData.append("upload_preset", upload_preset);
+	formData.append("public_id", filename);
+
+	const response = await fetch(
+		`https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+		{
+			method: "POST",
+			body: formData,
+		}
+	);
+
+	if (!response.ok) {
+		throw new Error(`HTTP error! status: ${response.status}`);
+	}
+
+	const data = await response.json();
+	return data.secure_url;
+}

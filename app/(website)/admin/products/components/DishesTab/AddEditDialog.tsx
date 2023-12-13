@@ -23,8 +23,7 @@ import useSWR, { useSWRConfig } from "swr";
 import {
 	getAllCategories,
 	getAllCourses,
-	editDish,
-	createDish,
+	createOrUpdateDish,
 	getAllDishes,
 } from "../serverActions";
 import { isAvailable as iaEnum } from "../../page";
@@ -39,6 +38,9 @@ import {
 	DropdownMenuTrigger,
 } from "@components/ui/dropdown-menu";
 import { TriangleDownIcon } from "@radix-ui/react-icons";
+import { DISHES_IMAGE_FOLDER, uploadImage } from "@lib/utils";
+import { Loader2 } from "lucide-react";
+import DishProfileDialog from "./DishProfileDialog";
 
 type AddEditDialogProps = {
 	data?: Dishes;
@@ -76,6 +78,11 @@ export default function AddEditDialog({
 					message: "This dish already exists!",
 				}
 			),
+		image: z
+			.custom(value => value instanceof File, {
+				message: "Invalid File!",
+			})
+			.optional(),
 		categoryID: z
 			.string()
 			.min(1)
@@ -116,15 +123,27 @@ export default function AddEditDialog({
 	const { mutate } = useSWRConfig();
 	function onSubmit(values: z.infer<typeof formSchema>) {
 		onOpenChange(false);
+		const imageFileName = values.id.toString();
 		const orig = {
 			id: values.id,
 			name: values.name,
+			imgHref: values.image
+				? DISHES_IMAGE_FOLDER.concat(imageFileName)
+				: undefined,
 			categoryID: parseInt(values.categoryID),
 			courseID: parseInt(values.courseID),
 			isAvailable: values.isAvailable,
 		};
 		startSaving(async () => {
-			const submitDish = data ? await editDish(orig) : await createDish(orig);
+			if (values.image) {
+				const imgUpload = await uploadImage(
+					values.image as File,
+					imageFileName,
+					"DISHES"
+				);
+				console.log(imgUpload);
+			}
+			const submitDish = await createOrUpdateDish(orig);
 			if (submitDish) {
 				toast({
 					title: "Success",
@@ -156,7 +175,10 @@ export default function AddEditDialog({
 						</DialogDescription>
 					</DialogHeader>
 					<Form {...form}>
-						<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+						<form
+							onSubmit={form.handleSubmit(onSubmit)}
+							className="space-y-4"
+							encType="multipart/form-data">
 							<FormField
 								control={form.control}
 								name="name"
@@ -165,6 +187,30 @@ export default function AddEditDialog({
 										<FormLabel>Name</FormLabel>
 										<FormControl>
 											<Input {...field} />
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name="image"
+								render={({ field }) => (
+									<FormItem>
+										<div className="flex justify-between">
+											<FormLabel>Dish Image</FormLabel>
+											{data && <DishProfileDialog data={data} />}
+										</div>
+
+										<FormControl>
+											<Input
+												accept="image/png, image/jpg"
+												type="file"
+												disabled={field.disabled}
+												onChange={e => {
+													if (e.target.files) field.onChange(e.target.files[0]);
+												}}
+											/>
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -299,6 +345,7 @@ export default function AddEditDialog({
 									</Button>
 								</DialogClose>
 								<Button type="submit" disabled={isSaving}>
+									{isSaving && <Loader2 className="mr-2 animate-spin" />}
 									Save
 								</Button>
 							</div>

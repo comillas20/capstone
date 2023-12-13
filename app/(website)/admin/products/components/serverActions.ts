@@ -5,6 +5,7 @@ import cloudinary from "cloudinary";
 type Dish = {
 	id: number;
 	name: string;
+	imgHref: string | undefined;
 	categoryID: number;
 	courseID: number;
 	isAvailable: string;
@@ -15,22 +16,21 @@ enum isAvailable {
 	false = "N/A",
 }
 
-export async function createDish(dish: Dish) {
-	const newDish = await prisma.dish.create({
-		data: {
+export async function createOrUpdateDish(dish: Dish) {
+	return await prisma.dish.upsert({
+		create: {
 			name: dish.name,
+			imgHref: dish.imgHref,
 			isAvailable: dish.isAvailable === isAvailable.true,
 			categoryID: dish.categoryID,
 			courseID: dish.courseID,
 		},
-	});
-
-	return newDish;
-}
-export async function editDish(dish: Dish) {
-	const newDish = await prisma.dish.update({
-		data: {
+		where: {
+			id: dish.id,
+		},
+		update: {
 			name: dish.name,
+			imgHref: dish.imgHref,
 			category: {
 				connect: {
 					id: dish.categoryID,
@@ -43,12 +43,7 @@ export async function editDish(dish: Dish) {
 			},
 			isAvailable: dish.isAvailable === isAvailable.true,
 		},
-		where: {
-			id: dish.id,
-		},
 	});
-
-	return newDish;
 }
 
 export async function saveDishImage(
