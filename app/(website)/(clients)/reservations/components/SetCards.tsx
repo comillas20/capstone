@@ -2,7 +2,7 @@ import { CheckboxGroup, CheckboxItem } from "@components/CheckBoxGroup";
 import { Card, CardContent, CardHeader, CardTitle } from "@components/ui/card";
 import { Label } from "@components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@components/ui/radio-group";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 import {
 	ReservationFormContext,
 	ReservationFormContextProps,

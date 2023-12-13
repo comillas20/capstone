@@ -18,9 +18,19 @@ export default function SetPicker() {
 	const [selectedSet, setSelectedSet] = useState(0);
 	const allSets = useSWR("spickerGetAllSets", async () => {
 		const sets = await getAllSets();
-		return sets.filter(set =>
-			set.subSets.some(subSet => subSet.dishes.length > 0)
-		);
+		const filtered = sets
+			.map(({ subSets, ...set }) => ({
+				...set,
+				subSets: subSets
+					.map(({ dishes, ...subSet }) => ({
+						...subSet,
+						dishes: dishes.filter(dish => dish.isAvailable),
+					}))
+					.filter(subSet => subSet.dishes.length > 0),
+			}))
+			.filter(set => set.subSets.length > 0);
+
+		return filtered;
 	});
 
 	return (

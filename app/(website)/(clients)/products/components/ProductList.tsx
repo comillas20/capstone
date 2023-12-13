@@ -68,7 +68,7 @@ export default function ProductList({ categories, dishes }: ProductListProps) {
 											src={dish.imgHref}
 											sizes="100vw"
 											alt={dish.name}
-											className="bottom-0 left-0 right-0 top-0 min-h-[15rem] w-full rounded-t-md transition-all hover:scale-105"
+											className="bottom-0 left-0 right-0 top-0 h-60 w-full rounded-t-md transition-all hover:scale-105"
 										/>
 									)}
 								</ImageNotAvailable>
