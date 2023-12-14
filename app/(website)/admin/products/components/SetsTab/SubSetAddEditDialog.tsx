@@ -34,7 +34,7 @@ import { Input } from "@components/ui/input";
 import { TriangleDownIcon } from "@radix-ui/react-icons";
 import { ScrollArea } from "@components/ui/scroll-area";
 import { Badge } from "@components/ui/badge";
-import { Loader2Icon, Plus, X } from "lucide-react";
+import { AlertCircle, HelpCircle, Loader2Icon, Plus, X } from "lucide-react";
 import SubSetAddDishesByCategory from "./SubSetAddDishesByCategory";
 import {
 	DropdownMenu,
@@ -50,6 +50,12 @@ import {
 	ProductPageContext,
 	ProductPageContextProps,
 } from "../ProductPageProvider";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
+} from "@components/ui/tooltip";
 
 type SubSetAddEditDialogProps = {
 	editSubSetData?: {
@@ -307,8 +313,21 @@ export default function SubSetAddEditDialog({
 								render={({ field }) => (
 									<FormItem>
 										<div className="grid grid-cols-3 items-center gap-x-4">
-											<FormLabel className="col-span-2">
-												Select quantity of selection:
+											<FormLabel className="col-span-2 flex items-center gap-2">
+												<span>Select quantity of selection:</span>
+												<TooltipProvider>
+													<Tooltip>
+														<TooltipTrigger asChild>
+															<HelpCircle size={15} className="h-5 w-5 text-primary" />
+														</TooltipTrigger>
+														<TooltipContent>
+															<p>
+																The required number of dishes the customer can pick in this
+																subset
+															</p>
+														</TooltipContent>
+													</Tooltip>
+												</TooltipProvider>
 											</FormLabel>
 											<FormControl className="col-span-1">
 												<Input

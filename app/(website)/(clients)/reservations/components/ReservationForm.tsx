@@ -94,7 +94,7 @@ export default function ReservationForm({
 					<h3 className="mb-3 text-lg">{date?.toDateString()} - Vacants</h3>
 					<hr className="mb-4" />
 					<ScrollArea>
-						{!session && <p>You are not signed in</p>}
+						{!session && <p className="mb-4">You are not signed in</p>}
 						{allDishes.data &&
 							(() => {
 								const selectedByCheckBoxes = selectedDishIDsViaCB.map(selectedIDs => {
@@ -133,7 +133,7 @@ export default function ReservationForm({
 												if (session?.user) {
 													setIsPaymentDialogOpen(true);
 												} else {
-													signIn("credentials");
+													signIn();
 												}
 											}}>
 											9:00am | Brgy. Taft, Narciso St., Surigao City
