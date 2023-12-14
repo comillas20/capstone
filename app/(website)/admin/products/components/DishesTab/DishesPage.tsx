@@ -1,42 +1,35 @@
 "use client";
 import { Dishes, columns } from "./DishColumns";
-import useSWR from "swr";
-import {
-	getAllCategories,
-	getAllCourses,
-	getAllDishes,
-} from "../serverActions";
-import { convertDateToString } from "@lib/utils";
 import { isAvailable } from "../../page";
+import {
+	ProductPageContext,
+	ProductPageContextProps,
+} from "../ProductPageProvider";
 import { DataTable } from "@app/(website)/admin/components/DataTable";
 import { DataTableToolbar } from "./DataTableToolbar";
 import { Card, CardContent, CardFooter } from "@components/ui/card";
 import { Button } from "@components/ui/button";
 import { Separator } from "@components/ui/separator";
 import CategoryCourseDialog from "./CategoryCourseDialog";
-import { useState } from "react";
+import { useContext } from "react";
+import { convertDateToString } from "@lib/utils";
 
 export default function DishesPage() {
-	const dishes = useSWR("dpGetAllDishes", async () => {
-		const d = await getAllDishes();
-		const dishes: Dishes[] = d.map(dish => ({
-			id: dish.id,
-			name: dish.name,
-			categoryID: dish.category.id,
-			category: dish.category.name,
-			courseID: dish.course.id,
-			course: dish.course.name,
-			createdAt: convertDateToString(dish.createdAt),
-			updatedAt: convertDateToString(dish.updatedAt),
-			imgHref: dish.imgHref,
-			isAvailable: dish.isAvailable ? isAvailable.true : isAvailable.false,
-		}));
-		return dishes;
-	});
-	const categories = useSWR("dpGetAllCategories", getAllCategories);
-	const courses = useSWR("dpGetAllCourses", getAllCourses);
-	//Had to do this to bypass TS type check, @data will only be undefined during loading (e.g. slow internet)
-	const d2 = dishes.data ? dishes.data : [];
+	const { dishes, categories, courses } = useContext(
+		ProductPageContext
+	) as ProductPageContextProps;
+	const dishesTableData: Dishes[] = dishes.map(dish => ({
+		id: dish.id,
+		name: dish.name,
+		categoryID: dish.category.id,
+		category: dish.category.name,
+		courseID: dish.course.id,
+		course: dish.course.name,
+		createdAt: convertDateToString(dish.createdAt),
+		updatedAt: convertDateToString(dish.updatedAt),
+		imgHref: dish.imgHref,
+		isAvailable: dish.isAvailable ? isAvailable.true : isAvailable.false,
+	}));
 	const hideOnDefault = { Created: false, "Last Updated": false };
 	return (
 		<div className="flex flex-col space-y-2">
@@ -47,8 +40,8 @@ export default function DishesPage() {
 							<div className="flex-1">
 								<h3 className="mb-3 text-sm font-semibold">Categories</h3>
 								<div className="flex flex-col space-y-1">
-									{categories.data &&
-										categories.data.map(category => (
+									{categories &&
+										categories.map(category => (
 											<div key={category.id}>
 												<CategoryCourseDialog editData={category} isCategory={true}>
 													<Button
@@ -66,8 +59,8 @@ export default function DishesPage() {
 							<div className="flex-1">
 								<h3 className="mb-3 text-sm font-semibold">Courses</h3>
 								<div className="flex flex-col space-y-1">
-									{courses.data &&
-										courses.data.map(course => (
+									{courses &&
+										courses.map(course => (
 											<div key={course.id}>
 												<CategoryCourseDialog editData={course} isCategory={false}>
 													<Button
@@ -99,7 +92,7 @@ export default function DishesPage() {
 				</div>
 				<div className="col-span-3">
 					<DataTable
-						data={d2}
+						data={dishesTableData}
 						columns={columns}
 						Toolbar={DataTableToolbar}
 						hideAsDefault={hideOnDefault}

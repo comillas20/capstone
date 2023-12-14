@@ -125,6 +125,7 @@ export const columns: ColumnDef<Dishes>[] = [
 						deleteOpener={setIsDeleteOpen}
 					/>
 					<AddEditDialog
+						key={row.original.name}
 						data={row.original}
 						open={isAEOpen}
 						onOpenChange={setIsAEOpen}

@@ -5,13 +5,17 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@components/ui/dialog";
-import { Dishes } from "./DishColumns";
 import { DialogClose } from "@radix-ui/react-dialog";
 import { Button } from "@components/ui/button";
 import { useTransition } from "react";
 import { useSWRConfig } from "swr";
 import { deleteCategory, deleteCourse } from "../serverActions";
 import { toast } from "@components/ui/use-toast";
+import {
+	PRODUCTS_CATEGORIES_KEY,
+	PRODUCTS_COURSES_KEY,
+	PRODUCTS_SETS_KEY,
+} from "../ProductPageProvider";
 
 type CCDeleteDialogProps = {
 	data: {
@@ -66,8 +70,9 @@ export default function CCDeleteDialog({
 												description: data.name + " is successfully deleted!",
 												duration: 5000,
 											});
-											mutate("dpGetAllCategories");
-											mutate("dpGetAllCourses");
+											mutate(PRODUCTS_CATEGORIES_KEY);
+											mutate(PRODUCTS_COURSES_KEY);
+											mutate(PRODUCTS_SETS_KEY);
 										}
 									});
 								}}

@@ -65,17 +65,13 @@ export async function saveDishImage(
 }
 
 async function deleteImages(public_ids: string[]) {
-	// example: "jakelou/vqupf6q5jlqzxu0rkadm.png"
-	console.log(public_ids);
-
 	cloudinary.v2.config({
-		cloud_name: "dd16nlxbl",
-		api_key: "985514274842282",
-		api_secret: "yHRVWlXZDIy-MzMa8whumfLwHkM",
+		cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+		api_key: process.env.CLOUDINARY_API_KEY,
+		api_secret: process.env.CLOUDINARY_API_SECRET,
 	});
 	try {
 		const deleteResult = await cloudinary.v2.api.delete_resources(public_ids);
-		console.log(deleteResult);
 	} catch (error) {
 		console.error(error);
 	}
@@ -96,57 +92,44 @@ export async function deleteDishes(
 	const noNulls = (
 		dishes.filter(dish => dish.imgHref !== null) as dishAndImages
 	).map(dish => dish.imgHref);
-	// example: "jakelou/vqupf6q5jlqzxu0rkadm.docx"
 	const yeetImage = await deleteImages(noNulls);
 
 	return yeetedDishes;
 }
 
-export async function getAllDishes() {
-	const dishes = await prisma.dish.findMany({
-		select: {
-			id: true,
-			name: true,
-			category: {
-				select: {
-					id: true,
-					name: true,
-				},
-			},
-			course: true,
-			createdAt: true,
-			updatedAt: true,
-			isAvailable: true,
-			imgHref: true,
-		},
-	});
-
-	return dishes;
-}
-type categoryCourse = {
+type CategoryOrCourse = {
 	id: number;
 	name: string;
 };
-export async function createCategory(category: string) {
-	return await prisma.category.create({
-		data: {
-			name: category,
-		},
-	});
+export async function createOrUpdateCategoryOrCourse(
+	data: CategoryOrCourse,
+	isCategory: boolean
+) {
+	return isCategory
+		? await prisma.category.upsert({
+				create: {
+					name: data.name,
+				},
+				where: {
+					id: data.id,
+				},
+				update: {
+					name: data.name,
+				},
+		  })
+		: await prisma.course.upsert({
+				create: {
+					name: data.name,
+				},
+				where: {
+					id: data.id,
+				},
+				update: {
+					name: data.name,
+				},
+		  });
 }
-export async function editCategory(data: categoryCourse) {
-	return await prisma.category.update({
-		data: {
-			name: data.name,
-		},
-		where: {
-			id: data.id,
-		},
-	});
-}
-export async function getAllCategories() {
-	return await prisma.category.findMany();
-}
+
 export async function deleteCategory(id: number) {
 	return await prisma.category.delete({
 		where: {
@@ -155,26 +138,6 @@ export async function deleteCategory(id: number) {
 	});
 }
 
-export async function createCourse(course: string) {
-	return await prisma.course.create({
-		data: {
-			name: course,
-		},
-	});
-}
-export async function editCourse(data: categoryCourse) {
-	return await prisma.course.update({
-		data: {
-			name: data.name,
-		},
-		where: {
-			id: data.id,
-		},
-	});
-}
-export async function getAllCourses() {
-	return await prisma.course.findMany();
-}
 export async function deleteCourse(id: number) {
 	return await prisma.course.delete({
 		where: {
@@ -188,24 +151,20 @@ type Set = {
 	minimumPerHead: number;
 	price: number;
 };
-export async function createSet(values: Set) {
-	return await prisma.set.create({
-		data: {
-			name: values.name,
-			minimumPerHead: values.minimumPerHead,
-			price: values.price,
-		},
-	});
-}
-export async function editSet(values: Set) {
-	return await prisma.set.update({
-		data: {
+export async function createOrUpdateSet(values: Set) {
+	return await prisma.set.upsert({
+		create: {
 			name: values.name,
 			minimumPerHead: values.minimumPerHead,
 			price: values.price,
 		},
 		where: {
 			id: values.id,
+		},
+		update: {
+			name: values.name,
+			minimumPerHead: values.minimumPerHead,
+			price: values.price,
 		},
 	});
 }
@@ -234,9 +193,9 @@ type subset = {
 	courseID: number;
 	selectionQuantity: number;
 };
-export async function createSubset(subset: subset) {
-	return await prisma.subSet.create({
-		data: {
+export async function createOrUpdateSubset(subset: subset) {
+	return await prisma.subSet.upsert({
+		create: {
 			name: subset.name,
 			courseID: subset.courseID,
 			setID: subset.setID,
@@ -245,16 +204,10 @@ export async function createSubset(subset: subset) {
 			},
 			selectionQuantity: subset.selectionQuantity,
 		},
-		include: {
-			dishes: true,
-			set: true,
-			course: true,
+		where: {
+			id: subset.id,
 		},
-	});
-}
-export async function editSubset(subset: subset) {
-	return await prisma.subSet.update({
-		data: {
+		update: {
 			name: subset.name,
 			courseID: subset.courseID,
 			setID: subset.setID,
@@ -264,9 +217,6 @@ export async function editSubset(subset: subset) {
 			},
 			selectionQuantity: subset.selectionQuantity,
 		},
-		where: {
-			id: subset.id,
-		},
 		include: {
 			dishes: true,
 			set: true,
@@ -274,6 +224,7 @@ export async function editSubset(subset: subset) {
 		},
 	});
 }
+
 export async function getAllSubSetsInASet(setID: number) {
 	return await prisma.subSet.findMany({
 		include: {

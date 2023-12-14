@@ -33,8 +33,9 @@ type SetCardProps = {
 			selectionQuantity: number;
 		}[];
 	};
+	className?: string;
 };
-export default function SetCard({ data }: SetCardProps) {
+export default function SetCard({ data, className }: SetCardProps) {
 	const [isEditSetOpen, setIsEditSetOpen] = useState(false);
 	const editSetData = data && {
 		id: data.id,
@@ -53,7 +54,7 @@ export default function SetCard({ data }: SetCardProps) {
 		subsetsByCourses[key].push(subSet);
 	});
 	return (
-		<Card className="col-span-5" key={data.id}>
+		<Card className={className} key={data.id}>
 			<CardHeader className="text-center">
 				<CardTitle className="flex items-center justify-center gap-2 text-2xl">
 					<EditableButtonText
@@ -79,14 +80,14 @@ export default function SetCard({ data }: SetCardProps) {
 						const [courseID, courseName] = key.split("_");
 						const subSets = subsetsByCourses[key];
 						return (
-							<div key={key} className="mb-2 grid grid-cols-2 gap-x-4">
+							<div key={courseID} className="mb-2 grid grid-cols-2 gap-x-4">
 								<h5 className="col-span-2 text-primary">{courseName}</h5>
 								{subSets.map(subset => (
 									<div key={subset.id} className="mb-3">
 										{subSets && (
 											<SubSetAddEditDialog editSubSetData={subset} setID={data.id}>
 												<EditableButtonText
-													text={subset.name ?? "(No name)"}
+													text={subset.name}
 													variant={"link"}
 													className="p-0 text-lg font-medium"
 													iconClassName="text-primary"

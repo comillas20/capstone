@@ -6,11 +6,13 @@ import { Input } from "@components/ui/input";
 import { DataTableViewOptions } from "@app/(website)/admin/components//DataTableViewOptions";
 import { Info, Plus } from "lucide-react";
 import AddEditDialog from "./AddEditDialog";
-import { useState } from "react";
-import useSWR from "swr";
-import { getAllCategories, getAllCourses } from "../serverActions";
+import { useContext, useState } from "react";
 import DeleteDialog from "./DeleteDialog";
 import { Dishes } from "./DishColumns";
+import {
+	ProductPageContext,
+	ProductPageContextProps,
+} from "../ProductPageProvider";
 
 interface DataTableToolbarProps<TData> {
 	table: Table<TData>;
@@ -20,8 +22,9 @@ export function DataTableToolbar<TData>({
 	table,
 }: DataTableToolbarProps<TData>) {
 	const [isOpen, setIsOpen] = useState(false);
-	const categories = useSWR("dtCategoryToolbar", getAllCategories);
-	const courses = useSWR("dtCourseToolbar", getAllCourses);
+	const { categories, courses } = useContext(
+		ProductPageContext
+	) as ProductPageContextProps;
 	const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 	const selectedRowsData: Dishes[] = table
 		.getSelectedRowModel()
@@ -51,7 +54,7 @@ export function DataTableToolbar<TData>({
 					</>
 				)}
 			</div>
-			{(categories.data?.length == 0 || courses.data?.length == 0) && (
+			{(categories?.length == 0 || courses?.length == 0) && (
 				<p className="mr-4 flex items-center text-sm text-primary">
 					<Info className="mr-2" />
 					Please add a category and a course first before adding a dish
@@ -61,7 +64,7 @@ export function DataTableToolbar<TData>({
 				size="sm"
 				className="flex"
 				onClick={() => setIsOpen(true)}
-				disabled={categories.data?.length == 0 || courses.data?.length == 0}>
+				disabled={categories?.length == 0 || courses?.length == 0}>
 				<Plus className="mr-2" />
 				Dish
 			</Button>

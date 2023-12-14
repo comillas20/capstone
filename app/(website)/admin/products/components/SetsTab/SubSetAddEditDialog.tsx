@@ -7,16 +7,16 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@components/ui/dialog";
-import { useEffect, useState, useTransition } from "react";
-import useSWR, { mutate } from "swr";
+import { useContext, useEffect, useState, useTransition } from "react";
+import { mutate } from "swr";
 import {
-	createSubset,
-	editSubset,
-	getAllCourses,
-	getAllDishes,
-	getAllSubSetsInASet,
+	createOrUpdateSubset,
 	isSubSetAlreadyExistsInASet,
 } from "../serverActions";
+import {
+	getAllCourses,
+	getAllDishes,
+} from "@app/(website)/serverActionsGlobal";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -31,16 +31,7 @@ import {
 } from "@components/ui/form";
 import { DialogClose } from "@radix-ui/react-dialog";
 import { Input } from "@components/ui/input";
-import {
-	CommandDialog,
-	CommandEmpty,
-	CommandGroup,
-	CommandInput,
-	CommandItem,
-	CommandList,
-} from "@components/ui/command";
-import { CheckIcon, TriangleDownIcon } from "@radix-ui/react-icons";
-import { cn } from "@lib/utils";
+import { TriangleDownIcon } from "@radix-ui/react-icons";
 import { ScrollArea } from "@components/ui/scroll-area";
 import { Badge } from "@components/ui/badge";
 import { Loader2Icon, Plus, X } from "lucide-react";
@@ -54,6 +45,11 @@ import {
 } from "@components/ui/dropdown-menu";
 import SubSetDeleteDialog from "./SubSetDeleteDialog";
 import SubSetAddDishesByCommand from "./SubSetAddDishesByCommand";
+import {
+	PRODUCTS_SETS_KEY,
+	ProductPageContext,
+	ProductPageContextProps,
+} from "../ProductPageProvider";
 
 type SubSetAddEditDialogProps = {
 	editSubSetData?: {
@@ -79,9 +75,9 @@ export default function SubSetAddEditDialog({
 	...props
 }: SubSetAddEditDialogProps & React.ComponentProps<typeof Dialog>) {
 	const [isSaving, startSaving] = useTransition();
-	const allDishes = useSWR("ssaedGetAllDishes", getAllDishes);
-
-	const allCourses = useSWR("ssaedGetAllCourses", getAllCourses);
+	const { dishes, courses } = useContext(
+		ProductPageContext
+	) as ProductPageContextProps;
 	const formSchema = z.object({
 		id: z.number(),
 		name: z.string().refine(
@@ -146,9 +142,7 @@ export default function SubSetAddEditDialog({
 				courseID: parseInt(values.courseID),
 				selectionQuantity: modSelectionQuantity,
 			};
-			const submitSubSet = editSubSetData
-				? await editSubset(modValues)
-				: await createSubset(modValues);
+			const submitSubSet = await createOrUpdateSubset(modValues);
 
 			if (submitSubSet) {
 				toast({
@@ -159,7 +153,7 @@ export default function SubSetAddEditDialog({
 					duration: 5000,
 				});
 
-				mutate("spGetAllSets");
+				mutate(PRODUCTS_SETS_KEY);
 			}
 		});
 		setIsThisDialogOpen(false);
@@ -192,7 +186,7 @@ export default function SubSetAddEditDialog({
 								</FormItem>
 							)}
 						/>
-						{allDishes.data && (
+						{dishes && (
 							<FormField
 								control={form.control}
 								name="dishes"
@@ -210,9 +204,7 @@ export default function SubSetAddEditDialog({
 															field.onChange(updatedValue);
 														}}>
 														{(() => {
-															const foundDish = allDishes.data?.find(
-																dishData => dishData.id === dish
-															);
+															const foundDish = dishes?.find(dishData => dishData.id === dish);
 															return foundDish ? foundDish.name : "N/A";
 														})()}
 														<X size={15} className="ml-1" />
@@ -228,9 +220,9 @@ export default function SubSetAddEditDialog({
 												<Plus size={15} className="mr-2" />
 												Dishes
 											</Button>
-											{allDishes.data && (
+											{dishes && (
 												<SubSetAddDishesByCategory
-													dishes={allDishes.data}
+													dishes={dishes}
 													onChange={field.onChange}
 													value={field.value}
 												/>
@@ -246,9 +238,9 @@ export default function SubSetAddEditDialog({
 											</Button>
 										</div>
 										<FormControl>
-											{allDishes.data && (
+											{dishes && (
 												<SubSetAddDishesByCommand
-													dishes={allDishes.data}
+													dishes={dishes}
 													value={field.value}
 													onChange={field.onChange}
 													open={isOpenDishCommand}
@@ -262,8 +254,8 @@ export default function SubSetAddEditDialog({
 								)}
 							/>
 						)}
-						<div className="grid grid-cols-2 gap-x-2">
-							{allCourses.data && (
+						<div className="grid grid-cols-2 items-center gap-x-2">
+							{courses && (
 								<FormField
 									control={form.control}
 									name="courseID"
@@ -275,10 +267,9 @@ export default function SubSetAddEditDialog({
 													<DropdownMenuTrigger asChild>
 														<Button variant="outline">
 															{
-																allCourses.data?.find(
-																	value => value.id === parseInt(field.value, 10)
-																)?.name
-																	? allCourses.data?.find(
+																courses?.find(value => value.id === parseInt(field.value, 10))
+																	?.name
+																	? courses?.find(
 																			value => value.id === parseInt(field.value, 10)
 																	  )?.name
 																	: "--select--"
@@ -294,7 +285,7 @@ export default function SubSetAddEditDialog({
 																field.onChange(e);
 																setCourseFilterDishes(e);
 															}}>
-															{allCourses.data?.map(course => (
+															{courses?.map(course => (
 																<DropdownMenuRadioItem
 																	key={course.id}
 																	value={course.id.toString()}>
@@ -316,10 +307,10 @@ export default function SubSetAddEditDialog({
 								render={({ field }) => (
 									<FormItem>
 										<div className="grid grid-cols-3 items-center gap-x-4">
-											<FormLabel className="col-span-1">
+											<FormLabel className="col-span-2">
 												Select quantity of selection:
 											</FormLabel>
-											<FormControl className="col-span-2">
+											<FormControl className="col-span-1">
 												<Input
 													type="number"
 													min={0}

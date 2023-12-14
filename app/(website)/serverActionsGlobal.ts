@@ -43,3 +43,18 @@ export async function getAllCategories() {
 export async function getAllCourses() {
 	return await prisma.course.findMany();
 }
+
+export async function getAllDishes() {
+	return await prisma.dish.findMany({
+		select: {
+			id: true,
+			name: true,
+			category: true,
+			course: true,
+			createdAt: true,
+			updatedAt: true,
+			isAvailable: true,
+			imgHref: true,
+		},
+	});
+}

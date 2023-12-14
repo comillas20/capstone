@@ -12,6 +12,8 @@ import { Button } from "@components/ui/button";
 import { mutate } from "swr";
 import { deleteSet } from "../serverActions";
 import { useTransition } from "react";
+import { Loader2 } from "lucide-react";
+import { PRODUCTS_DISHES_KEY, PRODUCTS_SETS_KEY } from "../ProductPageProvider";
 
 type SetDeleteDialogProps = {
 	rowData: {
@@ -61,13 +63,13 @@ export default function SetDeleteDialog({
 												description: rowData.name + " is successfully deleted!",
 												duration: 5000,
 											});
-											mutate("dpGetAllDishes");
-
-											mutate("spGetAllSets");
+											mutate(PRODUCTS_DISHES_KEY);
+											mutate(PRODUCTS_SETS_KEY);
 										}
 									});
 								}}
 								disabled={isSaving}>
+								{isSaving && <Loader2 className="mr-2 animate-spin" />}
 								Delete
 							</Button>
 						</DialogClose>

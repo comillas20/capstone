@@ -12,6 +12,7 @@ import { useTransition } from "react";
 import { useSWRConfig } from "swr";
 import { deleteDishes } from "../serverActions";
 import { toast } from "@components/ui/use-toast";
+import { PRODUCTS_DISHES_KEY } from "../ProductPageProvider";
 
 type DeleteDialogProps = {
 	data: Dishes[];
@@ -61,9 +62,7 @@ export default function DeleteDialog({
 												description: "The dish is successfully deleted!",
 												duration: 5000,
 											});
-											mutate("dpGetAllDishes");
-
-											mutate("ssaedGetAllDishes");
+											mutate(PRODUCTS_DISHES_KEY);
 										}
 									});
 									onOpenChange(false);

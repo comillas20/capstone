@@ -6,19 +6,11 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@components/ui/dialog";
-import useSWR, { useSWRConfig } from "swr";
-import {
-	createCategory,
-	createCourse,
-	editCategory,
-	editCourse,
-	getAllCategories,
-	getAllCourses,
-} from "../serverActions";
+import { useSWRConfig } from "swr";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState, useTransition } from "react";
+import { useContext, useState, useTransition } from "react";
 import { toast } from "@components/ui/use-toast";
 import {
 	Form,
@@ -32,6 +24,14 @@ import { Input } from "@components/ui/input";
 import { DialogClose } from "@radix-ui/react-dialog";
 import { Button } from "@components/ui/button";
 import CCDeleteDialog from "./CCDeleteDialog";
+import {
+	PRODUCTS_CATEGORIES_KEY,
+	PRODUCTS_COURSES_KEY,
+	PRODUCTS_DISHES_KEY,
+	ProductPageContext,
+	ProductPageContextProps,
+} from "../ProductPageProvider";
+import { createOrUpdateCategoryOrCourse } from "../serverActions";
 type CategoryCourseDialogProps = {
 	editData?: {
 		id: number;
@@ -44,17 +44,12 @@ type CategoryCourseDialogProps = {
 export default function CategoryCourseDialog({
 	editData,
 	isCategory,
-	open,
-	onOpenChange,
 	children,
 }: CategoryCourseDialogProps) {
-	const { data } = isCategory
-		? useSWR("ccdGetAllCategories", getAllCategories, {
-				revalidateOnReconnect: true,
-		  })
-		: useSWR("ccdGetAllCourses", getAllCourses, {
-				revalidateOnReconnect: true,
-		  });
+	const { categories, courses } = useContext(
+		ProductPageContext
+	) as ProductPageContextProps;
+	const data = isCategory ? categories : courses;
 	const formSchema = z.object({
 		id: z.number(),
 		name: z
@@ -84,13 +79,7 @@ export default function CategoryCourseDialog({
 	function onSubmit(values: z.infer<typeof formSchema>) {
 		setIsThisOpen(false);
 		startSaving(async () => {
-			const submit = editData
-				? isCategory
-					? await editCategory(values)
-					: await editCourse(values)
-				: isCategory
-				? await createCategory(values.name)
-				: await createCourse(values.name);
+			const submit = await createOrUpdateCategoryOrCourse(values, isCategory);
 			if (submit) {
 				toast({
 					title: "Success",
@@ -99,16 +88,9 @@ export default function CategoryCourseDialog({
 						: values.name + " is successfully created!",
 					duration: 5000,
 				});
-				mutate("dpGetAllDishes");
-				mutate("aedGetAllCategories");
-				mutate("aedGetAllCourses");
-				mutate("aedGetAllDishes");
-
-				mutate("dtCategoryToolbar");
-				mutate("dtCourseToolbar");
-
-				mutate("dpGetAllCategories");
-				mutate("dpGetAllCourses");
+				mutate(PRODUCTS_DISHES_KEY);
+				mutate(PRODUCTS_COURSES_KEY);
+				mutate(PRODUCTS_CATEGORIES_KEY);
 			}
 		});
 	}

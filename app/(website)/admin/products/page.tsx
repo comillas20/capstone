@@ -2,7 +2,7 @@ import { Separator } from "@components/ui/separator";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@components/ui/tabs";
 import DishesPage from "./components/DishesTab/DishesPage";
 import SetsPage from "./components/SetsTab/SetsPage";
-
+import ProductPageProvider from "./components/ProductPageProvider";
 export default async function ProductsPage() {
 	return (
 		<Tabs defaultValue="dishes" className="space-y-4">
@@ -18,12 +18,15 @@ export default async function ProductsPage() {
 				</TabsList>
 			</div>
 			<Separator></Separator>
-			<TabsContent value="dishes">
-				<DishesPage />
-			</TabsContent>
-			<TabsContent value="sets">
-				<SetsPage />
-			</TabsContent>
+
+			<ProductPageProvider>
+				<TabsContent value="dishes">
+					<DishesPage />
+				</TabsContent>
+				<TabsContent value="sets">
+					<SetsPage />
+				</TabsContent>
+			</ProductPageProvider>
 		</Tabs>
 	);
 }

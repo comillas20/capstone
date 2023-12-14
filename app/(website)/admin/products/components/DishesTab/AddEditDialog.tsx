@@ -19,15 +19,17 @@ import {
 	FormMessage,
 } from "@components/ui/form";
 import { Input } from "@components/ui/input";
-import useSWR, { useSWRConfig } from "swr";
-import {
-	getAllCategories,
-	getAllCourses,
-	createOrUpdateDish,
-	getAllDishes,
-} from "../serverActions";
+import { useSWRConfig } from "swr";
+import { createOrUpdateDish } from "../serverActions";
 import { isAvailable as iaEnum } from "../../page";
-import { useEffect, useTransition } from "react";
+import {
+	PRODUCTS_CATEGORIES_KEY,
+	PRODUCTS_COURSES_KEY,
+	PRODUCTS_DISHES_KEY,
+	ProductPageContext,
+	ProductPageContextProps,
+} from "../ProductPageProvider";
+import { useContext, useEffect, useTransition } from "react";
 import { toast } from "@components/ui/use-toast";
 import {
 	DropdownMenu,
@@ -51,14 +53,9 @@ export default function AddEditDialog({
 	open,
 	onOpenChange,
 }: AddEditDialogProps) {
-	const allCategories = useSWR("aedGetAllCategories", getAllCategories, {
-		revalidateOnReconnect: true,
-	});
-
-	const allCourses = useSWR("aedGetAllCourses", getAllCourses, {
-		revalidateOnReconnect: true,
-	});
-	const allDishes = useSWR("aedGetAllDishes", getAllDishes);
+	const { dishes, categories, courses } = useContext(
+		ProductPageContext
+	) as ProductPageContextProps;
 	const defaultDDM = "--select--";
 	const formSchema = z.object({
 		id: z.number(),
@@ -67,7 +64,7 @@ export default function AddEditDialog({
 			.min(1)
 			.refine(
 				e =>
-					!allDishes.data?.find(f => {
+					!dishes?.find(f => {
 						//If user is editing, then exclude the current name in searching for duplicate
 						const checker = data
 							? f.name !== data?.name && f.name === e
@@ -152,12 +149,9 @@ export default function AddEditDialog({
 						: "The dish is successfully created!",
 					duration: 5000,
 				});
-				mutate("dpGetAllDishes");
-				mutate("aedGetAllCategories");
-				mutate("aedGetAllCourses");
-				mutate("aedGetAllDishes");
-
-				mutate("ssaedGetAllDishes");
+				mutate(PRODUCTS_DISHES_KEY);
+				mutate(PRODUCTS_CATEGORIES_KEY);
+				mutate(PRODUCTS_COURSES_KEY);
 			}
 		});
 	}
@@ -165,7 +159,7 @@ export default function AddEditDialog({
 		form.reset();
 	}, [open]);
 	return (
-		!allDishes.isLoading && (
+		dishes && (
 			<Dialog open={open} onOpenChange={onOpenChange}>
 				<DialogContent>
 					<DialogHeader className="mb-4">
@@ -227,10 +221,10 @@ export default function AddEditDialog({
 												<DropdownMenu>
 													<DropdownMenuTrigger asChild>
 														<Button variant="outline">
-															{allCategories.data?.find(
+															{categories?.find(
 																value => value.id === parseInt(field.value, 10)
 															)?.name
-																? allCategories.data?.find(
+																? categories?.find(
 																		value => value.id === parseInt(field.value, 10)
 																  )?.name
 																: defaultDDM}
@@ -241,7 +235,7 @@ export default function AddEditDialog({
 														<DropdownMenuRadioGroup
 															value={field.value}
 															onValueChange={field.onChange}>
-															{allCategories.data?.map(category => (
+															{categories?.map(category => (
 																<DropdownMenuRadioItem
 																	key={category.id}
 																	value={category.id.toString()}>
@@ -267,10 +261,9 @@ export default function AddEditDialog({
 													<DropdownMenuTrigger asChild>
 														<Button variant="outline">
 															{
-																allCourses.data?.find(
-																	value => value.id === parseInt(field.value, 10)
-																)?.name
-																	? allCourses.data?.find(
+																courses?.find(value => value.id === parseInt(field.value, 10))
+																	?.name
+																	? courses?.find(
 																			value => value.id === parseInt(field.value, 10)
 																	  )?.name
 																	: defaultDDM
@@ -283,7 +276,7 @@ export default function AddEditDialog({
 														<DropdownMenuRadioGroup
 															value={field.value}
 															onValueChange={field.onChange}>
-															{allCourses.data?.map(course => (
+															{courses?.map(course => (
 																<DropdownMenuRadioItem
 																	key={course.id}
 																	value={course.id.toString()}>

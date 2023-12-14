@@ -8,8 +8,8 @@ import {
 	DialogTrigger,
 } from "@components/ui/dialog";
 import { useEffect, useTransition } from "react";
-import useSWR, { mutate } from "swr";
-import { createSet, doesSetExists, editSet } from "../serverActions";
+import { mutate } from "swr";
+import { createOrUpdateSet, doesSetExists } from "../serverActions";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -24,6 +24,7 @@ import {
 import { DialogClose } from "@radix-ui/react-dialog";
 import { Input } from "@components/ui/input";
 import { toast } from "@components/ui/use-toast";
+import { PRODUCTS_SETS_KEY } from "../ProductPageProvider";
 
 type SetAddEditDialogProps = {
 	editSetData?: {
@@ -83,9 +84,7 @@ export default function SetAddEditDialog({
 	function onSubmit(values: z.infer<typeof formSchema>) {
 		if (props.onOpenChange) props.onOpenChange(false);
 		startSaving(async () => {
-			const submitSet = editSetData
-				? await editSet(values)
-				: await createSet(values);
+			const submitSet = await createOrUpdateSet(values);
 
 			if (submitSet) {
 				toast({
@@ -96,8 +95,7 @@ export default function SetAddEditDialog({
 					duration: 5000,
 				});
 
-				mutate("spGetAllSets");
-				mutate("saedGetAllSets");
+				mutate(PRODUCTS_SETS_KEY);
 			}
 		});
 	}
@@ -125,40 +123,43 @@ export default function SetAddEditDialog({
 								</FormItem>
 							)}
 						/>
-						<FormField
-							control={form.control}
-							name="minimumPerHead"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Minimum/Head</FormLabel>
-									<FormControl>
-										<Input
-											type="number"
-											{...field}
-											onChange={value => field.onChange(parseInt(value.target.value))}
-										/>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-						<FormField
-							control={form.control}
-							name="price"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Price/Head</FormLabel>
-									<FormControl>
-										<Input
-											type="number"
-											{...field}
-											onChange={value => field.onChange(parseInt(value.target.value))}
-										/>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
+						<div className="grid grid-cols-2 gap-4">
+							<FormField
+								control={form.control}
+								name="minimumPerHead"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Minimum/Head</FormLabel>
+										<FormControl>
+											<Input
+												type="number"
+												{...field}
+												onChange={value => field.onChange(parseInt(value.target.value))}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name="price"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Price/Head</FormLabel>
+										<FormControl>
+											<Input
+												type="number"
+												{...field}
+												onChange={value => field.onChange(parseFloat(value.target.value))}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						</div>
+
 						<div className="flex justify-between gap-4">
 							<div className="flex flex-1 justify-end gap-4">
 								<DialogClose asChild>

@@ -12,6 +12,7 @@ import { useTransition } from "react";
 import { Button } from "@components/ui/button";
 import { mutate } from "swr";
 import { deleteSubset } from "../serverActions";
+import { PRODUCTS_SETS_KEY } from "../../page";
 
 export default function SubSetDeleteDialog({
 	subSet,
@@ -53,7 +54,7 @@ export default function SubSetDeleteDialog({
 											});
 										}
 
-										mutate("spGetAllSets");
+										mutate(PRODUCTS_SETS_KEY);
 									});
 								}}
 								disabled={isSaving}>
