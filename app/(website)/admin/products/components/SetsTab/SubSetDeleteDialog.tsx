@@ -12,7 +12,7 @@ import { useTransition } from "react";
 import { Button } from "@components/ui/button";
 import { mutate } from "swr";
 import { deleteSubset } from "../serverActions";
-import { PRODUCTS_SETS_KEY } from "../../page";
+import { PRODUCTS_SETS_KEY } from "../ProductPageProvider";
 
 export default function SubSetDeleteDialog({
 	subSet,
