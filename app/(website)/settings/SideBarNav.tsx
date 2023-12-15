@@ -27,7 +27,7 @@ export function SidebarNav({ role }: SidebarNavProps) {
 		{
 			title: "General",
 			href: "/settings/general",
-			accessLevel: AccessLevel.GUEST,
+			accessLevel: AccessLevel.ADMIN,
 		},
 		{
 			title: "Account",
@@ -44,11 +44,11 @@ export function SidebarNav({ role }: SidebarNavProps) {
 			href: "/settings/snapshot",
 			accessLevel: AccessLevel.ADMIN,
 		},
-		{
-			title: "Create admin account",
-			href: "/settings/createAccount",
-			accessLevel: AccessLevel.ADMIN,
-		},
+		// {
+		// 	title: "Create admin account",
+		// 	href: "/settings/createAccount",
+		// 	accessLevel: AccessLevel.ADMIN,
+		// },
 	];
 	return (
 		<nav className="flex space-x-2 lg:flex-col lg:space-x-0 lg:space-y-1">

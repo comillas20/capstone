@@ -64,8 +64,8 @@ const userNav = [
 		name: "Products",
 		href: "/products",
 	},
-	{
-		name: "Venue",
-		href: "/venue",
-	},
+	// {
+	// 	name: "Venue",
+	// 	href: "/venue",
+	// },
 ];

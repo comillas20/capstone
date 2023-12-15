@@ -5,10 +5,10 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@components/ui/card";
-import { Sales } from "@app/admin/overview/components/Sales";
-import { RecentClients } from "@app/admin/overview/components/RecentClients";
+import { Sales } from "./components/Sales";
+import { RecentClients } from "./components/RecentClients";
 import { Separator } from "@components/ui/separator";
-import { MonthYearPicker } from "@app/admin/overview/components/MonthYearPicker";
+import { MonthYearPicker } from "./components/MonthYearPicker";
 import OverviewCard from "./components/OverviewCard";
 import { Activity, DollarSign, UserPlus, UsersIcon } from "lucide-react";
 

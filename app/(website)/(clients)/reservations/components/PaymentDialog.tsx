@@ -49,7 +49,7 @@ export default function PaymentDialog({
 	const [minutes, setMinutes] = useState<number>(0); //replace with the earliest available slot
 	const [meridiem, setMeridiem] = useState<Meridiem>("AM"); //replace with the earliest available slot
 	const [timeUse, setTimeUse] = useState<number>(4);
-	const [time, setTime] = useState<string>(); //24 hour, to store in database
+	const [time, setTime] = useState<Date>(new Date()); //24 hour, to store in database
 	return (
 		<Dialog {...props}>
 			<DialogContent className="sm:max-w-[425px] md:max-w-[500px]">
@@ -127,65 +127,20 @@ export default function PaymentDialog({
 											<div className="text-sm font-bold">
 												What time do you want to start?
 											</div>
-											{/* <span className="text-center text-xs font-bold">Hour</span>
-											<span className="text-center text-xs font-bold">Minute</span>
-											<span className="text-center text-xs font-bold">am/pm</span>
-											<Input
-												type="number"
-												max={12}
-												min={1}
-												value={hour}
-												onChange={e => {
-													const numericValue = parseInt(e.target.value, 10);
-													setHour(
-														isNaN(numericValue)
-															? 1
-															: numericValue <= 12 && numericValue > 0
-															? numericValue
-															: 1
-													);
-												}}
-											/>
-											<Input
-												type="number"
-												max={59}
-												min={1}
-												value={minutes}
-												onChange={e => {
-													const numericValue = parseInt(e.target.value, 10);
-													setMinutes(
-														isNaN(numericValue)
-															? 0
-															: numericValue < 59 && numericValue > 0
-															? numericValue
-															: 0
-													);
-												}}
-											/>
-											<Button
-												variant={"outline"}
-												onClick={() => setMeridiem(meridiem === "am" ? "pm" : "am")}>
-												{meridiem}
-											</Button> */}
-											<TimePicker
-												hours={hour}
-												onHoursChange={setHour}
-												minutes={minutes}
-												onMinutesChange={setMinutes}
-												meridiem={meridiem}
-												onMeridiemChange={setMeridiem}
-											/>
+											<TimePicker time={time} onTimeChange={setTime} />
 											<Separator className="my-2" />
 											<div className="flex justify-end">
 												<PopoverClose asChild>
 													<Button
 														onClick={() => {
-															const min =
-																minutes < 10
-																	? "0".concat(minutes.toString())
-																	: minutes.toString();
-															setTime((meridiem === "AM" ? hour : hour + 12) + ":" + min);
-															setTimeLinkName(hour + ":" + min + meridiem);
+															const hours = time.getHours();
+															const minutes = time.getMinutes();
+															const meridiem: Meridiem = hours > 12 ? "PM" : "AM";
+															const formattedTime = `${String(hours % 12 || 12).padStart(
+																2,
+																"0"
+															)}:${String(minutes).padStart(2, "0")}${meridiem}`;
+															if (time) setTimeLinkName(formattedTime);
 														}}>
 														Save
 													</Button>
@@ -237,7 +192,7 @@ export default function PaymentDialog({
 							<div>Brgy. Taft, Narciso St., Surigao City</div>
 						</div>
 						<DialogFooter className="mt-4">
-							<TabsList>
+							<TabsList className="bg-inherit">
 								<TabsTrigger asChild value="additional" type="button">
 									<Button disabled={timeLinkName === defaultTimeLinkName}>Next</Button>
 								</TabsTrigger>
@@ -278,7 +233,7 @@ export default function PaymentDialog({
 						</DialogHeader>
 						<div>Number of packs: {numberOfPacks}</div>
 						<div>Month: {selectedMonth.getMonth()}</div>
-						<div>Event Time: {time}</div>
+						<div>Event Time: {timeLinkName}</div>
 						<div>Time use: {timeUse}</div>
 						<div className="grid grid-cols-2 gap-9">
 							{Object.keys(dishesByCourse).map(courseName => {
