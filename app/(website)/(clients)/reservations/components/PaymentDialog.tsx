@@ -188,7 +188,7 @@ export default function PaymentDialog({
 							</div>
 						</div>
 						<div>
-							<div className="text-sm font-bold">Branch</div>
+							<div className="text-sm font-bold">Location</div>
 							<div>Brgy. Taft, Narciso St., Surigao City</div>
 						</div>
 						<DialogFooter className="mt-4">

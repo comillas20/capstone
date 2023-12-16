@@ -1,8 +1,19 @@
+import { getAllDishes } from "@app/(website)/serverActionsGlobal";
 import { CheckboxGroup, CheckboxItem } from "@components/CheckBoxGroup";
-import { Card, CardContent, CardHeader, CardTitle } from "@components/ui/card";
+import { Button } from "@components/ui/button";
+import {
+	Card,
+	CardContent,
+	CardFooter,
+	CardHeader,
+	CardTitle,
+} from "@components/ui/card";
 import { Label } from "@components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@components/ui/radio-group";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
+import useSWR from "swr";
+import PaymentDialog from "./PaymentDialog";
+import { signIn } from "next-auth/react";
 import {
 	ReservationFormContext,
 	ReservationFormContextProps,
@@ -36,14 +47,33 @@ type SetCardsProps = {
 		}[];
 	};
 	isThisSelected?: boolean;
+	selectedDishIDs: {
+		subSetName: string;
+		dishID: number;
+	}[];
+	setSelectedDishIDs: React.Dispatch<
+		React.SetStateAction<
+			{
+				subSetName: string;
+				dishID: number;
+			}[]
+		>
+	>;
 };
 
-export default function SetCards({ set, isThisSelected }: SetCardsProps) {
-	const {
-		setPrerequisiteToDialog,
-		setSelectedDishIDs,
-		setSelectedDishIDsViaCB,
-	} = useContext(ReservationFormContext) as ReservationFormContextProps;
+export default function SetCards({
+	set,
+	isThisSelected,
+	setSelectedDishIDs,
+	selectedDishIDs,
+}: SetCardsProps) {
+	const { session, currentDate, month, date } = useContext(
+		ReservationFormContext
+	) as ReservationFormContextProps;
+	const allDishes = useSWR("rfGetAllDishes", getAllDishes);
+	const [selectedDishIDsViaCB, setSelectedDishIDsViaCB] = useState<string[]>([]);
+	const [prerequisiteToDialog, setPrerequisiteToDialog] = useState<number>(1);
+	const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
 	//a dictionary where subsets are sorted by courses
 	const subsetsByCourses: { [key: string]: typeof set.subSets } = {};
 	set.subSets.forEach(subSet => {
@@ -78,7 +108,7 @@ export default function SetCards({ set, isThisSelected }: SetCardsProps) {
 					return (
 						<div key={courseID} className="flex flex-col gap-y-2">
 							<h3 className="text-xs font-medium">{courseName}</h3>
-							<div className="flex flex-row flex-wrap gap-8">
+							<div className="grid grid-cols-2 gap-x-8 gap-y-4">
 								{subSets
 									.filter(subset => subset.dishes.length !== 0)
 									.map(subSet => (
@@ -139,6 +169,62 @@ export default function SetCards({ set, isThisSelected }: SetCardsProps) {
 					);
 				})}
 			</CardContent>
+			<CardFooter className="flex justify-end">
+				{allDishes.data &&
+					(() => {
+						const selectedByCheckBoxes = selectedDishIDsViaCB.map(selectedIDs => {
+							const [subSetName, dishID] = selectedIDs.split("_jin_");
+							return { subSetName, dishID: parseInt(dishID) };
+						});
+						const mergedSelectedIDs = selectedDishIDs.concat(selectedByCheckBoxes);
+						const dishesByCourse = (() => {
+							const allSelectedDishes = allDishes.data.filter(dish =>
+								mergedSelectedIDs.map(d => d.dishID).includes(dish.id)
+							);
+							const dishesByCourses: {
+								[key: string]: {
+									id: Number;
+									name: string;
+								}[];
+							} = {};
+							allSelectedDishes.forEach(dish => {
+								const key = dish.course.name;
+
+								if (!dishesByCourses[key]) {
+									dishesByCourses[key] = [];
+								}
+								dishesByCourses[key].push({
+									id: dish.id,
+									name: dish.name,
+								});
+							});
+							return dishesByCourses;
+						})();
+						return (
+							<>
+								<Button
+									disabled={mergedSelectedIDs.length < prerequisiteToDialog}
+									onClick={() => {
+										if (session?.user) {
+											setIsPaymentDialogOpen(true);
+										} else {
+											signIn();
+										}
+									}}>
+									Reserve
+								</Button>
+								<PaymentDialog
+									dishesByCourse={dishesByCourse}
+									open={isPaymentDialogOpen}
+									onOpenChange={setIsPaymentDialogOpen}
+									selectedMonth={month}
+									selectedDate={date}
+									currentDate={currentDate}
+								/>
+							</>
+						);
+					})()}
+			</CardFooter>
 		</Card>
 	);
 }
