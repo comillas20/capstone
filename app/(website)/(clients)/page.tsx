@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Slideshow from "./Slideshow";
 import Chatbot from "./Chatbot";
-import { FacebookIcon } from "lucide-react";
+import { FacebookIcon, PhoneIcon } from "lucide-react";
 
 export default function LandingPage() {
 	return (
@@ -12,7 +12,7 @@ export default function LandingPage() {
 				<Chatbot />
 			</main>
 
-			<footer className="flex justify-around gap-8 bg-secondary p-8">
+			<footer className="flex flex-col justify-around gap-8 bg-secondary p-8 md:flex-row">
 				<div className="flex-1 p-4">
 					<h5 className="font-semibold">Terms of Payment</h5>
 					<p>
@@ -34,14 +34,21 @@ export default function LandingPage() {
 					</p>
 				</div>
 				<div className="flex flex-1 flex-col">
-					<div className="px-5 py-4">
-						<h5 className="font-semibold">Contact us</h5>
-						<p>Contact Number: 091234567</p>
+					<h5 className="p-4 font-semibold">Contact us</h5>
+					<div className="flex items-end gap-4">
+						<div className="flex w-full items-center rounded p-4">
+							<div className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-input bg-background p-3 text-sm font-medium">
+								<PhoneIcon className="h-[1.2rem] w-[1.2rem]" />
+							</div>
+							<div className="ml-4 space-y-1">
+								<p className="text-sm font-medium leading-none">Manager </p>
+								<p className="text-sm text-muted-foreground">0946 021 6927</p>
+							</div>
+						</div>
 					</div>
-
-					<div className="flex flex-1 items-end gap-4">
+					<div className="flex items-end gap-4">
 						<Link
-							className="group flex items-center rounded p-4 hover:bg-background"
+							className="group flex w-full items-center rounded p-4 hover:bg-background"
 							href="https://www.facebook.com/jakeloucateringsurigao"
 							target="_blank">
 							<div className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-input bg-background p-3 text-sm font-medium group-hover:bg-accent group-hover:text-accent-foreground">

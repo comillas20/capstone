@@ -42,7 +42,7 @@ export default function Slideshow() {
 			<Fade
 				pauseOnHover={false}
 				transitionDuration={1000}
-				cssClass="h-[40rem] w-full bg-secondary"
+				cssClass="max-h-[40rem] w-full bg-secondary"
 				arrows={false}
 				autoplay
 				duration={2000}

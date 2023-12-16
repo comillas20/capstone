@@ -115,11 +115,11 @@ export default async function UserNav() {
 											Back up & Restore
 										</Link>
 									</DropdownMenuItem>
-									<DropdownMenuItem asChild>
+									{/* <DropdownMenuItem asChild>
 										<Link href="/settings/createAccount" className="h-full w-full">
 											Create Admin Account
 										</Link>
-									</DropdownMenuItem>
+									</DropdownMenuItem> */}
 								</>
 							);
 						}

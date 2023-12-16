@@ -8,7 +8,7 @@ export default function Brand() {
 					<JakelouLogo />
 				</span>
 			</div>
-			<span className="ml-2 mr-4">Jakelou</span>
+			<span className="ml-2 mr-4 hidden sm:inline">Jakelou</span>
 		</Link>
 	);
 }
