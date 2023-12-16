@@ -25,11 +25,13 @@ import { DialogClose } from "@radix-ui/react-dialog";
 import { Input } from "@components/ui/input";
 import { toast } from "@components/ui/use-toast";
 import { PRODUCTS_SETS_KEY } from "../ProductPageProvider";
+import { Textarea } from "@components/ui/textarea";
 
 type SetAddEditDialogProps = {
 	editSetData?: {
 		id: number;
 		name: string;
+		description: string | null;
 		minimumPerHead: number;
 		price: number;
 	};
@@ -54,6 +56,7 @@ export default function SetAddEditDialog({
 					message: "This set name already exists!",
 				}
 			),
+		description: z.string().nullable(),
 		minimumPerHead: z.number(),
 		price: z.number().gte(1),
 	});
@@ -63,24 +66,18 @@ export default function SetAddEditDialog({
 			? {
 					id: editSetData.id,
 					name: editSetData.name,
+					description: editSetData.description ?? "",
 					minimumPerHead: editSetData.minimumPerHead,
 					price: editSetData.price,
 			  }
 			: {
 					id: -1,
 					name: "",
+					description: "",
 					minimumPerHead: 50,
 					price: undefined,
 			  },
 	});
-	useEffect(() => {
-		form.reset({
-			id: editSetData ? editSetData.id : -1,
-			name: editSetData ? editSetData.name : "",
-			minimumPerHead: editSetData ? editSetData.minimumPerHead : 50,
-			price: editSetData ? editSetData.price : undefined,
-		});
-	}, [editSetData, form.reset]);
 	function onSubmit(values: z.infer<typeof formSchema>) {
 		if (props.onOpenChange) props.onOpenChange(false);
 		startSaving(async () => {
@@ -118,6 +115,23 @@ export default function SetAddEditDialog({
 									<FormLabel>Name</FormLabel>
 									<FormControl>
 										<Input {...field} />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
+							name="description"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Description</FormLabel>
+									<FormControl>
+										<Textarea
+											{...field}
+											value={field.value ?? ""}
+											placeholder="Description of the set..."
+										/>
 									</FormControl>
 									<FormMessage />
 								</FormItem>

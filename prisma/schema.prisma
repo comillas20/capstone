@@ -60,6 +60,7 @@ model Course {
 model Set {
   id             Int      @id @default(autoincrement())
   name           String   @unique @db.VarChar(50)
+  description String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   subSets        SubSet[]

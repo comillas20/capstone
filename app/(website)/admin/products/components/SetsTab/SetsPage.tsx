@@ -41,6 +41,8 @@ export default function SetsPage() {
 		  }))
 		: [];
 
+	// Note to self: THIS IS NECESSARY
+	// takes care of changes to set card, like set name, description, etc.
 	useEffect(() => {
 		if (sets) setSelectedSet(sets[selectedSetIndex.current]);
 	}, [sets]);

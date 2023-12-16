@@ -148,6 +148,7 @@ export async function deleteCourse(id: number) {
 type Set = {
 	id: number;
 	name: string;
+	description: string | null;
 	minimumPerHead: number;
 	price: number;
 };
@@ -155,6 +156,7 @@ export async function createOrUpdateSet(values: Set) {
 	return await prisma.set.upsert({
 		create: {
 			name: values.name,
+			description: values.description,
 			minimumPerHead: values.minimumPerHead,
 			price: values.price,
 		},
@@ -163,6 +165,7 @@ export async function createOrUpdateSet(values: Set) {
 		},
 		update: {
 			name: values.name,
+			description: values.description,
 			minimumPerHead: values.minimumPerHead,
 			price: values.price,
 		},

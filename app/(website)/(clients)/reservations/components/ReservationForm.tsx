@@ -38,8 +38,9 @@ export default function ReservationForm({
 			<div className="flex gap-12 xl:flex-row">
 				<SetPicker />
 				<div>
+					{/* the extra div is for calendar to not have same height as SetPicker */}
 					<Calendar
-						className="rounded-md border"
+						className="rounded-md border border-current"
 						mode="single"
 						selected={date}
 						onSelect={setDate}

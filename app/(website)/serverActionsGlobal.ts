@@ -6,6 +6,7 @@ export async function getAllSets() {
 		select: {
 			id: true,
 			name: true,
+			description: true,
 			minimumPerHead: true,
 			price: true,
 			subSets: {

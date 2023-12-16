@@ -10,6 +10,7 @@ type SetCardProps = {
 	data: {
 		id: number;
 		name: string;
+		description: string | null;
 		minimumPerHead: number;
 		price: number;
 		createdAt: Date;
@@ -40,6 +41,7 @@ export default function SetCard({ data, className }: SetCardProps) {
 	const editSetData = data && {
 		id: data.id,
 		name: data.name,
+		description: data.description,
 		minimumPerHead: data.minimumPerHead,
 		price: data.price,
 	};
@@ -56,7 +58,7 @@ export default function SetCard({ data, className }: SetCardProps) {
 	return (
 		<Card className={className} key={data.id}>
 			<CardHeader className="text-center">
-				<CardTitle className="flex items-center justify-center gap-2 text-2xl">
+				<CardTitle className="flex items-center justify-center gap-2">
 					<EditableButtonText
 						key={data.name}
 						text={data.name}
@@ -67,12 +69,16 @@ export default function SetCard({ data, className }: SetCardProps) {
 					/>
 					{editSetData && (
 						<SetAddEditDialog
+							key={editSetData.id}
 							editSetData={editSetData}
 							open={isEditSetOpen}
 							onOpenChange={setIsEditSetOpen}
 						/>
 					)}
 				</CardTitle>
+				{data.description && (
+					<p className="text-muted-foreground">{data.description}</p>
+				)}
 			</CardHeader>
 			<CardContent className="flex flex-col gap-4">
 				{data &&
