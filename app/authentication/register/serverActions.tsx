@@ -49,7 +49,6 @@ type UserData = {
 
 export async function createNewAccount(data: UserData) {
 	const hashedPassword = await bcrypt.hash(data.password, 10);
-	console.log(data);
 	return await prisma.account.create({
 		data: { ...data, password: hashedPassword },
 	});

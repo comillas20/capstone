@@ -16,7 +16,6 @@ import {
 	FormMessage,
 } from "@components/ui/form";
 import { Input } from "@components/ui/input";
-import { toast } from "@components/ui/use-toast";
 import { useState, useTransition } from "react";
 import {
 	createNewAccount,
@@ -25,14 +24,6 @@ import {
 	doesPhoneNumberExists,
 } from "./serverActions";
 import { Loader2, MoveLeftIcon } from "lucide-react";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardFooter,
-	CardHeader,
-	CardTitle,
-} from "@components/ui/card";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -193,7 +184,7 @@ export function RegistrationForm() {
 								name="name"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>Name</FormLabel>
+										<FormLabel>Full Name</FormLabel>
 										<FormControl>
 											<Input placeholder="Your name" {...field} />
 										</FormControl>
