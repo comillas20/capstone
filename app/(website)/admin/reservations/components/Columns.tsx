@@ -9,6 +9,7 @@ import { convertDateToString } from "@lib/utils";
 import { useState } from "react";
 import IrreversableConfirmationDialog from "@components/IrreversableConfirmationDialog";
 import { Button } from "@components/ui/button";
+import Link from "next/link";
 
 export type Reservations = {
 	customerName: string;
@@ -47,6 +48,11 @@ export const columns: ColumnDef<Reservations>[] = [
 		header: ({ column }) => (
 			<DataTableColumnHeader column={column} title="Customer" />
 		),
+		cell: ({ row }) => (
+			<Link href={"/admin/customers?customer=".concat(row.original.customerName)}>
+				{row.original.customerName}
+			</Link>
+		),
 	},
 	{
 		accessorKey: "email",
@@ -73,8 +79,8 @@ export const columns: ColumnDef<Reservations>[] = [
 		header: ({ column }) => (
 			<DataTableColumnHeader column={column} title="Reserved" />
 		),
-		cell: ({ cell }) => {
-			return convertDateToString(new Date(cell.getValue() as string));
+		cell: ({ row }) => {
+			return convertDateToString(new Date(row.original.reservationTime));
 		},
 	},
 	{
@@ -83,9 +89,9 @@ export const columns: ColumnDef<Reservations>[] = [
 		header: ({ column }) => (
 			<DataTableColumnHeader column={column} title="Event Time" />
 		),
-		cell: ({ cell }) => {
-			return convertDateToString(new Date(cell.getValue() as string));
-		},
+		cell: ({ row }) => (
+			<div>{convertDateToString(new Date(row.original.eventTime))}</div>
+		),
 	},
 	{
 		id: "Initial Duration",

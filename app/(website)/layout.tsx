@@ -1,7 +1,7 @@
-import Brand from "@components/Brand";
-import { MainNav } from "@components/MainNav";
-import { ThemeModeSwitcher } from "@components/ThemeModeSwitcher";
-import UserNav from "@components/UserNav";
+import Brand from "@app/(website)/Brand";
+import { MainNav } from "@app/(website)/MainNav";
+import { ThemeModeSwitcher } from "@app/(website)/ThemeModeSwitcher";
+import UserNav from "@app/(website)/UserNav";
 import { getServerSession } from "next-auth";
 import { options } from "../api/auth/[...nextauth]/options";
 
@@ -19,7 +19,6 @@ export default async function WebsiteLayout({
 					<Brand />
 					<MainNav className="mx-6" navBtns={mainNav} />
 					<div className="ml-auto flex items-center space-x-4">
-						{/* <Search /> */}
 						<ThemeModeSwitcher />
 						<UserNav />
 					</div>

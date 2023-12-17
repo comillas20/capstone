@@ -87,59 +87,57 @@ export function DataTable<TData, TValue>({
 	return (
 		<div className="space-y-4">
 			{Toolbar && <Toolbar table={table} />}
-			<div className="rounded-md border">
-				<Table>
-					<TableHeader>
-						{table.getHeaderGroups().map(headerGroup => (
-							<TableRow key={headerGroup.id}>
-								{headerGroup.headers.map(header => {
-									return (
-										<TableHead key={header.id}>
-											{header.isPlaceholder
-												? null
-												: flexRender(header.column.columnDef.header, header.getContext())}
-										</TableHead>
-									);
-								})}
+			<Table className="rounded-md border">
+				<TableHeader>
+					{table.getHeaderGroups().map(headerGroup => (
+						<TableRow key={headerGroup.id}>
+							{headerGroup.headers.map(header => {
+								return (
+									<TableHead key={header.id}>
+										{header.isPlaceholder
+											? null
+											: flexRender(header.column.columnDef.header, header.getContext())}
+									</TableHead>
+								);
+							})}
+						</TableRow>
+					))}
+				</TableHeader>
+				<TableBody>
+					{table.getRowModel().rows?.length ? (
+						table.getRowModel().rows.map(row => (
+							<TableRow
+								key={row.id}
+								data-state={row.getIsSelected() && "selected"}
+								className={cn(
+									!!singleSelection
+										? "data-[state=selected]:bg-primary data-[state=selected]:text-primary-foreground"
+										: "",
+									rowClassName
+								)}
+								onClick={() => {
+									if (singleSelection && !row.getIsSelected()) {
+										table.toggleAllRowsSelected(false);
+										row.toggleSelected(true);
+										singleSelection(row.original);
+									}
+								}}>
+								{row.getVisibleCells().map(cell => (
+									<TableCell key={cell.id}>
+										{flexRender(cell.column.columnDef.cell, cell.getContext())}
+									</TableCell>
+								))}
 							</TableRow>
-						))}
-					</TableHeader>
-					<TableBody>
-						{table.getRowModel().rows?.length ? (
-							table.getRowModel().rows.map(row => (
-								<TableRow
-									key={row.id}
-									data-state={row.getIsSelected() && "selected"}
-									className={cn(
-										!!singleSelection
-											? "data-[state=selected]:bg-primary data-[state=selected]:text-primary-foreground"
-											: "",
-										rowClassName
-									)}
-									onClick={() => {
-										if (singleSelection && !row.getIsSelected()) {
-											table.toggleAllRowsSelected(false);
-											row.toggleSelected(true);
-											singleSelection(row.original);
-										}
-									}}>
-									{row.getVisibleCells().map(cell => (
-										<TableCell key={cell.id}>
-											{flexRender(cell.column.columnDef.cell, cell.getContext())}
-										</TableCell>
-									))}
-								</TableRow>
-							))
-						) : (
-							<TableRow>
-								<TableCell colSpan={columns.length} className="h-24 text-center">
-									No results.
-								</TableCell>
-							</TableRow>
-						)}
-					</TableBody>
-				</Table>
-			</div>
+						))
+					) : (
+						<TableRow>
+							<TableCell colSpan={columns.length} className="h-24 text-center">
+								No results.
+							</TableCell>
+						</TableRow>
+					)}
+				</TableBody>
+			</Table>
 			<DataTablePagination table={table} singleSelection={!!singleSelection} />
 		</div>
 	);

@@ -6,15 +6,33 @@ export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
 }
 
-export function convertDateToString(date: Date) {
-	const dateOptions = {
-		year: "numeric",
-		month: "short",
-		day: "numeric",
-		hour: "numeric",
-		minute: "numeric",
-		hour12: true,
-	} as Intl.DateTimeFormatOptions;
+export function convertDateToString(
+	date: Date,
+	options?: {
+		year?: boolean;
+		month?: boolean;
+		day?: boolean;
+		hour?: boolean;
+		minute?: boolean;
+	}
+) {
+	const dateOptions: Intl.DateTimeFormatOptions = !!options
+		? {
+				year: options.year ? "numeric" : undefined,
+				month: options.month ? "short" : undefined,
+				day: options.day ? "numeric" : undefined,
+				hour: options.hour ? "numeric" : undefined,
+				minute: options.minute ? "numeric" : undefined,
+				hour12: true,
+		  }
+		: {
+				year: "numeric",
+				month: "short",
+				day: "numeric",
+				hour: "numeric",
+				minute: "numeric",
+				hour12: true,
+		  };
 
 	return date.toLocaleString("en-US", dateOptions);
 }

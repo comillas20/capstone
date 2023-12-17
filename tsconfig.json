@@ -21,6 +21,7 @@
 		"baseUrl": ".",
 		"paths": {
 			"@app/*": ["app/*"],
+			"@client/*": ["app/(website)/(clients)/*"],
 			"@admin/*": ["app/(website)/admin/*"],
 			"@components/*": ["components/*"],
 			"@lib/*": ["lib/*"],

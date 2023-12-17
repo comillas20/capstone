@@ -149,6 +149,7 @@ export function AccountForm({ user }: AccountFormProps) {
 				// so I had to get the user's id via the user's name
 				if (!user.name) return;
 				const updateData: UserData = {
+					// get the name first, before changing it
 					id: await getAccountID(user.name),
 					name: data.name,
 					image: data.image,
@@ -156,7 +157,6 @@ export function AccountForm({ user }: AccountFormProps) {
 					phoneNumber: data.phone,
 					password: data.password,
 				};
-				console.log(updateData.id);
 				const userData = await editUserAccount(updateData);
 
 				if (userData) {

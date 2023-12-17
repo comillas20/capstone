@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { twJoin } from "tailwind-merge";
 import { Inter } from "next/font/google";
 import { Toaster } from "@components/ui/toaster";
-import { ThemeProvider } from "@components/ThemeProvider";
+import { ThemeProvider } from "@app/ThemeProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 

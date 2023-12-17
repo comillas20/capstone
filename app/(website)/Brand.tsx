@@ -1,5 +1,5 @@
 import Link from "next/link";
-import JakelouLogo from "./JakelouLogo";
+import JakelouLogo from "@components/JakelouLogo";
 export default function Brand() {
 	return (
 		<Link href="/" className="relative flex h-8 items-center">

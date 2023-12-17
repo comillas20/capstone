@@ -2,7 +2,7 @@
 import { cn } from "@lib/utils";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 
 export type Meridiem = "AM" | "PM";
 type TimePickerProps = {

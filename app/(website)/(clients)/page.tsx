@@ -33,10 +33,10 @@ export default function LandingPage() {
 						passion for great food, we're here to make your moments special.
 					</p>
 				</div>
-				<div className="flex flex-1 flex-col">
-					<h5 className="p-4 font-semibold">Contact us</h5>
-					<div className="flex items-end gap-4">
-						<div className="flex w-full items-center rounded p-4">
+				<div className="flex flex-1 flex-col gap-4 p-4">
+					<h5 className="font-semibold">Contact us</h5>
+					<div className="flex flex-col gap-2">
+						<div className="flex w-full items-center rounded">
 							<div className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-input bg-background p-3 text-sm font-medium">
 								<PhoneIcon className="h-[1.2rem] w-[1.2rem]" />
 							</div>
@@ -45,13 +45,11 @@ export default function LandingPage() {
 								<p className="text-sm text-muted-foreground">0946 021 6927</p>
 							</div>
 						</div>
-					</div>
-					<div className="flex items-end gap-4">
 						<Link
-							className="group flex w-full items-center rounded p-4 hover:bg-background"
+							className="flex w-full items-center rounded"
 							href="https://www.facebook.com/jakeloucateringsurigao"
 							target="_blank">
-							<div className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-input bg-background p-3 text-sm font-medium group-hover:bg-accent group-hover:text-accent-foreground">
+							<div className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-input bg-background p-3 text-sm font-medium">
 								<FacebookIcon className="h-[1.2rem] w-[1.2rem]" />
 							</div>
 							<div className="ml-4 space-y-1">

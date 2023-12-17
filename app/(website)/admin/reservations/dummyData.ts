@@ -41,6 +41,15 @@ const dummyReservations: Reservations[] = [
 		initialEventDuration: 3,
 		status: status.false,
 	},
+	{
+		customerName: "Jin",
+		email: null,
+		mobileNumber: "09123456789",
+		reservationTime: "2023-11-29T14:30:00",
+		eventTime: "2023-12-01T10:00:00",
+		initialEventDuration: 3,
+		status: status.false,
+	},
 	// Add more dummy data as needed
 ];
 
