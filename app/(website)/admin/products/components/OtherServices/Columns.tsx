@@ -2,35 +2,23 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@components/ui/checkbox";
-import AddEditDialog from "./AddEditDialog";
 import { useState } from "react";
-import { isAvailable } from "../../page";
-import DeleteDialog from "./DeleteDialog";
 import { DataTableColumnHeader } from "@app/(website)/admin/components/DataTableColumnHeader";
 import { DataTableRowActions } from "./DataTableRowActions";
-import { AlertCircle } from "lucide-react";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipProvider,
-	TooltipTrigger,
-} from "@components/ui/tooltip";
-import { convertDateToString } from "@lib/utils";
-
-export type Dishes = {
+import { isAvailable, isRequired } from "../../page";
+import AddEditDialog from "./AddEditDialog";
+import DeleteDialog from "./DeleteDialog";
+export type Services = {
 	id: number;
 	name: string;
-	categoryID: number;
-	category: string;
-	courseID: number;
-	course: string;
-	createdAt: Date;
-	updatedAt: Date;
-	imgHref: string | null;
+	price: number;
+	duration: number | null;
+	unit: number | null;
+	isRequired: boolean;
 	isAvailable: boolean;
 };
 
-export const columns: ColumnDef<Dishes>[] = [
+export const columns: ColumnDef<Services>[] = [
 	{
 		id: "select",
 		header: ({ table }) => (
@@ -54,57 +42,51 @@ export const columns: ColumnDef<Dishes>[] = [
 		enableHiding: false,
 	},
 	{
+		id: "Service",
 		accessorKey: "name",
 		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="Dish name" />
+			<DataTableColumnHeader column={column} title="Service" />
 		),
 		cell: ({ row }) => {
-			return (
-				<div className="flex items-center gap-2">
-					{row.original.name}
-					{!row.original.imgHref && (
-						<TooltipProvider>
-							<Tooltip>
-								<TooltipTrigger asChild>
-									<AlertCircle size={15} className="text-primary" />
-								</TooltipTrigger>
-								<TooltipContent>
-									<p>No image provided</p>
-								</TooltipContent>
-							</Tooltip>
-						</TooltipProvider>
-					)}
-				</div>
-			);
+			return <div className="flex items-center gap-2">{row.original.name}</div>;
 		},
 	},
 	{
-		accessorKey: "category",
+		accessorKey: "duration",
 		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="Category" />
+			<DataTableColumnHeader column={column} title="Duration" />
 		),
 	},
 	{
-		accessorKey: "course",
+		accessorKey: "unit",
 		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="Course" />
+			<DataTableColumnHeader column={column} title="Unit" />
 		),
 	},
+
 	{
-		id: "Created",
-		accessorKey: "createdAt",
+		accessorKey: "price",
 		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="Created" />
+			<DataTableColumnHeader column={column} title="Price" />
 		),
-		cell: ({ row }) => convertDateToString(row.original.createdAt),
+		cell: ({ row }) => {
+			const formatted = new Intl.NumberFormat("en-US", {
+				style: "currency",
+				currency: "PHP",
+			}).format(row.getValue("price"));
+
+			return formatted;
+		},
 	},
 	{
-		id: "Last Updated",
-		accessorKey: "updatedAt",
+		id: "Required",
+		accessorKey: "isRequired",
 		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="Last Updated" />
+			<DataTableColumnHeader column={column} title="Required" />
 		),
-		cell: ({ row }) => convertDateToString(row.original.updatedAt),
+		cell: ({ row }) => {
+			return row.original.isRequired ? isRequired.true : isRequired.false;
+		},
 	},
 	{
 		id: "Availability",
@@ -119,6 +101,7 @@ export const columns: ColumnDef<Dishes>[] = [
 	{
 		id: "actions",
 		cell: ({ row, table }) => {
+			// const payment = row.original;
 			const [isAEOpen, setIsAEOpen] = useState(false);
 			const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 			return (
@@ -130,15 +113,14 @@ export const columns: ColumnDef<Dishes>[] = [
 						deleteOpener={setIsDeleteOpen}
 					/>
 					<AddEditDialog
-						key={row.original.name}
-						data={row.original}
 						open={isAEOpen}
 						onOpenChange={setIsAEOpen}
+						data={row.original}
 					/>
 					<DeleteDialog
-						data={[row.original]}
 						open={isDeleteOpen}
 						onOpenChange={setIsDeleteOpen}
+						data={[row.original]}
 					/>
 				</>
 			);

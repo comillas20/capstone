@@ -1,18 +1,14 @@
 "use client";
-import { Table, Row } from "@tanstack/react-table";
+import { Table } from "@tanstack/react-table";
 
 import { Button } from "@components/ui/button";
 import { Input } from "@components/ui/input";
 import { DataTableViewOptions } from "@app/(website)/admin/components//DataTableViewOptions";
-import { Info, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
+import { useState } from "react";
+import { Services } from "./Columns";
 import AddEditDialog from "./AddEditDialog";
-import { useContext, useState } from "react";
 import DeleteDialog from "./DeleteDialog";
-import { Dishes } from "./DishColumns";
-import {
-	ProductPageContext,
-	ProductPageContextProps,
-} from "../ProductPageProvider";
 
 interface DataTableToolbarProps<TData> {
 	table: Table<TData>;
@@ -22,21 +18,18 @@ export function DataTableToolbar<TData>({
 	table,
 }: DataTableToolbarProps<TData>) {
 	const [isOpen, setIsOpen] = useState(false);
-	const { categories, courses } = useContext(
-		ProductPageContext
-	) as ProductPageContextProps;
 	const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-	const selectedRowsData: Dishes[] = table
+	const selectedRowsData: Services[] = table
 		.getSelectedRowModel()
-		.rows.map(({ original }) => original) as unknown as Dishes[];
+		.rows.map(({ original }) => original) as unknown as Services[];
 	return (
 		<div className="flex items-center justify-between">
 			<div className="flex flex-1 items-center space-x-2">
 				<Input
-					placeholder="Filter dishes..."
-					value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+					placeholder="Search a service..."
+					value={(table.getColumn("Service")?.getFilterValue() as string) ?? ""}
 					onChange={event =>
-						table.getColumn("name")?.setFilterValue(event.target.value)
+						table.getColumn("Service")?.setFilterValue(event.target.value)
 					}
 					className="h-8 w-[150px] lg:w-[250px]"
 				/>
@@ -44,6 +37,7 @@ export function DataTableToolbar<TData>({
 				{(table.getIsSomeRowsSelected() || table.getIsAllRowsSelected()) && (
 					<>
 						<Button
+							size={"sm"}
 							variant="destructive"
 							onClick={() => setIsDeleteDialogOpen(true)}
 							className="h-8">
@@ -57,19 +51,9 @@ export function DataTableToolbar<TData>({
 					</>
 				)}
 			</div>
-			{(categories?.length == 0 || courses?.length == 0) && (
-				<p className="mr-4 flex items-center text-sm text-primary">
-					<Info className="mr-2" />
-					Please add a category and a course first before adding a dish
-				</p>
-			)}
-			<Button
-				size="sm"
-				className="flex h-8"
-				onClick={() => setIsOpen(true)}
-				disabled={categories?.length == 0 || courses?.length == 0}>
+			<Button size="sm" className="flex h-8" onClick={() => setIsOpen(true)}>
 				<Plus className="mr-2" />
-				Dish
+				Service
 			</Button>
 			<AddEditDialog open={isOpen} onOpenChange={setIsOpen} />
 		</div>

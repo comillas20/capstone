@@ -63,6 +63,12 @@ export default function ReservationPage<TData, TValue>({
 		getFacetedRowModel: getFacetedRowModel(),
 		getFacetedUniqueValues: getFacetedUniqueValues(),
 	});
+	React.useEffect(() => {
+		const hideAsDefault: VisibilityState = {
+			email: false,
+		};
+		setColumnVisibility(hideAsDefault);
+	}, []);
 	return (
 		<div className="w-full space-y-4">
 			<DataTableToolbar table={table} />

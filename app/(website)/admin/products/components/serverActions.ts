@@ -8,20 +8,15 @@ type Dish = {
 	imgHref: string | undefined;
 	categoryID: number;
 	courseID: number;
-	isAvailable: string;
+	isAvailable: boolean;
 };
-
-enum isAvailable {
-	true = "Available",
-	false = "N/A",
-}
 
 export async function createOrUpdateDish(dish: Dish) {
 	return await prisma.dish.upsert({
 		create: {
 			name: dish.name,
 			imgHref: dish.imgHref,
-			isAvailable: dish.isAvailable === isAvailable.true,
+			isAvailable: dish.isAvailable,
 			categoryID: dish.categoryID,
 			courseID: dish.courseID,
 		},
@@ -41,7 +36,7 @@ export async function createOrUpdateDish(dish: Dish) {
 					id: dish.courseID,
 				},
 			},
-			isAvailable: dish.isAvailable === isAvailable.true,
+			isAvailable: dish.isAvailable,
 		},
 	});
 }
@@ -266,4 +261,38 @@ export async function isSubSetAlreadyExistsInASet(setID: number, name: string) {
 	});
 
 	return !!result?.subSets.find(subSet => subSet.name === name);
+}
+
+export type Service = {
+	id: number;
+	name: string;
+	price: number;
+	duration: number | null;
+	unit: number | null;
+	isAvailable: boolean;
+};
+export async function createOrUpadteServices(service: Service) {
+	return await prisma.otherServices.upsert({
+		create: {
+			name: service.name,
+			price: service.price,
+			duration: service.duration,
+			unit: service.unit,
+			isAvailable: service.isAvailable,
+		},
+		where: {
+			id: service.id,
+		},
+		update: service,
+	});
+}
+
+export async function deleteServices(ids: number[]) {
+	return await prisma.otherServices.deleteMany({
+		where: {
+			id: {
+				in: ids,
+			},
+		},
+	});
 }

@@ -41,3 +41,8 @@ export enum isAvailable {
 	true = "Available",
 	false = "N/A",
 }
+
+export enum isRequired {
+	true = "Yes",
+	false = "No",
+}

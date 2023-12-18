@@ -106,7 +106,7 @@ export default function SignInForm() {
 									</FormItem>
 								)}
 							/>
-							<div className="relative">
+							{/* <div className="relative">
 								<div className="absolute inset-0 flex items-center">
 									<span className="w-full border-t" />
 								</div>
@@ -115,8 +115,13 @@ export default function SignInForm() {
 										Or continue with
 									</span>
 								</div>
-							</div>
-							<div className="grid grid-cols-2 gap-6">
+							</div> */}
+							{/* NOTE TO SELF: UNTIL YOU KNOW HOW TO STORE ACCOUNTS 
+							FROM OAUTH WITHOUT CONFLICTING TO CREDENTAILS, DONT OPEN THIS */}
+							{/* Current problems include, not being able to merge accounts from Oauth to credentials
+							because there is no way the system can identify if the two account with same (say, email for example)
+							is actually from the same owner */}
+							{/* <div className="grid grid-cols-2 gap-6">
 								<Button
 									variant="outline"
 									type="button"
@@ -146,7 +151,7 @@ export default function SignInForm() {
 									</svg>
 									Google
 								</Button>
-							</div>
+							</div> */}
 						</div>
 						<div className="flex flex-col gap-4">
 							<div className="w-full space-y-2">

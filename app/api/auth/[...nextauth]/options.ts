@@ -42,7 +42,8 @@ export const options: NextAuthOptions = {
 					},
 				});
 
-				if (!userFound) return null;
+				if (!userFound)
+					throw new Error("Incorrect email/mobile number and password");
 
 				const password = await bcrypt.compare(
 					credentials.password,

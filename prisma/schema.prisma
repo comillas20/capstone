@@ -9,6 +9,7 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
 // customer's reservation table
 model Reservations {
   id            Int               @id @default(autoincrement())
@@ -40,7 +41,7 @@ model Dish {
   orders      Reservations[] @relation("ReservationsDishes")
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
-  isAvailable Boolean
+  isAvailable Boolean        @default(false)
   imgHref     String?
 }
 
@@ -60,7 +61,7 @@ model Course {
 model Set {
   id             Int      @id @default(autoincrement())
   name           String   @unique @db.VarChar(50)
-  description String?
+  description    String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   subSets        SubSet[]
@@ -79,8 +80,8 @@ model SubSet {
   course            Course @relation(fields: [courseID], references: [id], onDelete: Cascade)
   selectionQuantity Int    @default(1) //0 means all dishes are compulsory
 
-  @@map("SubSets")
   @@unique([name, setID])
+  @@map("SubSets")
 }
 
 model Account {
@@ -109,25 +110,29 @@ model UserPreference {
   darkMode  Boolean
 }
 
-model AdminSettings{
-  id Int @id @default(autoincrement())
-  openingTime String
-  closingTime String
+model AdminSettings {
+  id                              Int                 @id @default(autoincrement())
+  openingTime                     String
+  closingTime                     String
   minimumCustomerReservationHours Int
   maximumCustomerReservationHours Int
-  defaultMinimumPerHead Int
-  maintainanceDates MaintainanceDates[]
+  defaultMinimumPerHead           Int
+  maintainanceDates               MaintainanceDates[]
 }
 
 model MaintainanceDates {
-  id Int @id @default(autoincrement())
-  date DateTime
-  adminSettingsID Int @unique
-  adminSettings AdminSettings @relation(fields:[adminSettingsID], references: [id])
+  id              Int           @id @default(autoincrement())
+  date            DateTime
+  adminSettingsID Int           @unique
+  adminSettings   AdminSettings @relation(fields: [adminSettingsID], references: [id])
 }
 
 model OtherServices {
-  id    Int    @id @default(autoincrement())
-  name  String @db.VarChar(50)
-  price Float
+  id          Int     @id @default(autoincrement())
+  name        String  @db.VarChar(50)
+  price       Float
+  duration    Int? //hour
+  unit        Int?
+  isRequired  Boolean @default(false)
+  isAvailable Boolean @default(false)
 }

@@ -59,3 +59,7 @@ export async function getAllDishes() {
 		},
 	});
 }
+
+export async function getAllServices() {
+	return await prisma.otherServices.findMany();
+}

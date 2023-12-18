@@ -6,7 +6,7 @@ import {
 	DialogHeader,
 } from "@components/ui/dialog";
 import { DialogClose, DialogTitle } from "@radix-ui/react-dialog";
-import { Dishes } from "./DishColumns";
+import { Services } from "./Columns";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,29 +20,16 @@ import {
 } from "@components/ui/form";
 import { Input } from "@components/ui/input";
 import { useSWRConfig } from "swr";
-import { createOrUpdateDish } from "../serverActions";
-import { isAvailable as iaEnum } from "../../page";
+import { createOrUpadteServices } from "../serverActions";
+import { isAvailable as iaEnum, isRequired as irEnum } from "../../page";
 import {
-	PRODUCTS_CATEGORIES_KEY,
-	PRODUCTS_COURSES_KEY,
-	PRODUCTS_DISHES_KEY,
+	PRODUCTS_SERVICES_KEY,
 	ProductPageContext,
 	ProductPageContextProps,
 } from "../ProductPageProvider";
 import { useContext, useEffect, useTransition } from "react";
 import { toast } from "@components/ui/use-toast";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuRadioGroup,
-	DropdownMenuRadioItem,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from "@components/ui/dropdown-menu";
-import { TriangleDownIcon } from "@radix-ui/react-icons";
-import { DISHES_IMAGE_FOLDER, uploadImage } from "@lib/utils";
 import { Loader2 } from "lucide-react";
-import DishProfileDialog from "./DishProfileDialog";
 import {
 	Select,
 	SelectContent,
@@ -50,9 +37,10 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@components/ui/select";
+import HelpToolTip from "@components/HelpTooltip";
 
 type AddEditDialogProps = {
-	data?: Dishes;
+	data?: Services;
 	onOpenChange: React.Dispatch<React.SetStateAction<boolean>>;
 } & React.ComponentProps<typeof Dialog>;
 export default function AddEditDialog({
@@ -60,9 +48,7 @@ export default function AddEditDialog({
 	open,
 	onOpenChange,
 }: AddEditDialogProps) {
-	const { dishes, categories, courses } = useContext(
-		ProductPageContext
-	) as ProductPageContextProps;
+	const { services } = useContext(ProductPageContext) as ProductPageContextProps;
 	const formSchema = z.object({
 		id: z.number(),
 		name: z
@@ -70,7 +56,7 @@ export default function AddEditDialog({
 			.min(1)
 			.refine(
 				e =>
-					!dishes?.find(f => {
+					!services?.find(f => {
 						//If user is editing, then exclude the current name in searching for duplicate
 						const checker = data
 							? f.name !== data?.name && f.name === e
@@ -78,28 +64,13 @@ export default function AddEditDialog({
 						return checker;
 					}),
 				{
-					message: "This dish already exists!",
+					message: "This service already exists!",
 				}
 			),
-		image: z
-			.custom(value => value instanceof File, {
-				message: "Invalid File!",
-			})
-			.optional(),
-		categoryID: z
-			.number()
-			.min(1)
-			.refine(e => e > 0, {
-				message:
-					"Please choose a category the dish will fall under (e.g. Pork for Pork Ribs)",
-			}),
-		courseID: z
-			.number()
-			.min(1)
-			.refine(e => e > 0, {
-				message:
-					"Please choose a course the dish will fall under (e.g. Dessert for Fruit Salad)",
-			}),
+		duration: z.number().nullable(),
+		unit: z.number().nullable(),
+		price: z.number().gte(1),
+		isRequired: z.boolean(),
 		isAvailable: z.boolean(),
 	});
 
@@ -109,15 +80,19 @@ export default function AddEditDialog({
 			? {
 					id: data.id,
 					name: data.name,
-					categoryID: data.categoryID,
-					courseID: data.courseID,
+					duration: data.duration,
+					unit: data.unit,
+					price: data.price,
+					isRequired: data.isRequired,
 					isAvailable: data.isAvailable,
 			  }
 			: {
 					id: -1,
 					name: "",
-					categoryID: -1,
-					courseID: -1,
+					duration: null,
+					unit: null,
+					price: 0,
+					isRequired: false,
 					isAvailable: false,
 			  },
 	});
@@ -126,34 +101,18 @@ export default function AddEditDialog({
 	const { mutate } = useSWRConfig();
 	function onSubmit(values: z.infer<typeof formSchema>) {
 		onOpenChange(false);
-		const imageFileName = values.id.toString();
-		const orig = {
-			...values,
-			imgHref: values.image
-				? DISHES_IMAGE_FOLDER.concat(imageFileName)
-				: undefined,
-		};
 		startSaving(async () => {
-			if (values.image) {
-				const imgUpload = await uploadImage(
-					values.image as File,
-					imageFileName,
-					"DISHES"
-				);
-				console.log(imgUpload);
-			}
-			const submitDish = await createOrUpdateDish(orig);
+			const submitDish = await createOrUpadteServices(values);
 			if (submitDish) {
 				toast({
 					title: "Success",
 					description: data
-						? "The dish is successfully modified!"
-						: "The dish is successfully created!",
+						? "The service is successfully modified!"
+						: "The service is successfully created!",
 					duration: 5000,
 				});
-				mutate(PRODUCTS_DISHES_KEY);
-				mutate(PRODUCTS_CATEGORIES_KEY);
-				mutate(PRODUCTS_COURSES_KEY);
+
+				mutate(PRODUCTS_SERVICES_KEY);
 			}
 		});
 	}
@@ -161,20 +120,17 @@ export default function AddEditDialog({
 		form.reset();
 	}, [open]);
 	return (
-		dishes && (
+		services && (
 			<Dialog open={open} onOpenChange={onOpenChange}>
 				<DialogContent>
 					<DialogHeader className="mb-4">
 						<DialogTitle>{data ? "Edit" : "Create"}</DialogTitle>
 						<DialogDescription>
-							{data ? data.name : "Create a new dish"}
+							{data ? data.name : "Create a new service"}
 						</DialogDescription>
 					</DialogHeader>
 					<Form {...form}>
-						<form
-							onSubmit={form.handleSubmit(onSubmit)}
-							className="space-y-4"
-							encType="multipart/form-data">
+						<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
 							<FormField
 								control={form.control}
 								name="name"
@@ -188,24 +144,74 @@ export default function AddEditDialog({
 									</FormItem>
 								)}
 							/>
+							<div className="grid grid-cols-2 gap-4">
+								<FormField
+									control={form.control}
+									name="duration"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Duration (in hours)</FormLabel>
+											<FormControl>
+												<Input
+													type="number"
+													{...field}
+													value={field.value ?? ""}
+													onChange={e => field.onChange(parseInt(e.target.value))}
+												/>
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+								<FormField
+									control={form.control}
+									name="unit"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel className="space-x-2">
+												<span>Unit</span>
+												<HelpToolTip className="inline" size={15}>
+													<div className="w-96 space-y-2">
+														<p>
+															Units refer to the quantity or measurement associated with a
+															service.
+														</p>
+														<p>
+															For example, if a service is priced 'per hour', 'hour' is the
+															unit. If a product is sold 'per case', then 'case' is the unit.
+														</p>
+														<p>
+															The number inputted here will act as a multiplier. Example values
+															are: 1 for "50php per case", 3 for "70php per 3 meters, etc."
+														</p>
+														<p>Leave empty if not applicable to the current service</p>
+													</div>
+												</HelpToolTip>
+											</FormLabel>
+											<FormControl>
+												<Input
+													type="number"
+													{...field}
+													value={field.value ?? ""}
+													onChange={e => field.onChange(parseInt(e.target.value))}
+												/>
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+							</div>
 							<FormField
 								control={form.control}
-								name="image"
+								name="price"
 								render={({ field }) => (
 									<FormItem>
-										<div className="flex justify-between">
-											<FormLabel>Dish Image</FormLabel>
-											{data && <DishProfileDialog data={data} />}
-										</div>
-
+										<FormLabel>Price</FormLabel>
 										<FormControl>
 											<Input
-												accept="image/png, image/jpg"
-												type="file"
-												disabled={field.disabled}
-												onChange={e => {
-													if (e.target.files) field.onChange(e.target.files[0]);
-												}}
+												type="number"
+												{...field}
+												onChange={e => field.onChange(parseFloat(e.target.value))}
 											/>
 										</FormControl>
 										<FormMessage />
@@ -215,23 +221,20 @@ export default function AddEditDialog({
 							<div className="grid grid-cols-2 gap-4">
 								<FormField
 									control={form.control}
-									name="categoryID"
+									name="isRequired"
 									render={({ field }) => (
 										<FormItem>
-											<FormLabel>Category</FormLabel>
+											<FormLabel>Required</FormLabel>
 											<FormControl>
 												<Select
-													onValueChange={value => field.onChange(parseInt(value))}
+													onValueChange={value => field.onChange(value === "true")}
 													defaultValue={String(field.value)}>
 													<SelectTrigger>
-														<SelectValue placeholder="--Select category--" />
+														<SelectValue />
 													</SelectTrigger>
 													<SelectContent>
-														{categories.map(category => (
-															<SelectItem key={category.id} value={String(category.id)}>
-																{category.name}
-															</SelectItem>
-														))}
+														<SelectItem value="true">{irEnum.true}</SelectItem>
+														<SelectItem value="false">{irEnum.false}</SelectItem>
 													</SelectContent>
 												</Select>
 											</FormControl>
@@ -239,34 +242,6 @@ export default function AddEditDialog({
 										</FormItem>
 									)}
 								/>
-								<FormField
-									control={form.control}
-									name="courseID"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Course:</FormLabel>
-											<FormControl>
-												<Select
-													onValueChange={value => field.onChange(parseInt(value))}
-													defaultValue={String(field.value)}>
-													<SelectTrigger>
-														<SelectValue placeholder="--Select course--" />
-													</SelectTrigger>
-													<SelectContent>
-														{courses.map(course => (
-															<SelectItem key={course.id} value={String(course.id)}>
-																{course.name}
-															</SelectItem>
-														))}
-													</SelectContent>
-												</Select>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-							</div>
-							<div className="grid grid-cols-2 gap-4">
 								<FormField
 									control={form.control}
 									name="isAvailable"

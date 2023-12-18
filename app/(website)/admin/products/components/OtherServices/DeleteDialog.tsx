@@ -5,18 +5,21 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@components/ui/dialog";
-import { Dishes } from "./DishColumns";
+import { Services } from "./Columns";
 import { DialogClose } from "@radix-ui/react-dialog";
 import { Button } from "@components/ui/button";
 import { useTransition } from "react";
 import { useSWRConfig } from "swr";
-import { deleteDishes } from "../serverActions";
+import { deleteDishes, deleteServices } from "../serverActions";
 import { toast } from "@components/ui/use-toast";
-import { PRODUCTS_DISHES_KEY } from "../ProductPageProvider";
+import {
+	PRODUCTS_DISHES_KEY,
+	PRODUCTS_SERVICES_KEY,
+} from "../ProductPageProvider";
 import { Loader2 } from "lucide-react";
 
 type DeleteDialogProps = {
-	data: Dishes[];
+	data: Services[];
 	onOpenChange: React.Dispatch<React.SetStateAction<boolean>>;
 } & React.ComponentProps<typeof Dialog>;
 
@@ -35,7 +38,7 @@ export default function DeleteDialog({
 					<DialogTitle className="text-destructive">Delete</DialogTitle>
 					<DialogDescription>
 						Deleting{" "}
-						{data.length > 1 ? "selected dishes" : data[0] ? data[0].name : "ERROR"}
+						{data.length > 1 ? "selected services" : data[0] ? data[0].name : "ERROR"}
 					</DialogDescription>
 					<div className="text-destructive">This action cannot be undo. Delete?</div>
 					<div className="flex justify-end gap-4">
@@ -49,23 +52,20 @@ export default function DeleteDialog({
 								type="button"
 								variant={"destructive"}
 								onClick={() => {
-									const toBeYeeted: { id: number; imgHref: string | null }[] = data.map(
-										d => ({
-											id: d.id,
-											imgHref: d.imgHref,
-										})
-									);
 									startSaving(async () => {
-										const submitDish = await deleteDishes(toBeYeeted);
+										const ids = data.map(service => service.id);
+										const submitDish = await deleteServices(ids);
 										if (submitDish) {
 											const plural =
-												data.length > 1 ? "The selected dishes are" : data[0].name + " is";
+												data.length > 1
+													? "The selected services are"
+													: data[0].name + " is";
 											toast({
 												title: "Success",
 												description: plural + " successfully deleted!",
 												duration: 5000,
 											});
-											mutate(PRODUCTS_DISHES_KEY);
+											mutate(PRODUCTS_SERVICES_KEY);
 										}
 									});
 									onOpenChange(false);

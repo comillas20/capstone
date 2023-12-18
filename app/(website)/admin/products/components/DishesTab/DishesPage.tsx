@@ -1,6 +1,5 @@
 "use client";
 import { Dishes, columns } from "./DishColumns";
-import { isAvailable } from "../../page";
 import {
 	ProductPageContext,
 	ProductPageContextProps,
@@ -12,23 +11,17 @@ import { Button } from "@components/ui/button";
 import { Separator } from "@components/ui/separator";
 import CategoryCourseDialog from "./CategoryCourseDialog";
 import { useContext } from "react";
-import { convertDateToString } from "@lib/utils";
 
 export default function DishesPage() {
 	const { dishes, categories, courses } = useContext(
 		ProductPageContext
 	) as ProductPageContextProps;
 	const dishesTableData: Dishes[] = dishes.map(dish => ({
-		id: dish.id,
-		name: dish.name,
+		...dish,
 		categoryID: dish.category.id,
 		category: dish.category.name,
 		courseID: dish.course.id,
 		course: dish.course.name,
-		createdAt: convertDateToString(dish.createdAt),
-		updatedAt: convertDateToString(dish.updatedAt),
-		imgHref: dish.imgHref,
-		isAvailable: dish.isAvailable ? isAvailable.true : isAvailable.false,
 	}));
 	const hideOnDefault = { Created: false, "Last Updated": false };
 	return (
