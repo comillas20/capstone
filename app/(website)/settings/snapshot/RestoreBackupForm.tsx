@@ -19,6 +19,7 @@ import { DCC, Set, WorksheetNames } from "./page";
 import { Loader2 } from "lucide-react";
 import { restoreDishCatCourse, restoreSets } from "./serverActions";
 import { convertExcelValueToDateString } from "@lib/utils";
+import { toast } from "@components/ui/use-toast";
 
 const uploadFormSchema = z.object({
 	uploadFile: z.custom(file => file instanceof File, {
@@ -50,27 +51,42 @@ export default function RestoreBackUpForm() {
 
 				setMessage("Reading the file...");
 				const dishes = getDishesFromExcel(workbook);
+				let dishCount = 0,
+					setCount = 0;
 				if (dishes) {
-					let count = 0;
 					dishes.forEach(async dish => {
 						const dishUpload = await restoreDishCatCourse(dish);
 						if (dishUpload) {
-							count++;
-							setMessage("Uploading dishes (" + count + "/" + dishes.length + ")");
+							dishCount++;
+							setMessage("Uploading dishes (" + dishCount + "/" + dishes.length + ")");
 						}
 					});
 				}
 				const sets = getSetsFromExcel(workbook);
-				if (dishes && sets) {
-					let count = 0;
-					sets.forEach(async set => {
-						const setUpload = await restoreSets(set);
-						if (setUpload) {
-							count++;
-							setMessage("Uploading sets (" + count + "/" + sets.length + ")");
-						}
-					});
+				if (sets) {
+					// if dish successfully uploads all dishes
+					if (dishCount === dishes?.length) {
+						sets.forEach(async set => {
+							const setUpload = await restoreSets(set);
+							if (setUpload) {
+								setCount++;
+								setMessage("Uploading sets (" + setCount + "/" + sets.length + ")");
+							}
+						});
+					}
 				}
+				// Note to self: all code here will be executed first before uploading
+
+				// toast({
+				// 	title: "Successfully restored the following",
+				// 	description: (
+				// 		<ul className="pl-4">
+				// 			{dishes && dishCount === dishes.length && <li>Dishes</li>}
+				// 			{sets && setCount === sets.length && <li>Sets</li>}
+				// 		</ul>
+				// 	),
+				// 	duration: 5000,
+				// });
 
 				// if (!dishes && !sets) setMessage("Invalid File");
 			} catch (err) {

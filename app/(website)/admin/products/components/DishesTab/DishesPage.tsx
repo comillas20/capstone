@@ -6,9 +6,8 @@ import {
 } from "../ProductPageProvider";
 import { DataTable } from "@app/(website)/admin/components/DataTable";
 import { DataTableToolbar } from "./DataTableToolbar";
-import { Card, CardContent, CardFooter } from "@components/ui/card";
+import { Card, CardContent } from "@components/ui/card";
 import { Button } from "@components/ui/button";
-import { Separator } from "@components/ui/separator";
 import { AddEditDialog as CategoryAE } from "./CategoryAED";
 import { AddEditDialog as CourseAE } from "./CourseAED";
 import { useContext } from "react";
@@ -45,7 +44,7 @@ export default function DishesPage() {
 														);
 														return filtered.length > 0 ? (
 															<>
-																{categories.map(category => (
+																{filtered.map(category => (
 																	<CategoryAE key={category.id} data={category}>
 																		<EditableButtonText
 																			variant={"link"}

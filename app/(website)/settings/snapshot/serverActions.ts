@@ -64,6 +64,7 @@ export async function restoreDishCatCourse(values: DCC) {
 				connect: { name: values.category },
 			},
 			createdAt: values.createdAt,
+			isAvailable: values.isAvailable,
 		},
 		where: {
 			name: values.name,
@@ -74,6 +75,7 @@ export async function restoreDishCatCourse(values: DCC) {
 				connect: { name: values.category },
 			},
 			createdAt: values.createdAt,
+			isAvailable: values.isAvailable,
 		},
 	});
 

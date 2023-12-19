@@ -36,9 +36,14 @@ export default function ReservationForm({
 				session,
 			}}>
 			<div className="flex gap-12 xl:flex-row">
-				<SetPicker />
+				<div className="flex-1">
+					{/* the extra div is for SetPicker to not have same height as Calendar 
+						when SetPicker height < Calendar height*/}
+					<SetPicker />
+				</div>
 				<div>
-					{/* the extra div is for calendar to not have same height as SetPicker */}
+					{/* the extra div is for calendar to not have same height as SetPicker 
+						when SetPicker height > Calendar height*/}
 					<Calendar
 						className="rounded-md border border-current"
 						mode="single"
