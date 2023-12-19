@@ -22,8 +22,6 @@ export type Dishes = {
 	name: string;
 	categoryID: number;
 	category: string;
-	courseID: number;
-	course: string;
 	createdAt: Date;
 	updatedAt: Date;
 	imgHref: string | null;
@@ -82,12 +80,6 @@ export const columns: ColumnDef<Dishes>[] = [
 		accessorKey: "category",
 		header: ({ column }) => (
 			<DataTableColumnHeader column={column} title="Category" />
-		),
-	},
-	{
-		accessorKey: "course",
-		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="Course" />
 		),
 	},
 	{

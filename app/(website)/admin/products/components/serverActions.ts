@@ -6,34 +6,44 @@ type Dish = {
 	id: number;
 	name: string;
 	imgHref: string | undefined;
+	image: FormData | undefined;
 	categoryID: number;
-	courseID: number;
 	isAvailable: boolean;
 };
-
 export async function createOrUpdateDish(dish: Dish) {
+	if (dish.image) {
+		const response = await fetch(
+			`https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+			{
+				method: "POST",
+				body: dish.image,
+			}
+		);
+
+		if (!response.ok) {
+			throw new Error(`HTTP error! status: ${response.status}`);
+		}
+
+		const data = await response.json();
+		//return data.secure_url;
+	}
+
 	return await prisma.dish.upsert({
 		create: {
 			name: dish.name,
-			imgHref: dish.imgHref,
+			imgHref: dish.image ? dish.imgHref : undefined,
 			isAvailable: dish.isAvailable,
 			categoryID: dish.categoryID,
-			courseID: dish.courseID,
 		},
 		where: {
 			id: dish.id,
 		},
 		update: {
 			name: dish.name,
-			imgHref: dish.imgHref,
+			imgHref: dish.image ? dish.imgHref : undefined,
 			category: {
 				connect: {
 					id: dish.categoryID,
-				},
-			},
-			course: {
-				connect: {
-					id: dish.courseID,
 				},
 			},
 			isAvailable: dish.isAvailable,
@@ -41,22 +51,21 @@ export async function createOrUpdateDish(dish: Dish) {
 	});
 }
 
-export async function saveDishImage(
-	dishName: string,
-	oldPublicID: string | null,
-	newPublicID: string
-) {
-	if (oldPublicID) {
-		const deleteImg = await deleteImages([oldPublicID]);
+export async function uploadImage(formData: FormData) {
+	const response = await fetch(
+		`https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+		{
+			method: "POST",
+			body: formData,
+		}
+	);
+
+	if (!response.ok) {
+		throw new Error(`HTTP error! status: ${response.status}`);
 	}
-	return await prisma.dish.update({
-		data: {
-			imgHref: newPublicID,
-		},
-		where: {
-			name: dishName,
-		},
-	});
+
+	const data = await response.json();
+	return data.secure_url;
 }
 
 async function deleteImages(public_ids: string[]) {
@@ -92,43 +101,20 @@ export async function deleteDishes(
 	return yeetedDishes;
 }
 
-type CategoryOrCourse = {
+type Course = {
 	id: number;
 	name: string;
 };
-export async function createOrUpdateCategoryOrCourse(
-	data: CategoryOrCourse,
-	isCategory: boolean
-) {
-	return isCategory
-		? await prisma.category.upsert({
-				create: {
-					name: data.name,
-				},
-				where: {
-					id: data.id,
-				},
-				update: {
-					name: data.name,
-				},
-		  })
-		: await prisma.course.upsert({
-				create: {
-					name: data.name,
-				},
-				where: {
-					id: data.id,
-				},
-				update: {
-					name: data.name,
-				},
-		  });
-}
-
-export async function deleteCategory(id: number) {
-	return await prisma.category.delete({
+export async function createOrUpdateCourse(data: Course) {
+	return await prisma.course.upsert({
+		create: {
+			name: data.name,
+		},
 		where: {
-			id: id,
+			id: data.id,
+		},
+		update: {
+			name: data.name,
 		},
 	});
 }
@@ -140,6 +126,35 @@ export async function deleteCourse(id: number) {
 		},
 	});
 }
+
+type Category = {
+	id: number;
+	name: string;
+	courseID: number;
+};
+export async function createOrUpdateCategory(data: Category) {
+	return await prisma.category.upsert({
+		create: {
+			name: data.name,
+			courseID: data.courseID,
+		},
+		where: {
+			id: data.id,
+		},
+		update: {
+			name: data.name,
+			courseID: data.courseID,
+		},
+	});
+}
+export async function deleteCategory(id: number) {
+	return await prisma.category.delete({
+		where: {
+			id: id,
+		},
+	});
+}
+
 type Set = {
 	id: number;
 	name: string;

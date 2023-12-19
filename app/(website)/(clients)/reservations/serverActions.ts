@@ -13,3 +13,21 @@ type Reservation = {
 	}[];
 };
 export async function createReservation() {}
+
+export async function getALlDishesWithCourses() {
+	return await prisma.dish.findMany({
+		select: {
+			id: true,
+			name: true,
+			category: {
+				select: {
+					course: {
+						select: {
+							name: true,
+						},
+					},
+				},
+			},
+		},
+	});
+}

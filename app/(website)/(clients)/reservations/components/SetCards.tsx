@@ -18,6 +18,7 @@ import {
 	ReservationFormContext,
 	ReservationFormContextProps,
 } from "./ReservationForm";
+import { getALlDishesWithCourses } from "../serverActions";
 
 type SetCardsProps = {
 	set: {
@@ -70,7 +71,10 @@ export default function SetCards({
 	const { session, currentDate, month, date } = useContext(
 		ReservationFormContext
 	) as ReservationFormContextProps;
-	const allDishes = useSWR("rfGetAllDishes", getAllDishes);
+	const allDishesNCourses = useSWR(
+		"getALlDishesWithCourses",
+		getALlDishesWithCourses
+	);
 	const [selectedDishIDsViaCB, setSelectedDishIDsViaCB] = useState<string[]>([]);
 	const [prerequisiteToDialog, setPrerequisiteToDialog] = useState<number>(1);
 	const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
@@ -170,7 +174,7 @@ export default function SetCards({
 				})}
 			</CardContent>
 			<CardFooter className="flex justify-end">
-				{allDishes.data &&
+				{allDishesNCourses.data &&
 					(() => {
 						const selectedByCheckBoxes = selectedDishIDsViaCB.map(selectedIDs => {
 							const [subSetName, dishID] = selectedIDs.split("_jin_");
@@ -178,7 +182,7 @@ export default function SetCards({
 						});
 						const mergedSelectedIDs = selectedDishIDs.concat(selectedByCheckBoxes);
 						const dishesByCourse = (() => {
-							const allSelectedDishes = allDishes.data.filter(dish =>
+							const allSelectedDishes = allDishesNCourses.data.filter(dish =>
 								mergedSelectedIDs.map(d => d.dishID).includes(dish.id)
 							);
 							const dishesByCourses: {
@@ -188,7 +192,7 @@ export default function SetCards({
 								}[];
 							} = {};
 							allSelectedDishes.forEach(dish => {
-								const key = dish.course.name;
+								const key = dish.category.course.name;
 
 								if (!dishesByCourses[key]) {
 									dishesByCourses[key] = [];

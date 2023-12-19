@@ -146,7 +146,7 @@ type CloudinaryPresets = "DISHES" | "PROFILE_IMAGES";
  * @param file The image file to be uploaded
  * @param filename The filename of the image to be uploaded.
  * @param upload_preset The upload preset, set in cloudinary -> upload tab
- * @returns response data
+ * @returns The image link
  */
 export async function uploadImage(
 	file: File,
@@ -172,4 +172,30 @@ export async function uploadImage(
 
 	const data = await response.json();
 	return data.secure_url;
+}
+
+export function generateRandomString(length: number): string {
+	const charset =
+		"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+	let result = "";
+
+	for (let i = 0; i < length; i++) {
+		const randomIndex = Math.floor(Math.random() * charset.length);
+		result += charset[randomIndex];
+	}
+
+	return result;
+}
+
+export function imageWrapper(
+	file: File,
+	filename: string,
+	upload_preset: CloudinaryPresets
+) {
+	const formData = new FormData();
+	formData.append("file", file);
+	formData.append("upload_preset", upload_preset);
+	formData.append("public_id", filename);
+
+	return formData;
 }

@@ -21,14 +21,14 @@ export type ProductPageContextProps = {
 			id: number;
 			name: string;
 		};
-		course: {
-			id: number;
-			name: string;
-		};
 	}[];
 	categories: {
 		id: number;
 		name: string;
+		course: {
+			id: number;
+			name: string;
+		};
 	}[];
 	courses: {
 		id: number;
@@ -55,10 +55,6 @@ export type ProductPageContextProps = {
 				name: string;
 				isAvailable: boolean;
 				category: {
-					id: number;
-					name: string;
-				};
-				course: {
 					id: number;
 					name: string;
 				};

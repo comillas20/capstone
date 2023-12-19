@@ -61,7 +61,7 @@ export default function RestoreBackUpForm() {
 					});
 				}
 				const sets = getSetsFromExcel(workbook);
-				if (sets) {
+				if (dishes && sets) {
 					let count = 0;
 					sets.forEach(async set => {
 						const setUpload = await restoreSets(set);

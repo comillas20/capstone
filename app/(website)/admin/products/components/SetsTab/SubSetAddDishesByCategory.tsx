@@ -10,10 +10,6 @@ type SubSetAddDishesByCategoryProps = {
 	dishes: {
 		name: string;
 		id: number;
-		course: {
-			id: number;
-			name: string;
-		};
 		createdAt: Date;
 		updatedAt: Date;
 		isAvailable: boolean;

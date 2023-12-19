@@ -25,10 +25,6 @@ type ProductListProps = {
 			id: number;
 			name: string;
 		};
-		course: {
-			id: number;
-			name: string;
-		};
 	}[];
 };
 

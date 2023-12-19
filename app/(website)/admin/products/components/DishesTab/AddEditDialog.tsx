@@ -32,15 +32,11 @@ import {
 import { useContext, useEffect, useTransition } from "react";
 import { toast } from "@components/ui/use-toast";
 import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuRadioGroup,
-	DropdownMenuRadioItem,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from "@components/ui/dropdown-menu";
-import { TriangleDownIcon } from "@radix-ui/react-icons";
-import { DISHES_IMAGE_FOLDER, uploadImage } from "@lib/utils";
+	DISHES_IMAGE_FOLDER,
+	generateRandomString,
+	imageWrapper,
+	uploadImage,
+} from "@lib/utils";
 import { Loader2 } from "lucide-react";
 import DishProfileDialog from "./DishProfileDialog";
 import {
@@ -60,7 +56,7 @@ export default function AddEditDialog({
 	open,
 	onOpenChange,
 }: AddEditDialogProps) {
-	const { dishes, categories, courses } = useContext(
+	const { dishes, categories } = useContext(
 		ProductPageContext
 	) as ProductPageContextProps;
 	const formSchema = z.object({
@@ -93,13 +89,6 @@ export default function AddEditDialog({
 				message:
 					"Please choose a category the dish will fall under (e.g. Pork for Pork Ribs)",
 			}),
-		courseID: z
-			.number()
-			.min(1)
-			.refine(e => e > 0, {
-				message:
-					"Please choose a course the dish will fall under (e.g. Dessert for Fruit Salad)",
-			}),
 		isAvailable: z.boolean(),
 	});
 
@@ -109,15 +98,15 @@ export default function AddEditDialog({
 			? {
 					id: data.id,
 					name: data.name,
+					image: undefined,
 					categoryID: data.categoryID,
-					courseID: data.courseID,
 					isAvailable: data.isAvailable,
 			  }
 			: {
 					id: -1,
 					name: "",
+					image: undefined,
 					categoryID: -1,
-					courseID: -1,
 					isAvailable: false,
 			  },
 	});
@@ -125,23 +114,18 @@ export default function AddEditDialog({
 	const [isSaving, startSaving] = useTransition();
 	const { mutate } = useSWRConfig();
 	function onSubmit(values: z.infer<typeof formSchema>) {
-		onOpenChange(false);
-		const imageFileName = values.id.toString();
+		const imageFileName = generateRandomString(10);
+		const imageData = values.image
+			? imageWrapper(values.image as File, imageFileName, "DISHES")
+			: undefined;
+		// Note to self: serverActions can't take complex objects such as Files
+		// so I had to use FormData here
 		const orig = {
 			...values,
-			imgHref: values.image
-				? DISHES_IMAGE_FOLDER.concat(imageFileName)
-				: undefined,
+			image: imageData,
+			imgHref: values.image ? imageFileName : undefined,
 		};
 		startSaving(async () => {
-			if (values.image) {
-				const imgUpload = await uploadImage(
-					values.image as File,
-					imageFileName,
-					"DISHES"
-				);
-				console.log(imgUpload);
-			}
 			const submitDish = await createOrUpdateDish(orig);
 			if (submitDish) {
 				toast({
@@ -152,10 +136,9 @@ export default function AddEditDialog({
 					duration: 5000,
 				});
 				mutate(PRODUCTS_DISHES_KEY);
-				mutate(PRODUCTS_CATEGORIES_KEY);
-				mutate(PRODUCTS_COURSES_KEY);
 			}
 		});
+		onOpenChange(false);
 	}
 	useEffect(() => {
 		form.reset();
@@ -239,34 +222,6 @@ export default function AddEditDialog({
 										</FormItem>
 									)}
 								/>
-								<FormField
-									control={form.control}
-									name="courseID"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Course:</FormLabel>
-											<FormControl>
-												<Select
-													onValueChange={value => field.onChange(parseInt(value))}
-													defaultValue={String(field.value)}>
-													<SelectTrigger>
-														<SelectValue placeholder="--Select course--" />
-													</SelectTrigger>
-													<SelectContent>
-														{courses.map(course => (
-															<SelectItem key={course.id} value={String(course.id)}>
-																{course.name}
-															</SelectItem>
-														))}
-													</SelectContent>
-												</Select>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-							</div>
-							<div className="grid grid-cols-2 gap-4">
 								<FormField
 									control={form.control}
 									name="isAvailable"

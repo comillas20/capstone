@@ -9,17 +9,21 @@ export async function retrieveAllDishCatCoursesForBackUp() {
 			createdAt: true,
 			isAvailable: true,
 			category: {
-				select: { name: true },
-			},
-			course: {
-				select: { name: true },
+				select: {
+					name: true,
+					course: {
+						select: {
+							name: true,
+						},
+					},
+				},
 			},
 		},
 	});
 	return dishes.map(dish => ({
 		...dish,
 		category: dish.category.name,
-		course: dish.course.name,
+		course: dish.category.course.name,
 	}));
 }
 type DCC = {
@@ -30,61 +34,50 @@ type DCC = {
 	course: string;
 };
 export async function restoreDishCatCourse(values: DCC) {
-	return await prisma.dish.upsert({
+	const newCourse = await prisma.course.upsert({
+		create: {
+			name: values.course,
+			categories: {
+				connectOrCreate: {
+					create: { name: values.category },
+					where: { name: values.category },
+				},
+			},
+		},
+		where: {
+			name: values.course,
+		},
+		update: {
+			name: values.course,
+			categories: {
+				connectOrCreate: {
+					create: { name: values.category },
+					where: { name: values.category },
+				},
+			},
+		},
+	});
+	const newDish = await prisma.dish.upsert({
 		create: {
 			name: values.name,
-			isAvailable: values.isAvailable,
-			createdAt: values.createdAt,
-			course: {
-				connectOrCreate: {
-					where: {
-						name: values.course,
-					},
-					create: {
-						name: values.course,
-					},
-				},
-			},
 			category: {
-				connectOrCreate: {
-					where: {
-						name: values.category,
-					},
-					create: {
-						name: values.category,
-					},
-				},
+				connect: { name: values.category },
 			},
+			createdAt: values.createdAt,
 		},
 		where: {
 			name: values.name,
 		},
 		update: {
 			name: values.name,
-			isAvailable: values.isAvailable,
-			createdAt: values.createdAt,
-			course: {
-				connectOrCreate: {
-					where: {
-						name: values.course,
-					},
-					create: {
-						name: values.course,
-					},
-				},
-			},
 			category: {
-				connectOrCreate: {
-					where: {
-						name: values.category,
-					},
-					create: {
-						name: values.category,
-					},
-				},
+				connect: { name: values.category },
 			},
+			createdAt: values.createdAt,
 		},
 	});
+
+	return { ...newCourse, ...newDish };
 }
 
 export async function retrieveSetsForBackUp() {

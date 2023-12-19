@@ -11,7 +11,6 @@ export default async function ProductPage() {
 			id: true,
 			name: true,
 			category: true,
-			course: true,
 			imgHref: true,
 		},
 		where: {

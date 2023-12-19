@@ -91,7 +91,10 @@ export default function SetCard({ data, className }: SetCardProps) {
 								{subSets.map(subset => (
 									<div key={subset.id} className="mb-3">
 										{subSets && (
-											<SubSetAddEditDialog editSubSetData={subset} setID={data.id}>
+											<SubSetAddEditDialog
+												editSubSetData={subset}
+												setID={data.id}
+												key={subset.id}>
 												<EditableButtonText
 													text={subset.name}
 													variant={"link"}

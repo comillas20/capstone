@@ -4,6 +4,7 @@ import { Dishes } from "./DishColumns";
 import ImageNotAvailable from "@components/ImageNotAvailable";
 import { Button } from "@components/ui/button";
 import { DialogClose } from "@radix-ui/react-dialog";
+import { DISHES_IMAGE_FOLDER } from "@lib/utils";
 export default function DishProfileDialog({ data }: { data: Dishes }) {
 	return (
 		<Dialog>
@@ -24,7 +25,7 @@ export default function DishProfileDialog({ data }: { data: Dishes }) {
 							width={400}
 							height={480}
 							sizes="100vw"
-							src={data.imgHref}
+							src={DISHES_IMAGE_FOLDER.concat(data.imgHref)}
 							alt={data.name}
 						/>
 					)}
@@ -33,7 +34,7 @@ export default function DishProfileDialog({ data }: { data: Dishes }) {
 				<div className="mr-4 mt-12 flex flex-col justify-between px-8 py-12">
 					<div>
 						<h3 className="text-lg font-semibold">{data.name}</h3>
-						<p className="text-xs">{data.course + " | " + data.category}</p>
+						<p className="text-xs">{data.category}</p>
 					</div>
 					<DialogClose asChild>
 						<Button type="button" size="sm" className="w-full">

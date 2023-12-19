@@ -18,7 +18,6 @@ export async function getAllSets() {
 							id: true,
 							name: true,
 							category: true,
-							course: true,
 							isAvailable: true,
 						},
 					},
@@ -38,11 +37,26 @@ export async function getAllSets() {
 }
 
 export async function getAllCategories() {
-	return await prisma.category.findMany();
+	return await prisma.category.findMany({
+		select: {
+			id: true,
+			name: true,
+			course: {
+				select: {
+					id: true,
+					name: true,
+				},
+			},
+		},
+	});
 }
 
 export async function getAllCourses() {
-	return await prisma.course.findMany();
+	return await prisma.course.findMany({
+		orderBy: {
+			id: "asc",
+		},
+	});
 }
 
 export async function getAllDishes() {
@@ -51,7 +65,6 @@ export async function getAllDishes() {
 			id: true,
 			name: true,
 			category: true,
-			course: true,
 			createdAt: true,
 			updatedAt: true,
 			isAvailable: true,

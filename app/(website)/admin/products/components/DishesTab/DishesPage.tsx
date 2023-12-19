@@ -9,8 +9,11 @@ import { DataTableToolbar } from "./DataTableToolbar";
 import { Card, CardContent, CardFooter } from "@components/ui/card";
 import { Button } from "@components/ui/button";
 import { Separator } from "@components/ui/separator";
-import CategoryCourseDialog from "./CategoryCourseDialog";
+import { AddEditDialog as CategoryAE } from "./CategoryAED";
+import { AddEditDialog as CourseAE } from "./CourseAED";
 import { useContext } from "react";
+import EditableButtonText from "@components/EditableButtonText";
+import { Plus } from "lucide-react";
 
 export default function DishesPage() {
 	const { dishes, categories, courses } = useContext(
@@ -20,8 +23,6 @@ export default function DishesPage() {
 		...dish,
 		categoryID: dish.category.id,
 		category: dish.category.name,
-		courseID: dish.course.id,
-		course: dish.course.name,
 	}));
 	const hideOnDefault = { Created: false, "Last Updated": false };
 	return (
@@ -29,58 +30,75 @@ export default function DishesPage() {
 			<div className="flex flex-col gap-6 pt-4 lg:grid lg:grid-cols-4">
 				<div className="mt-12">
 					<Card className="flex flex-col pt-4">
-						<CardContent className="flex flex-1">
-							<div className="flex-1">
-								<h3 className="mb-3 text-sm font-semibold">Categories</h3>
-								<div className="flex flex-col space-y-1">
-									{categories &&
-										categories.map(category => (
-											<div key={category.id}>
-												<CategoryCourseDialog editData={category} isCategory={true}>
-													<Button
-														variant={"link"}
-														size={"sm"}
-														className="h-fit w-full justify-start p-0">
-														{category.name}
-													</Button>
-												</CategoryCourseDialog>
+						<CardContent className="space-y-4">
+							{courses.length > 0 ? (
+								<>
+									{courses.map(course => {
+										return (
+											<div key={course.id} className="space-y-2">
+												<h3 className="text-sm font-semibold">{course.name}</h3>
+												<div className="ml-4 space-y-2">
+													{(() => {
+														// only takes the categories within te current course
+														const filtered = categories.filter(
+															category => category.course.id === course.id
+														);
+														return filtered.length > 0 ? (
+															<>
+																{categories.map(category => (
+																	<CategoryAE key={category.id} data={category}>
+																		<EditableButtonText
+																			variant={"link"}
+																			size={"sm"}
+																			className="h-fit w-full justify-start p-0"
+																			iconSize={15}
+																			iconClassName="text-primary"
+																			text={category.name}
+																		/>
+																	</CategoryAE>
+																))}
+																<CategoryAE>
+																	<Button
+																		size="sm"
+																		variant={"link"}
+																		className="h-fit p-0 text-xs">
+																		<Plus className="mr-1" size={15} />
+																		New Category
+																	</Button>
+																</CategoryAE>
+															</>
+														) : (
+															<CategoryAE>
+																<Button
+																	size="sm"
+																	variant={"link"}
+																	className="h-fit p-0 text-xs">
+																	<Plus className="mr-1" size={15} />
+																	New Category
+																</Button>
+															</CategoryAE>
+														);
+													})()}
+												</div>
 											</div>
-										))}
-								</div>
-							</div>
-							<Separator orientation="vertical" className="mx-4 h-auto" />
-							<div className="flex-1">
-								<h3 className="mb-3 text-sm font-semibold">Courses</h3>
-								<div className="flex flex-col space-y-1">
-									{courses &&
-										courses.map(course => (
-											<div key={course.id}>
-												<CategoryCourseDialog editData={course} isCategory={false}>
-													<Button
-														variant={"link"}
-														size={"sm"}
-														className="h-fit w-full justify-start p-0">
-														{course.name}
-													</Button>
-												</CategoryCourseDialog>
-											</div>
-										))}
-								</div>
-							</div>
+										);
+									})}
+									<CourseAE>
+										<Button size="sm" variant={"link"} className="h-fit p-0 text-xs">
+											<Plus className="mr-1" size={15} />
+											New Course
+										</Button>
+									</CourseAE>
+								</>
+							) : (
+								<CourseAE>
+									<Button size="sm" variant={"link"} className="h-fit p-0 text-xs">
+										<Plus className="mr-1" />
+										New Course
+									</Button>
+								</CourseAE>
+							)}
 						</CardContent>
-						<Separator />
-						<CardFooter className="flex gap-4 py-0">
-							<CategoryCourseDialog isCategory={true}>
-								<Button size="sm" variant={"link"} className="flex flex-1 p-0">
-									<span className="text-xs">New Category</span>
-								</Button>
-							</CategoryCourseDialog>
-							<CategoryCourseDialog isCategory={false}>
-								<Button size="sm" variant={"link"} className="flex flex-1 p-0">
-									<span className="text-xs">New Course</span>
-								</Button>
-							</CategoryCourseDialog>
-						</CardFooter>
 					</Card>
 				</div>
 				<div className="col-span-3">

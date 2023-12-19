@@ -34,7 +34,7 @@ import { Input } from "@components/ui/input";
 import { TriangleDownIcon } from "@radix-ui/react-icons";
 import { ScrollArea } from "@components/ui/scroll-area";
 import { Badge } from "@components/ui/badge";
-import { AlertCircle, HelpCircle, Loader2Icon, Plus, X } from "lucide-react";
+import { HelpCircle, Loader2Icon, Plus, X } from "lucide-react";
 import SubSetAddDishesByCategory from "./SubSetAddDishesByCategory";
 import {
 	DropdownMenu,
@@ -91,8 +91,8 @@ export default function SubSetAddEditDialog({
 				// Ignore own name when editing
 				editSubSetData
 					? value === editSubSetData.name ||
-					  !isSubSetAlreadyExistsInASet(setID, value)
-					: !isSubSetAlreadyExistsInASet(setID, value),
+					  !(await isSubSetAlreadyExistsInASet(setID, value))
+					: !(await isSubSetAlreadyExistsInASet(setID, value)),
 			{
 				message: "This subset name already exists!",
 			}

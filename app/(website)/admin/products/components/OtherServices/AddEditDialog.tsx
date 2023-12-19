@@ -201,24 +201,25 @@ export default function AddEditDialog({
 									)}
 								/>
 							</div>
-							<FormField
-								control={form.control}
-								name="price"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Price</FormLabel>
-										<FormControl>
-											<Input
-												type="number"
-												{...field}
-												onChange={e => field.onChange(parseFloat(e.target.value))}
-											/>
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-							<div className="grid grid-cols-2 gap-4">
+
+							<div className="grid grid-cols-3 gap-4">
+								<FormField
+									control={form.control}
+									name="price"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Price</FormLabel>
+											<FormControl>
+												<Input
+													type="number"
+													{...field}
+													onChange={e => field.onChange(parseFloat(e.target.value))}
+												/>
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
 								<FormField
 									control={form.control}
 									name="isRequired"

@@ -22,7 +22,7 @@ export function DataTableToolbar<TData>({
 	table,
 }: DataTableToolbarProps<TData>) {
 	const [isOpen, setIsOpen] = useState(false);
-	const { categories, courses } = useContext(
+	const { categories } = useContext(
 		ProductPageContext
 	) as ProductPageContextProps;
 	const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -57,17 +57,17 @@ export function DataTableToolbar<TData>({
 					</>
 				)}
 			</div>
-			{(categories?.length == 0 || courses?.length == 0) && (
+			{categories?.length == 0 && (
 				<p className="mr-4 flex items-center text-sm text-primary">
 					<Info className="mr-2" />
-					Please add a category and a course first before adding a dish
+					Please add a category first before adding a dish
 				</p>
 			)}
 			<Button
 				size="sm"
 				className="flex h-8"
 				onClick={() => setIsOpen(true)}
-				disabled={categories?.length == 0 || courses?.length == 0}>
+				disabled={categories?.length == 0}>
 				<Plus className="mr-2" />
 				Dish
 			</Button>
