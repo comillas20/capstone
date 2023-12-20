@@ -1,6 +1,5 @@
 "use client";
 import { Button } from "@components/ui/button";
-import { sets, additional_services } from "./temp";
 import {
 	Dialog,
 	DialogContent,
@@ -8,7 +7,6 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogTrigger,
 } from "@components/ui/dialog";
 import {
 	Popover,
@@ -18,11 +16,12 @@ import {
 import { Separator } from "@components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@components/ui/tabs";
 import { PopoverClose } from "@radix-ui/react-popover";
-import { useState } from "react";
-import { CheckboxWithText } from "@components/CheckboxWithText";
+import { useEffect, useState } from "react";
 import { Input } from "@components/ui/input";
-import { convertTimeTo12HourFormat } from "@lib/utils";
 import TimePicker, { Meridiem } from "@components/TimePicker";
+import useSWR from "swr";
+import { getAllServices } from "@app/(website)/serverActionsGlobal";
+import { CheckboxGroup, CheckboxItem } from "@components/CheckBoxGroup";
 type PaymentDialogProps = {
 	dishesByCourse: {
 		[courseName: string]: {
@@ -45,11 +44,21 @@ export default function PaymentDialog({
 	const [timeLinkName, setTimeLinkName] = useState<string>(defaultTimeLinkName); // for display, data not important
 
 	const [numberOfPacks, setNumberOfPacks] = useState<number>(50);
-	const [hour, setHour] = useState<number>(currentDate.getHours() % 12 || 12); //replace with the earliest available slot
-	const [minutes, setMinutes] = useState<number>(0); //replace with the earliest available slot
-	const [meridiem, setMeridiem] = useState<Meridiem>("AM"); //replace with the earliest available slot
 	const [timeUse, setTimeUse] = useState<number>(4);
 	const [time, setTime] = useState<Date>(new Date()); //24 hour, to store in database
+	const allOtherServices = useSWR("getAllServices", getAllServices);
+	const [selectedServices, setSelectedServices] = useState<string[]>([]);
+
+	useEffect(() => {
+		if (allOtherServices.data) {
+			const checkedByDefault = allOtherServices.data
+				.filter(service => service.isRequired)
+				.map(service => service.name);
+			setSelectedServices(prev =>
+				Array.from(new Set([...prev, ...checkedByDefault]))
+			);
+		}
+	}, [allOtherServices.data]);
 	return (
 		<Dialog {...props}>
 			<DialogContent className="sm:max-w-[425px] md:max-w-[500px]">
@@ -201,20 +210,32 @@ export default function PaymentDialog({
 					</TabsContent>
 					<TabsContent value="additional" className="mt-0 flex flex-col gap-4">
 						<DialogHeader className="mb-4">
-							<DialogTitle>Additional Charges</DialogTitle>
+							<DialogTitle>Additional Services</DialogTitle>
 						</DialogHeader>
 						<div className="flex flex-col gap-y-4">
-							{additional_services.map(item => (
-								<div key={item.name} className="grid grid-cols-2 gap-x-16">
-									<CheckboxWithText
-										key={item.name}
-										defaultChecked={item.isUsed}
-										disabled>
-										{item.name}
-									</CheckboxWithText>
-									<span>₱{item.price.toFixed(2)}</span>
-								</div>
-							))}
+							{allOtherServices.data && (
+								<CheckboxGroup
+									className="w-full"
+									checkedValues={selectedServices}
+									setCheckedValues={setSelectedServices}>
+									{allOtherServices.data.map(service => (
+										<CheckboxItem
+											key={service.id}
+											value={service.name}
+											disabled={service.isRequired}>
+											<div className="grid w-full grid-cols-4 gap-4">
+												<span className="col-span-3">{service.name}</span>
+												<span>
+													{new Intl.NumberFormat("en-US", {
+														style: "currency",
+														currency: "PHP",
+													}).format(service.price)}
+												</span>
+											</div>
+										</CheckboxItem>
+									))}
+								</CheckboxGroup>
+							)}
 						</div>
 						<DialogFooter className="mt-4">
 							<TabsList className="flex gap-4 bg-inherit">
@@ -235,6 +256,7 @@ export default function PaymentDialog({
 						<div>Month: {selectedMonth.getMonth()}</div>
 						<div>Event Time: {timeLinkName}</div>
 						<div>Time use: {timeUse}</div>
+						<div>Services: {JSON.stringify(selectedServices, undefined, " ")}</div>
 						<div className="grid grid-cols-2 gap-9">
 							{Object.keys(dishesByCourse).map(courseName => {
 								const dishes = dishesByCourse[courseName];

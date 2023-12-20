@@ -13,7 +13,7 @@ interface CheckboxGroupContextProps {
 	checkedValues: string[];
 	setCheckedValues: React.Dispatch<React.SetStateAction<string[]>>;
 	isDisabled: boolean;
-	maxChecks: number;
+	maxChecks?: number;
 }
 
 // Create a context for the group
@@ -24,9 +24,10 @@ const CheckboxGroupContext = createContext<
 interface CheckboxGroupProps {
 	children: ReactNode;
 	className?: string;
-	maxChecks: number;
-	onCheckedValuesChange: (checkedValues: string[]) => void;
-	disabled?: boolean; //outside usage, e.g. when the set this CBG is under is not selected/visible
+	maxChecks?: number;
+	checkedValues: string[];
+	setCheckedValues: React.Dispatch<React.SetStateAction<string[]>>;
+	disabled?: boolean; //disables the entire checkbox group using outside logic
 }
 
 // The group component
@@ -34,10 +35,10 @@ export const CheckboxGroup: React.FC<CheckboxGroupProps> = ({
 	children,
 	className,
 	maxChecks,
-	onCheckedValuesChange,
+	checkedValues,
+	setCheckedValues,
 	disabled,
 }) => {
-	const [checkedValues, setCheckedValues] = useState<string[]>([]);
 	const [isDisabled, setIsDisabled] = useState(false);
 
 	// Update the disabled state when the number of checked values changes
@@ -53,11 +54,11 @@ export const CheckboxGroup: React.FC<CheckboxGroupProps> = ({
 	}, []);
 
 	useEffect(() => {
-		if (maxChecks !== 0) {
+		if (maxChecks && maxChecks !== 0) {
 			setIsDisabled(checkedValues.length >= maxChecks || !!disabled);
 		}
-		onCheckedValuesChange(checkedValues);
-	}, [checkedValues, maxChecks, onCheckedValuesChange]);
+		// setCheckedValues(checkedValues);
+	}, [checkedValues, maxChecks, setCheckedValues]);
 
 	// Provide the checked values and function to change them
 	return (
@@ -70,15 +71,15 @@ export const CheckboxGroup: React.FC<CheckboxGroupProps> = ({
 
 interface CheckboxItemProps {
 	value: string;
-	name: string;
+	children: React.ReactNode;
 	className?: string;
-	disabled?: boolean;
+	disabled?: boolean; // disable an item using outside logic
 }
 
 // The item component
 export const CheckboxItem: React.FC<CheckboxItemProps> = ({
 	value,
-	name,
+	children,
 	className,
 	disabled,
 }) => {
@@ -87,6 +88,7 @@ export const CheckboxItem: React.FC<CheckboxItemProps> = ({
 		CheckboxGroupContext
 	) as CheckboxGroupContextProps;
 
+	// if an item is in te array of selected values
 	const isChecked = checkedValues.includes(value);
 	const toggleCheck = () => {
 		if (isChecked) {
@@ -100,7 +102,7 @@ export const CheckboxItem: React.FC<CheckboxItemProps> = ({
 		<label
 			className={cn(
 				"flex items-center gap-4 space-x-2 text-sm font-medium leading-none",
-				isDisabled &&
+				(isDisabled || disabled) &&
 					"group-disabled/check:cursor-not-allowed group-disabled:opacity-70",
 				className
 			)}>
@@ -110,7 +112,7 @@ export const CheckboxItem: React.FC<CheckboxItemProps> = ({
 				onCheckedChange={toggleCheck}
 				disabled={disabled || maxChecks === 0 || (isDisabled && !isChecked)}
 			/>
-			{name}
+			{children}
 		</label>
 	);
 };

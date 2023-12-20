@@ -80,7 +80,8 @@ export default function SetCards({
 	const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
 	//a dictionary where subsets are sorted by courses
 	const subsetsByCourses: { [key: string]: typeof set.subSets } = {};
-	set.subSets.forEach(subSet => {
+	const sortByCourseID = set.subSets.sort((a, b) => a.course.id - b.course.id);
+	sortByCourseID.forEach(subSet => {
 		const key = subSet.course.id + "_" + subSet.course.name;
 
 		if (!subsetsByCourses[key]) {
@@ -156,12 +157,13 @@ export default function SetCards({
 												<CheckboxGroup
 													maxChecks={subSet.selectionQuantity}
 													disabled={!isThisSelected}
-													onCheckedValuesChange={setSelectedDishIDsViaCB}>
+													checkedValues={selectedDishIDsViaCB}
+													setCheckedValues={setSelectedDishIDsViaCB}>
 													{subSet.dishes.map(dish => (
 														<CheckboxItem
 															key={dish.id.toString()}
 															value={subSet.name + "_jin_" + dish.id.toString()}
-															name={dish.name}
+															children={dish.name}
 														/>
 													))}
 												</CheckboxGroup>
