@@ -113,6 +113,7 @@ export const columns: ColumnDef<Services>[] = [
 						deleteOpener={setIsDeleteOpen}
 					/>
 					<AddEditDialog
+						key={JSON.stringify(row.original)}
 						open={isAEOpen}
 						onOpenChange={setIsAEOpen}
 						data={row.original}

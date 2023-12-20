@@ -116,9 +116,10 @@ export default function AddEditDialog({
 			}
 		});
 	}
-	useEffect(() => {
-		form.reset();
-	}, [open]);
+	// useEffect(() => {
+	// 	form.reset();
+	// 	console.log("resetted!");
+	// }, [open]);
 	return (
 		services && (
 			<Dialog open={open} onOpenChange={onOpenChange}>

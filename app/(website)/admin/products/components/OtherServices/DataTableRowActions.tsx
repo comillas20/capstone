@@ -37,10 +37,10 @@ export function DataTableRowActions<TData>({
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end" className="w-[160px]">
 				<DropdownMenuItem onSelect={() => addEditOpener(true)}>
-					Edit {row.getValue("name")}
+					Edit {row.getValue("Service")}
 				</DropdownMenuItem>
 				<DropdownMenuItem onSelect={() => deleteOpener(true)}>
-					Delete {row.getValue("name")}
+					Delete {row.getValue("Service")}
 				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>
