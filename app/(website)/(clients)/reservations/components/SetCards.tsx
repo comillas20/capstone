@@ -183,29 +183,10 @@ export default function SetCards({
 							return { subSetName, dishID: parseInt(dishID) };
 						});
 						const mergedSelectedIDs = selectedDishIDs.concat(selectedByCheckBoxes);
-						const dishesByCourse = (() => {
-							const allSelectedDishes = allDishesNCourses.data.filter(dish =>
-								mergedSelectedIDs.map(d => d.dishID).includes(dish.id)
-							);
-							const dishesByCourses: {
-								[key: string]: {
-									id: Number;
-									name: string;
-								}[];
-							} = {};
-							allSelectedDishes.forEach(dish => {
-								const key = dish.category.course.name;
+						const allSelectedDishes = allDishesNCourses.data.filter(dish =>
+							mergedSelectedIDs.map(d => d.dishID).includes(dish.id)
+						);
 
-								if (!dishesByCourses[key]) {
-									dishesByCourses[key] = [];
-								}
-								dishesByCourses[key].push({
-									id: dish.id,
-									name: dish.name,
-								});
-							});
-							return dishesByCourses;
-						})();
 						return (
 							<>
 								<Button
@@ -219,14 +200,18 @@ export default function SetCards({
 									}}>
 									Reserve
 								</Button>
-								<PaymentDialog
-									dishesByCourse={dishesByCourse}
-									open={isPaymentDialogOpen}
-									onOpenChange={setIsPaymentDialogOpen}
-									selectedMonth={month}
-									selectedDate={date}
-									currentDate={currentDate}
-								/>
+								{session && (
+									<PaymentDialog
+										setPrice={set.price}
+										selectedDishes={allSelectedDishes}
+										open={isPaymentDialogOpen}
+										onOpenChange={setIsPaymentDialogOpen}
+										selectedMonth={month}
+										selectedDate={date}
+										currentDate={currentDate}
+										session={session}
+									/>
+								)}
 							</>
 						);
 					})()}

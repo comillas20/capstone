@@ -65,8 +65,8 @@ export type ProductPageContextProps = {
 		id: number;
 		name: string;
 		price: number;
-		duration: number | null;
 		unit: number | null;
+		unitName: string | null;
 		isRequired: boolean;
 		isAvailable: boolean;
 	}[];

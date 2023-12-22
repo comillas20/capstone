@@ -10,12 +10,9 @@ import { DialogClose } from "@radix-ui/react-dialog";
 import { Button } from "@components/ui/button";
 import { useTransition } from "react";
 import { useSWRConfig } from "swr";
-import { deleteDishes, deleteServices } from "../serverActions";
+import { deleteServices } from "../serverActions";
 import { toast } from "@components/ui/use-toast";
-import {
-	PRODUCTS_DISHES_KEY,
-	PRODUCTS_SERVICES_KEY,
-} from "../ProductPageProvider";
+import { PRODUCTS_SERVICES_KEY } from "../ProductPageProvider";
 import { Loader2 } from "lucide-react";
 
 type DeleteDialogProps = {

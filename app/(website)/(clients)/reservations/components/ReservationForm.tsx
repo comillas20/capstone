@@ -41,7 +41,7 @@ export default function ReservationForm({
 					{/* the extra div is for calendar to not have same height as SetPicker 
 						when SetPicker height > Calendar height*/}
 					<Calendar
-						className="rounded-md border border-current"
+						className="rounded-md border"
 						mode="single"
 						selected={date}
 						onSelect={setDate}

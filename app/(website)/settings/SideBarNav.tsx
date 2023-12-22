@@ -35,9 +35,19 @@ export function SidebarNav({ role }: SidebarNavProps) {
 			accessLevel: AccessLevel.USER,
 		},
 		{
-			title: "Separator",
+			title: "Account",
+			href: "/settings/account",
+			accessLevel: AccessLevel.ADMIN,
+		},
+		{
+			title: "Reservations",
+			href: "/settings/reservations",
+			accessLevel: AccessLevel.USER,
+		},
+		{
+			title: separator,
 			href: "Sp1",
-			accessLevel: AccessLevel.GUEST,
+			accessLevel: AccessLevel.ADMIN,
 		},
 		{
 			title: "Backup & Restore",
@@ -57,7 +67,7 @@ export function SidebarNav({ role }: SidebarNavProps) {
 					return <Separator key={item.href + item.title} />;
 				}
 				return (
-					accessLevel >= item.accessLevel && (
+					accessLevel === item.accessLevel && (
 						<Link
 							key={item.href}
 							href={item.href}

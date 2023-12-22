@@ -16,28 +16,43 @@ import {
 import { Separator } from "@components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@components/ui/tabs";
 import { PopoverClose } from "@radix-ui/react-popover";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState, useTransition } from "react";
 import { Input } from "@components/ui/input";
 import TimePicker, { Meridiem } from "@components/TimePicker";
 import useSWR from "swr";
 import { getAllServices } from "@app/(website)/serverActionsGlobal";
 import { CheckboxGroup, CheckboxItem } from "@components/CheckBoxGroup";
+import {
+	ReservationFormContext,
+	ReservationFormContextProps,
+} from "./ReservationForm";
+import { signIn } from "next-auth/react";
+import { Session } from "next-auth";
+import { createReservation, getCurrentUser } from "../serverActions";
+import { Loader2 } from "lucide-react";
 type PaymentDialogProps = {
-	dishesByCourse: {
-		[courseName: string]: {
-			id: Number;
-			name: string;
-		}[];
-	};
+	selectedDishes: {
+		id: number;
+		name: string;
+		category: {
+			course: {
+				name: string;
+			};
+		};
+	}[];
 	selectedMonth: Date;
 	selectedDate: Date | undefined;
 	currentDate: Date;
+	session: Session;
+	setPrice: number;
 } & React.ComponentProps<typeof Dialog>;
 export default function PaymentDialog({
-	dishesByCourse,
+	selectedDishes,
 	selectedMonth,
 	selectedDate,
 	currentDate,
+	session,
+	setPrice,
 	...props
 }: PaymentDialogProps) {
 	const defaultTimeLinkName = "Set time";
@@ -47,8 +62,31 @@ export default function PaymentDialog({
 	const [timeUse, setTimeUse] = useState<number>(4);
 	const [time, setTime] = useState<Date>(new Date()); //24 hour, to store in database
 	const allOtherServices = useSWR("getAllServices", getAllServices);
+	const currentUser = useSWR(
+		"currentUser",
+		async () => await getCurrentUser(parseInt(session.user.userID))
+	);
 	const [selectedServices, setSelectedServices] = useState<string[]>([]);
+	const dishesByCourse = (() => {
+		const dishesByCourses: {
+			[key: string]: {
+				id: Number;
+				name: string;
+			}[];
+		} = {};
+		selectedDishes.forEach(dish => {
+			const key = dish.category.course.name;
 
+			if (!dishesByCourses[key]) {
+				dishesByCourses[key] = [];
+			}
+			dishesByCourses[key].push({
+				id: dish.id,
+				name: dish.name,
+			});
+		});
+		return dishesByCourses;
+	})();
 	useEffect(() => {
 		if (allOtherServices.data) {
 			const checkedByDefault = allOtherServices.data
@@ -59,20 +97,23 @@ export default function PaymentDialog({
 			);
 		}
 	}, [allOtherServices.data]);
+
+	const [isSaving, startSaving] = useTransition();
 	return (
 		<Dialog {...props}>
 			<DialogContent className="sm:max-w-[425px] md:max-w-[500px]">
-				<Tabs defaultValue="confirmation">
+				<Tabs defaultValue="confirmation" activationMode="manual">
 					<TabsContent value="confirmation" className="mt-0 flex flex-col gap-4">
-						<DialogHeader className="mb-4">
+						<DialogHeader>
 							<DialogTitle>Confirmation</DialogTitle>
 							<DialogDescription>Confirm your details here</DialogDescription>
 						</DialogHeader>
-						<div className="grid grid-cols-2 gap-9">
+						<Separator />
+						<div className="flex gap-9">
 							{Object.keys(dishesByCourse).map(courseName => {
 								const dishes = dishesByCourse[courseName];
 								return (
-									<ul key={courseName}>
+									<ul key={courseName} className="flex-1">
 										<span className="text-sm font-bold">{courseName}</span>
 										{dishes.map(dish => (
 											<li key={dish.id.toString()}>{dish.name}</li>
@@ -123,9 +164,7 @@ export default function PaymentDialog({
 							<span className="order-3">{selectedDate?.toDateString()}</span>
 							<div className="order-2 row-span-2 grid grid-cols-[1fr_auto_1fr]">
 								<div className="text-sm font-bold">Start of event</div>
-								<Separator
-									orientation="vertical"
-									className="row-span-2 mx-4"></Separator>
+								<Separator orientation="vertical" className="row-span-2 mx-4" />
 								<div className="text-sm font-bold">Renting Hours</div>
 								<Popover>
 									<PopoverTrigger asChild>
@@ -209,31 +248,40 @@ export default function PaymentDialog({
 						</DialogFooter>
 					</TabsContent>
 					<TabsContent value="additional" className="mt-0 flex flex-col gap-4">
-						<DialogHeader className="mb-4">
-							<DialogTitle>Additional Services</DialogTitle>
+						<DialogHeader>
+							<DialogTitle>Services</DialogTitle>
+							<DialogDescription>Extra services you might want</DialogDescription>
 						</DialogHeader>
+						<Separator />
 						<div className="flex flex-col gap-y-4">
 							{allOtherServices.data && (
 								<CheckboxGroup
 									className="w-full"
 									checkedValues={selectedServices}
 									setCheckedValues={setSelectedServices}>
-									{allOtherServices.data.map(service => (
-										<CheckboxItem
-											key={service.id}
-											value={service.name}
-											disabled={service.isRequired}>
-											<div className="grid w-full grid-cols-4 gap-4">
-												<span className="col-span-3">{service.name}</span>
-												<span>
-													{new Intl.NumberFormat("en-US", {
-														style: "currency",
-														currency: "PHP",
-													}).format(service.price)}
-												</span>
-											</div>
-										</CheckboxItem>
-									))}
+									{allOtherServices.data.map(service => {
+										const unit = service.unit
+											? `/per ${service.unit} ${service.unitName}`
+											: "";
+										return (
+											<CheckboxItem
+												key={service.id}
+												value={service.name}
+												disabled={service.isRequired}>
+												<div className="grid w-full grid-cols-5 gap-4">
+													<span className="col-span-3">{service.name}</span>
+													<span className="col-span-2">
+														{new Intl.NumberFormat("en-US", {
+															style: "currency",
+															currency: "PHP",
+														})
+															.format(service.price)
+															.concat(unit)}
+													</span>
+												</div>
+											</CheckboxItem>
+										);
+									})}
 								</CheckboxGroup>
 							)}
 						</div>
@@ -249,38 +297,108 @@ export default function PaymentDialog({
 						</DialogFooter>
 					</TabsContent>
 					<TabsContent value="payment" className="mt-0 flex flex-col gap-4">
-						<DialogHeader className="mb-4">
-							<DialogTitle>Payment</DialogTitle>
-						</DialogHeader>
-						<div>Number of packs: {numberOfPacks}</div>
-						<div>Month: {selectedMonth.getMonth()}</div>
-						<div>Event Time: {timeLinkName}</div>
-						<div>Time use: {timeUse}</div>
-						<div>Services: {JSON.stringify(selectedServices, undefined, " ")}</div>
-						<div className="grid grid-cols-2 gap-9">
-							{Object.keys(dishesByCourse).map(courseName => {
-								const dishes = dishesByCourse[courseName];
-								return (
-									<ul key={courseName}>
-										<span className="text-sm font-bold">{courseName}</span>
-										{dishes.map(dish => (
-											<li key={dish.id.toString()}>{dish.name}</li>
-										))}
-									</ul>
-								);
-							})}
-						</div>
-						<DialogFooter className="mt-4 flex gap-4">
-							<TabsList className="bg-inherit">
-								<TabsTrigger asChild value="additional" type="button">
-									<Button variant={"secondary"}>Back</Button>
-								</TabsTrigger>
-							</TabsList>
-							<Button>Reserve</Button>
-						</DialogFooter>
+						{currentUser.data && (
+							<>
+								<DialogHeader>
+									<DialogTitle>Payment</DialogTitle>
+									<DialogDescription>Pay</DialogDescription>
+								</DialogHeader>
+								<Separator />
+								<div>
+									<h3 className="text-xl font-bold">{currentUser.data.name}</h3>
+									<p className="text-xs text-muted-foreground">Customer</p>
+								</div>
+
+								<div>Month: {selectedMonth.getMonth()}</div>
+								<div>Event Time: {timeLinkName}</div>
+								<div>Time use: {timeUse}</div>
+								<div>Services: {JSON.stringify(selectedServices, undefined, " ")}</div>
+								<div className="grid grid-cols-2 gap-9">
+									{Object.keys(dishesByCourse).map(courseName => {
+										const dishes = dishesByCourse[courseName];
+										return (
+											<ul key={courseName}>
+												<span className="text-sm font-bold">{courseName}</span>
+												{dishes.map(dish => (
+													<li key={dish.id.toString()}>{dish.name}</li>
+												))}
+											</ul>
+										);
+									})}
+								</div>
+								<DialogFooter className="mt-4 flex gap-4">
+									<TabsList className="bg-inherit">
+										<TabsTrigger asChild value="additional" type="button">
+											<Button variant={"secondary"}>Back</Button>
+										</TabsTrigger>
+									</TabsList>
+									<Button
+										onClick={() => {
+											if (session.user && allOtherServices.data) {
+												const r: Reservation = {
+													email: session.user.email ?? null,
+													phoneNumber: session.user.phoneNumber ?? null,
+													eventDate: time,
+													eventDuration: timeUse,
+													orders: selectedDishes, //dishes
+													totalPrice:
+														setPrice +
+														numberOfPacks +
+														getSelectedServicesTotalPrice(
+															allOtherServices.data,
+															selectedServices
+														),
+													userID: currentUser.data?.id as number,
+													userName: currentUser.data?.name as string,
+												};
+												startSaving(async () => await reserve(r));
+											} else {
+												signIn();
+											}
+										}}
+										disabled={isSaving}>
+										{isSaving && <Loader2 className="mr-2 animate-spin" />}
+										Reserve
+									</Button>
+								</DialogFooter>
+							</>
+						)}
 					</TabsContent>
 				</Tabs>
 			</DialogContent>
 		</Dialog>
+	);
+}
+type Reservation = {
+	eventDate: Date;
+	userID: number;
+	userName: string;
+	phoneNumber: string | null;
+	email: string | null;
+	totalPrice: number;
+	eventDuration: number;
+	orders: {
+		id: number;
+		name: string;
+	}[];
+};
+async function reserve(reserve: Reservation) {
+	// const a = await createReservation(reserve);
+	// console.log("END", a);
+}
+
+function getSelectedServicesTotalPrice(
+	allServicesData: {
+		name: string;
+		price: number;
+	}[],
+	selectedServicesNames: string[]
+) {
+	const selectedServices = allServicesData.filter(service =>
+		selectedServicesNames.includes(service.name)
+	);
+	return selectedServices.reduce(
+		(previousValue, currentValue) => previousValue + currentValue.price,
+		0
 	);
 }

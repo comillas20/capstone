@@ -105,6 +105,11 @@ export default async function UserNav() {
 							Account
 						</Link>
 					</DropdownMenuItem>
+					<DropdownMenuItem asChild>
+						<Link href="/settings/reservations" className="h-full w-full">
+							Reservations
+						</Link>
+					</DropdownMenuItem>
 					{(() => {
 						if (session && session.user.role === "ADMIN") {
 							return (

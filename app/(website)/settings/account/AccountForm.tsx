@@ -206,7 +206,7 @@ export function AccountForm({ user }: AccountFormProps) {
 							<FormControl>
 								<AvatarPicker value={field.value} onValueChange={field.onChange}>
 									<Button className="block" variant={"outline"}>
-										Select an image
+										Choose an avatar
 									</Button>
 								</AvatarPicker>
 							</FormControl>

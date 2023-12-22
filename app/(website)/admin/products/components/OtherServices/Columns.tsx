@@ -12,8 +12,8 @@ export type Services = {
 	id: number;
 	name: string;
 	price: number;
-	duration: number | null;
 	unit: number | null;
+	unitName: string | null;
 	isRequired: boolean;
 	isAvailable: boolean;
 };
@@ -52,18 +52,18 @@ export const columns: ColumnDef<Services>[] = [
 		},
 	},
 	{
-		accessorKey: "duration",
-		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="Duration" />
-		),
-	},
-	{
 		accessorKey: "unit",
 		header: ({ column }) => (
 			<DataTableColumnHeader column={column} title="Unit" />
 		),
 	},
-
+	{
+		id: "Unit Name",
+		accessorKey: "unitName",
+		header: ({ column }) => (
+			<DataTableColumnHeader column={column} title="Unit Name" />
+		),
+	},
 	{
 		accessorKey: "price",
 		header: ({ column }) => (

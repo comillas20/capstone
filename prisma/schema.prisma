@@ -12,7 +12,7 @@ datasource db {
 
 // customer's reservation table
 model Reservations {
-  id            Int               @id @default(autoincrement())
+  id            String            @id @default(uuid())
   eventDate     DateTime
   reservedAt    DateTime          @default(now())
   updatedAt     DateTime          @updatedAt
@@ -46,7 +46,7 @@ model Dish {
 model Category {
   id       Int    @id @default(autoincrement())
   name     String @unique @db.VarChar(50)
-  dishes     Dish[]
+  dishes   Dish[]
   courseID Int
   course   Course @relation(fields: [courseID], references: [id], onDelete: Cascade)
 }
@@ -131,8 +131,8 @@ model OtherServices {
   id          Int     @id @default(autoincrement())
   name        String  @db.VarChar(50)
   price       Float
-  duration    Int? //hour
   unit        Int?
+  unitName    String?
   isRequired  Boolean @default(false)
   isAvailable Boolean @default(false)
 }

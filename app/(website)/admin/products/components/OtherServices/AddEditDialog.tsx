@@ -49,30 +49,34 @@ export default function AddEditDialog({
 	onOpenChange,
 }: AddEditDialogProps) {
 	const { services } = useContext(ProductPageContext) as ProductPageContextProps;
-	const formSchema = z.object({
-		id: z.number(),
-		name: z
-			.string()
-			.min(1)
-			.refine(
-				e =>
-					!services?.find(f => {
-						//If user is editing, then exclude the current name in searching for duplicate
-						const checker = data
-							? f.name !== data?.name && f.name === e
-							: f.name === e;
-						return checker;
-					}),
-				{
-					message: "This service already exists!",
-				}
-			),
-		duration: z.number().nullable(),
-		unit: z.number().nullable(),
-		price: z.number().gte(1),
-		isRequired: z.boolean(),
-		isAvailable: z.boolean(),
-	});
+	const formSchema = z
+		.object({
+			id: z.number(),
+			name: z
+				.string()
+				.min(1)
+				.refine(
+					e =>
+						!services?.find(f => {
+							//If user is editing, then exclude the current name in searching for duplicate
+							const checker = data
+								? f.name !== data?.name && f.name === e
+								: f.name === e;
+							return checker;
+						}),
+					{
+						message: "This service already exists!",
+					}
+				),
+			unit: z.number().nullable(),
+			unitName: z.string().nullable(),
+			price: z.number().gte(1),
+			isRequired: z.boolean(),
+			isAvailable: z.boolean(),
+		})
+		.refine(
+			data => (data.unit && data.unitName) || (!data.unit && !data.unitName)
+		);
 
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
@@ -80,8 +84,8 @@ export default function AddEditDialog({
 			? {
 					id: data.id,
 					name: data.name,
-					duration: data.duration,
 					unit: data.unit,
+					unitName: data.unitName,
 					price: data.price,
 					isRequired: data.isRequired,
 					isAvailable: data.isAvailable,
@@ -89,8 +93,8 @@ export default function AddEditDialog({
 			: {
 					id: -1,
 					name: "",
-					duration: null,
 					unit: null,
+					unitName: null,
 					price: 0,
 					isRequired: false,
 					isAvailable: false,
@@ -148,17 +152,39 @@ export default function AddEditDialog({
 							<div className="grid grid-cols-2 gap-4">
 								<FormField
 									control={form.control}
-									name="duration"
+									name="price"
 									render={({ field }) => (
 										<FormItem>
-											<FormLabel>Duration (in hours)</FormLabel>
+											<FormLabel>Price</FormLabel>
 											<FormControl>
 												<Input
 													type="number"
 													{...field}
-													value={field.value ?? ""}
-													onChange={e => field.onChange(parseInt(e.target.value))}
+													onChange={e => field.onChange(parseFloat(e.target.value))}
 												/>
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+								<FormField
+									control={form.control}
+									name="isRequired"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Required</FormLabel>
+											<FormControl>
+												<Select
+													onValueChange={value => field.onChange(value === "true")}
+													defaultValue={String(field.value)}>
+													<SelectTrigger>
+														<SelectValue />
+													</SelectTrigger>
+													<SelectContent>
+														<SelectItem value="true">{irEnum.true}</SelectItem>
+														<SelectItem value="false">{irEnum.false}</SelectItem>
+													</SelectContent>
+												</Select>
 											</FormControl>
 											<FormMessage />
 										</FormItem>
@@ -201,44 +227,26 @@ export default function AddEditDialog({
 										</FormItem>
 									)}
 								/>
-							</div>
-
-							<div className="grid grid-cols-3 gap-4">
 								<FormField
 									control={form.control}
-									name="price"
+									name="unitName"
 									render={({ field }) => (
 										<FormItem>
-											<FormLabel>Price</FormLabel>
+											<FormLabel className="space-x-2">
+												<span>Unit name</span>
+												<HelpToolTip className="inline" size={15}>
+													<div className="w-96 space-y-2">
+														<p>Name of the unit</p>
+														<p>"case", "meter" for example.</p>
+														<p>
+															Leave empty if not applicable to the current service and if the
+															Unit field is empty
+														</p>
+													</div>
+												</HelpToolTip>
+											</FormLabel>
 											<FormControl>
-												<Input
-													type="number"
-													{...field}
-													onChange={e => field.onChange(parseFloat(e.target.value))}
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-								<FormField
-									control={form.control}
-									name="isRequired"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Required</FormLabel>
-											<FormControl>
-												<Select
-													onValueChange={value => field.onChange(value === "true")}
-													defaultValue={String(field.value)}>
-													<SelectTrigger>
-														<SelectValue />
-													</SelectTrigger>
-													<SelectContent>
-														<SelectItem value="true">{irEnum.true}</SelectItem>
-														<SelectItem value="false">{irEnum.false}</SelectItem>
-													</SelectContent>
-												</Select>
+												<Input type="text" {...field} value={field.value ?? ""} />
 											</FormControl>
 											<FormMessage />
 										</FormItem>
