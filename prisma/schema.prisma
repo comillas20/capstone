@@ -118,6 +118,7 @@ model AdminSettings {
   maximumCustomerReservationHours Int
   defaultMinimumPerHead           Int
   maintainanceDates               MaintainanceDates[]
+  reservationCostPerHour          Int
 }
 
 model MaintainanceDates {

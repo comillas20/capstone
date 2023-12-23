@@ -27,6 +27,7 @@ type GeneralFormProps = {
 	maximumCustomerReservationHours: number; //in hours
 	defaultMinimumPerHead: number;
 	maintainanceDates: Date[];
+	reservationCostPerHour: number;
 };
 
 export function GeneralForm({
@@ -36,6 +37,7 @@ export function GeneralForm({
 	maximumCustomerReservationHours,
 	defaultMinimumPerHead,
 	maintainanceDates,
+	reservationCostPerHour,
 }: GeneralFormProps) {
 	const generalFormSchema = z.object({
 		openingTime: z.date(),
@@ -44,6 +46,7 @@ export function GeneralForm({
 		maximumCustomerReservationHours: z.number(),
 		defaultMinimumPerHead: z.number(),
 		maintainanceDates: z.date().array(),
+		reservationCostPerHour: z.number(),
 	});
 
 	type GeneralFormValues = z.infer<typeof generalFormSchema>;
@@ -57,6 +60,7 @@ export function GeneralForm({
 			maximumCustomerReservationHours: maximumCustomerReservationHours,
 			defaultMinimumPerHead: defaultMinimumPerHead,
 			maintainanceDates: maintainanceDates,
+			reservationCostPerHour: reservationCostPerHour,
 		},
 	});
 
@@ -128,20 +132,36 @@ export function GeneralForm({
 						)}
 					/>
 				</div>
-				<FormField
-					control={form.control}
-					name="defaultMinimumPerHead"
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>Minimum per head</FormLabel>
-							<FormDescription>Minimum packs customers could order</FormDescription>
-							<FormControl className="w-60">
-								<Input type="number" {...field} />
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
+				<div className="grid grid-cols-2 gap-4">
+					<FormField
+						control={form.control}
+						name="defaultMinimumPerHead"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Minimum packs</FormLabel>
+								<FormDescription>Minimum packs customers could order</FormDescription>
+								<FormControl className="w-60">
+									<Input type="number" {...field} />
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+					<FormField
+						control={form.control}
+						name="reservationCostPerHour"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Reservation cost/hour</FormLabel>
+								<FormDescription>Reservation cost per hour of usage</FormDescription>
+								<FormControl className="w-60">
+									<Input type="number" {...field} />
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+				</div>
 				<FormField
 					control={form.control}
 					name="maintainanceDates"
@@ -153,7 +173,6 @@ export function GeneralForm({
 						</FormItem>
 					)}
 				/>
-
 				<Button type="submit" disabled={isSaving}>
 					{isSaving && <Loader2 className="mr-2 animate-spin" />}
 					Save Changes

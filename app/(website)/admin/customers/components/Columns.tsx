@@ -70,8 +70,8 @@ export const columns: ColumnDef<Customers>[] = [
 			return convertDateToString(row.original.createdAt);
 		},
 	},
-	{
-		id: "actions",
-		cell: ({ row }) => <DataTableRowActions row={row} />,
-	},
+	// {
+	// 	id: "actions",
+	// 	cell: () => <DataTableRowActions />,
+	// },
 ];

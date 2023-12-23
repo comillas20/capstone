@@ -8,25 +8,12 @@ import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
-	DropdownMenuRadioGroup,
-	DropdownMenuRadioItem,
 	DropdownMenuSeparator,
 	DropdownMenuShortcut,
-	DropdownMenuSub,
-	DropdownMenuSubContent,
-	DropdownMenuSubTrigger,
 	DropdownMenuTrigger,
 } from "@components/ui/dropdown-menu";
 
-interface DataTableRowActionsProps<TData> {
-	row: Row<TData>;
-}
-
-export function DataTableRowActions<TData>({
-	row,
-}: DataTableRowActionsProps<TData>) {
-	// const task = taskSchema.parse(row.original);
-
+export function DataTableRowActions() {
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
@@ -39,12 +26,6 @@ export function DataTableRowActions<TData>({
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end" className="w-[160px]">
 				<DropdownMenuItem>Message</DropdownMenuItem>
-				<DropdownMenuItem>Ignore</DropdownMenuItem>
-				<DropdownMenuSeparator />
-				<DropdownMenuItem>
-					Delete
-					<DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
-				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>
 	);

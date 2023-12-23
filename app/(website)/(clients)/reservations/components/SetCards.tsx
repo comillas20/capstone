@@ -12,13 +12,14 @@ import { Label } from "@components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@components/ui/radio-group";
 import { useContext, useEffect, useState } from "react";
 import useSWR from "swr";
-import PaymentDialog from "./PaymentDialog";
+import ReservationDialog from "./ReservationDialog";
 import { signIn } from "next-auth/react";
 import {
 	ReservationFormContext,
 	ReservationFormContextProps,
 } from "./ReservationForm";
 import { getALlDishesWithCourses } from "../serverActions";
+import { Separator } from "@components/ui/separator";
 
 type SetCardsProps = {
 	set: {
@@ -175,47 +176,50 @@ export default function SetCards({
 					);
 				})}
 			</CardContent>
-			<CardFooter className="flex justify-end">
-				{allDishesNCourses.data &&
-					(() => {
-						const selectedByCheckBoxes = selectedDishIDsViaCB.map(selectedIDs => {
-							const [subSetName, dishID] = selectedIDs.split("_jin_");
-							return { subSetName, dishID: parseInt(dishID) };
-						});
-						const mergedSelectedIDs = selectedDishIDs.concat(selectedByCheckBoxes);
-						const allSelectedDishes = allDishesNCourses.data.filter(dish =>
-							mergedSelectedIDs.map(d => d.dishID).includes(dish.id)
-						);
+			<Separator />
+			{allDishesNCourses.data &&
+				(() => {
+					const selectedByCheckBoxes = selectedDishIDsViaCB.map(selectedIDs => {
+						const [subSetName, dishID] = selectedIDs.split("_jin_");
+						return { subSetName, dishID: parseInt(dishID) };
+					});
+					const mergedSelectedIDs = selectedDishIDs.concat(selectedByCheckBoxes);
+					const allSelectedDishes = allDishesNCourses.data.filter(dish =>
+						mergedSelectedIDs.map(d => d.dishID).includes(dish.id)
+					);
 
-						return (
-							<>
-								<Button
-									disabled={mergedSelectedIDs.length < prerequisiteToDialog}
-									onClick={() => {
-										if (session?.user) {
-											setIsPaymentDialogOpen(true);
-										} else {
-											signIn();
-										}
-									}}>
-									Reserve
-								</Button>
-								{session && (
-									<PaymentDialog
-										setPrice={set.price}
-										selectedDishes={allSelectedDishes}
-										open={isPaymentDialogOpen}
-										onOpenChange={setIsPaymentDialogOpen}
-										selectedMonth={month}
-										selectedDate={date}
-										currentDate={currentDate}
-										session={session}
-									/>
-								)}
-							</>
-						);
-					})()}
-			</CardFooter>
+					return (
+						<CardFooter className="grid grid-cols-2 pt-6">
+							<div className="text-sm">
+								<p className="font-semibold">Rice and softdrinks are inclusive</p>
+								<p className="font-bold text-destructive">
+									Strictly no outside food/s allowed, except letchon, cake, and fruits
+								</p>
+							</div>
+							<Button
+								className="flex justify-self-end"
+								disabled={mergedSelectedIDs.length < prerequisiteToDialog}
+								onClick={() => {
+									if (session?.user) {
+										setIsPaymentDialogOpen(true);
+									} else {
+										signIn();
+									}
+								}}>
+								Reserve
+							</Button>
+							{session && (
+								<ReservationDialog
+									selectedSet={set}
+									selectedDishes={allSelectedDishes}
+									open={isPaymentDialogOpen}
+									onOpenChange={setIsPaymentDialogOpen}
+									session={session}
+								/>
+							)}
+						</CardFooter>
+					);
+				})()}
 		</Card>
 	);
 }

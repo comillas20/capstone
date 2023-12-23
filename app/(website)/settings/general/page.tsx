@@ -18,6 +18,7 @@ export default function GeneralPage() {
 				maintainanceDates={[o]}
 				maximumCustomerReservationHours={10}
 				minimumCustomerReservationHours={4}
+				reservationCostPerHour={500}
 			/>
 		</div>
 	);

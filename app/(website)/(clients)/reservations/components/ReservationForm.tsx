@@ -35,7 +35,7 @@ export default function ReservationForm({
 				month,
 				session,
 			}}>
-			<div className="flex gap-12 xl:flex-row">
+			<div className="flex flex-col gap-12 xl:flex-row">
 				<SetPicker />
 				<div>
 					{/* the extra div is for calendar to not have same height as SetPicker 
