@@ -28,7 +28,7 @@ export default function SetPicker() {
 		return filtered;
 	});
 	return (
-		<div className="flex flex-1 justify-between gap-4 rounded-sm border">
+		<div className="grid flex-1 grid-cols-[1fr_auto_1fr] gap-4 rounded-sm border">
 			{/* Left Button */}
 			{allSets.data && allSets.data.length > 1 && (
 				<Button

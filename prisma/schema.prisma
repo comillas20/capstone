@@ -112,8 +112,8 @@ model UserPreference {
 
 model AdminSettings {
   id                              Int                 @id @default(autoincrement())
-  openingTime                     String
-  closingTime                     String
+  openingTime                     DateTime
+  closingTime                     DateTime
   minimumCustomerReservationHours Int
   maximumCustomerReservationHours Int
   defaultMinimumPerHead           Int
@@ -124,8 +124,9 @@ model AdminSettings {
 model MaintainanceDates {
   id              Int           @id @default(autoincrement())
   date            DateTime
-  adminSettingsID Int           @unique
-  adminSettings   AdminSettings @relation(fields: [adminSettingsID], references: [id])
+  adminSettingsID Int
+  adminSettings   AdminSettings @relation(fields: [adminSettingsID], references: [id], onDelete: Cascade)
+  @@unique([adminSettingsID, date])
 }
 
 model OtherServices {

@@ -76,3 +76,16 @@ export async function getAllDishes() {
 export async function getAllServices() {
 	return await prisma.otherServices.findMany();
 }
+
+export async function getSettings() {
+	return await prisma.adminSettings.findUnique({
+		where: { id: 1 },
+		include: {
+			maintainanceDates: {
+				select: {
+					date: true,
+				},
+			},
+		},
+	});
+}

@@ -41,6 +41,7 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from "@components/ui/alert-dialog";
+import { Textarea } from "@components/ui/textarea";
 type ReservationDialogProps = {
 	selectedDishes: {
 		id: number;
@@ -65,15 +66,18 @@ export default function ReservationDialog({
 	selectedSet,
 	...props
 }: ReservationDialogProps) {
-	const { currentDate, month, date } = useContext(
+	const { currentDate, month, date, settings } = useContext(
 		ReservationFormContext
 	) as ReservationFormContextProps;
 	const defaultTimeLinkName = "Set time";
 	const [timeLinkName, setTimeLinkName] = useState<string>(defaultTimeLinkName); // for display, data not important
 
-	const [numberOfPacks, setNumberOfPacks] = useState<number>(50);
+	const [numberOfPacks, setNumberOfPacks] = useState<number>(
+		settings.defaultMinimumPerHead
+	);
 	const [timeUse, setTimeUse] = useState<number>(4);
 	const [time, setTime] = useState<Date>(new Date()); //24 hour, to store in database
+	const [message, setMessage] = useState<string>("");
 	const allOtherServices = useSWR("getAllServices", getAllServices);
 	const currentUser = useSWR(
 		"currentUser",
@@ -184,14 +188,17 @@ export default function ReservationDialog({
 								<PopoverContent className="w-52 drop-shadow">
 									<h5 className="font-bold">Packs</h5>
 									<p className="text-sm text-muted-foreground">
-										Minimum of <strong className="font-bold">50 packs</strong>
+										Minimum of{" "}
+										<strong className="font-bold">
+											{settings.defaultMinimumPerHead} packs
+										</strong>
 									</p>
 									<Separator className="my-2"></Separator>
 									<div className="flex items-center gap-4">
 										<Input
 											className="w-24"
 											type="number"
-											min={50}
+											min={settings.defaultMinimumPerHead}
 											value={numberOfPacks.toString()}
 											onChange={e => {
 												const np = parseInt(e.target.value, 10);
@@ -201,8 +208,8 @@ export default function ReservationDialog({
 											}}
 											onBlur={e => {
 												const np = parseInt(e.target.value, 10);
-												if (!isNaN(np) && np < 50) {
-													setNumberOfPacks(50);
+												if (!isNaN(np) && np < settings.defaultMinimumPerHead) {
+													setNumberOfPacks(settings.defaultMinimumPerHead);
 												}
 											}}
 										/>
@@ -359,10 +366,36 @@ export default function ReservationDialog({
 							)}
 						</div>
 						<div className="space-y-2">
-							<h3 className="text-sm font-bold">Location</h3>
-							<Separator />
+							<h3 className="text-sm font-bold">Venue</h3>
 							<p>Brgy. Taft, Narciso St., Surigao City</p>
 						</div>
+						<AlertDialog>
+							<AlertDialogTrigger className="text-left">
+								<div className="space-y-2">
+									<h3 className="text-sm font-bold">Message (Optional)</h3>
+									<p className="overflow-hidden text-ellipsis whitespace-nowrap text-sm">
+										{message}
+									</p>
+								</div>
+							</AlertDialogTrigger>
+							<AlertDialogContent>
+								<AlertDialogHeader>
+									<AlertDialogTitle>Message</AlertDialogTitle>
+									<AlertDialogDescription>
+										Special requests, or anything goes here. (Prices may increase/decrease
+										based of said requests)
+									</AlertDialogDescription>
+								</AlertDialogHeader>
+								<Textarea
+									value={message}
+									onChange={e => setMessage(e.target.value.trim())}
+								/>
+								<AlertDialogFooter>
+									<AlertDialogCancel>Close</AlertDialogCancel>
+								</AlertDialogFooter>
+							</AlertDialogContent>
+						</AlertDialog>
+						<Separator />
 						<DialogFooter className="mt-4">
 							<TabsList className="bg-inherit">
 								<TabsTrigger asChild value="payment" type="button">
@@ -529,18 +562,19 @@ export function TermsOfPayment(
 				Continue
 			</AlertDialogTrigger>
 			<AlertDialogContent>
-				<AlertDialogHeader>
-					<AlertDialogTitle>Terms of payment</AlertDialogTitle>
-					<AlertDialogDescription className="text-base font-bold">
-						<span className="mr-1.5">Down payment for reservation of the venue</span>
-						<span className="text-destructive">
+				<AlertDialogHeader className="text-base font-bold">
+					<AlertDialogTitle className="text-xl">Terms of payment</AlertDialogTitle>
+					<p>
+						<span className="mr-1.5 text-sm">
+							Down payment for reservation of the venue
+						</span>
+						<span className="text-sm text-destructive">
 							(Non refundable and non-consumable once you cancel your booking)
 						</span>
-						<p>
-							Full payment of your booking should be three (3) days before your
-							function
-						</p>
-					</AlertDialogDescription>
+					</p>
+					<p className="text-sm">
+						Full payment of your booking should be three (3) days before your function
+					</p>
 				</AlertDialogHeader>
 				<AlertDialogFooter>
 					<AlertDialogCancel>Cancel</AlertDialogCancel>

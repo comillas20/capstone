@@ -2,7 +2,11 @@ import { Separator } from "@components/ui/separator";
 import { SidebarNav } from "./SideBarNav";
 import { getServerSession } from "next-auth";
 import { options } from "@app/api/auth/[...nextauth]/options";
-
+export function generateMetadata() {
+	return {
+		title: "Settings | Jakelou",
+	};
+}
 export default async function SettingsLayout({
 	children,
 }: {
@@ -11,7 +15,7 @@ export default async function SettingsLayout({
 	const session = await getServerSession(options);
 	return (
 		<main className="flex-1 space-y-4 px-8 py-4">
-			<div className="hidden space-y-6 md:block">
+			<div className="space-y-6">
 				<div className="space-y-0.5">
 					<h2 className="text-2xl font-bold tracking-tight">Settings</h2>
 					<p className="text-muted-foreground">
