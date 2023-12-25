@@ -20,6 +20,17 @@ import { Loader2 } from "lucide-react";
 import { restoreDishCatCourse, restoreSets } from "./serverActions";
 import { convertExcelValueToDateString } from "@lib/utils";
 import { toast } from "@components/ui/use-toast";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from "@components/ui/alert-dialog";
 
 const uploadFormSchema = z.object({
 	uploadFile: z.custom(file => file instanceof File, {
@@ -125,10 +136,28 @@ export default function RestoreBackUpForm() {
 					{message && isUploading && (
 						<p className="text-sm font-medium text-destructive">{message}</p>
 					)}
-					<Button type="submit" disabled={isUploading}>
-						{isUploading && <Loader2 className="mr-2 animate-spin" />}
-						Upload
-					</Button>
+					<AlertDialog>
+						<AlertDialogTrigger asChild>
+							<Button type="button" disabled={isUploading || !form.formState.isDirty}>
+								Upload
+							</Button>
+						</AlertDialogTrigger>
+						<AlertDialogContent>
+							<AlertDialogTitle>Are you sure?</AlertDialogTitle>
+							<AlertDialogDescription className="font-bold text-destructive">
+								This will replace all items with the same name. Continue?
+							</AlertDialogDescription>
+							<AlertDialogFooter>
+								<AlertDialogCancel>Cancel</AlertDialogCancel>
+								<AlertDialogAction
+									type="submit"
+									disabled={isUploading || !form.formState.isDirty}>
+									{isUploading && <Loader2 className="mr-2 animate-spin" />}
+									Continue
+								</AlertDialogAction>
+							</AlertDialogFooter>
+						</AlertDialogContent>
+					</AlertDialog>
 				</div>
 			</form>
 		</Form>

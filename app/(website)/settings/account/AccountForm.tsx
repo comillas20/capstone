@@ -288,10 +288,12 @@ export function AccountForm({ user }: AccountFormProps) {
 						</FormItem>
 					)}
 				/>
-				<Button type="submit" disabled={isSubmitting}>
-					{isSubmitting && <Loader2 className="mr-2 animate-spin" />}
-					Save Changes
-				</Button>
+				<div className="flex justify-end pt-8">
+					<Button type="submit" disabled={isSubmitting || !form.formState.isDirty}>
+						{isSubmitting && <Loader2 className="mr-2 animate-spin" />}
+						Save Changes
+					</Button>
+				</div>
 			</form>
 		</Form>
 	);

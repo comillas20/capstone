@@ -17,7 +17,6 @@ type SidebarNavProps = {
 };
 export function SidebarNav({ role }: SidebarNavProps) {
 	const pathname = usePathname();
-	const separator = "Separator";
 	const accessLevel = role
 		? role === "ADMIN"
 			? AccessLevel.ADMIN
@@ -45,11 +44,6 @@ export function SidebarNav({ role }: SidebarNavProps) {
 			accessLevel: AccessLevel.USER,
 		},
 		{
-			title: separator,
-			href: "Sp1",
-			accessLevel: AccessLevel.ADMIN,
-		},
-		{
 			title: "Backup & Restore",
 			href: "/settings/snapshot",
 			accessLevel: AccessLevel.ADMIN,
@@ -63,9 +57,6 @@ export function SidebarNav({ role }: SidebarNavProps) {
 	return (
 		<nav className="flex space-x-2 lg:flex-col lg:space-x-0 lg:space-y-1">
 			{items.map(item => {
-				if (separator === item.title) {
-					return <Separator key={item.href + item.title} />;
-				}
 				return (
 					accessLevel === item.accessLevel && (
 						<Link

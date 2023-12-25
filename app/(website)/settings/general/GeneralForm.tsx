@@ -24,6 +24,11 @@ import { ScrollArea } from "@components/ui/scroll-area";
 import { cn, convertDateToString } from "@lib/utils";
 import { isBefore } from "date-fns";
 import { saveSettings } from "./serverActions";
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "@components/ui/popover";
 
 type GeneralFormProps = {
 	settings: {
@@ -100,45 +105,71 @@ export function GeneralForm({ settings }: GeneralFormProps) {
 
 	return (
 		<Form {...form}>
-			<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-				<div className="grid grid-cols-2 gap-4">
-					<h4 className="col-span-2 font-medium">Service hours</h4>
-					<FormField
-						control={form.control}
-						name="openingTime"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>Opening time</FormLabel>
-								<FormControl className="w-52">
-									<TimePicker time={field.value} onTimeChange={field.onChange} />
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
-					<FormField
-						control={form.control}
-						name="closingTime"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>Closing time</FormLabel>
-								<FormControl className="w-52">
-									<TimePicker time={field.value} onTimeChange={field.onChange} />
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
-					<FormField
-						control={form.control}
-						name="maintainanceDates"
-						render={({ field }) => (
-							<FormItem className="col-span-2">
-								<FormLabel>Maintainance Dates</FormLabel>
-								<div className="flex gap-4">
-									<FormControl className="flex space-x-4">
+			<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pl-4">
+				<div className="flex items-center justify-between">
+					<h4 className="font-medium">Service hours</h4>
+					<div className="flex flex-row gap-1.5">
+						<FormField
+							control={form.control}
+							name="openingTime"
+							render={({ field }) => (
+								<FormItem>
+									<FormControl className="w-52">
+										<Popover>
+											<PopoverTrigger className="font-medium text-primary">
+												{formatTime(field.value)}
+											</PopoverTrigger>
+											<PopoverContent>
+												<div className="flex flex-col gap-4">
+													<div className="text-sm font-bold">Starting time</div>
+													<TimePicker time={field.value} onTimeChange={field.onChange} />
+												</div>
+											</PopoverContent>
+										</Popover>
+									</FormControl>
+								</FormItem>
+							)}
+						/>
+						<span>to</span>
+						<FormField
+							control={form.control}
+							name="closingTime"
+							render={({ field }) => (
+								<FormItem>
+									<FormControl>
+										<Popover>
+											<PopoverTrigger className="font-medium text-primary">
+												{formatTime(field.value)}
+											</PopoverTrigger>
+											<PopoverContent>
+												<div className="flex flex-col gap-4">
+													<div className="text-sm font-bold">Closing time</div>
+													<TimePicker time={field.value} onTimeChange={field.onChange} />
+												</div>
+											</PopoverContent>
+										</Popover>
+									</FormControl>
+								</FormItem>
+							)}
+						/>
+					</div>
+				</div>
+				<FormField
+					control={form.control}
+					name="maintainanceDates"
+					render={({ field }) => (
+						<FormItem className="flex items-center justify-between">
+							<FormLabel className="text-base font-medium">
+								Maintainance Dates
+							</FormLabel>
+							<FormControl className="flex space-x-4">
+								<Popover>
+									<PopoverTrigger className="font-medium text-primary">
+										View
+									</PopoverTrigger>
+									<PopoverContent className="w-fit" side="left">
 										<Calendar
-											className="pl-0"
+											className="p-0"
 											mode="multiple"
 											onSelect={field.onChange}
 											selected={field.value}
@@ -156,107 +187,135 @@ export function GeneralForm({ settings }: GeneralFormProps) {
 											}}
 											fixedWeeks
 										/>
-									</FormControl>
-									<ScrollArea className="h-[350px] flex-1 p-4">
-										<div className="flex flex-col space-y-2">
-											{field.value
-												?.sort((a, b) => (isBefore(a, b) ? -1 : 1))
-												.map((date, index) => (
-													<div
-														key={index}
-														className="flex w-full items-center justify-between rounded-sm border p-2">
-														<span>
-															{convertDateToString(date, {
-																year: true,
-																month: true,
-																day: true,
-															})}
-														</span>
-														<button
-															type="button"
-															onClick={() => {
-																if (field.value && field.value.length > 0) {
-																	const values = field.value.filter(d => d != date);
-																	field.onChange(values);
-																}
-															}}>
-															<X />
-														</button>
-													</div>
-												))}
+									</PopoverContent>
+								</Popover>
+							</FormControl>
+						</FormItem>
+					)}
+				/>
+				<FormField
+					control={form.control}
+					name="defaultMinimumPerHead"
+					render={({ field }) => (
+						<FormItem className="flex items-center justify-between">
+							<FormLabel className="text-base font-medium">Minimum guests</FormLabel>
+							<FormControl>
+								<Popover>
+									<PopoverTrigger className="font-medium text-primary">
+										{field.value}
+									</PopoverTrigger>
+									<PopoverContent className="space-y-4">
+										<div>
+											<h4 className="font-bold">Minimum packs</h4>
+											<p className="text-xs text-muted-foreground">
+												Minimum packs customers could order
+											</p>
 										</div>
-									</ScrollArea>
-								</div>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
+
+										<Input type="number" {...field} />
+									</PopoverContent>
+								</Popover>
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+				<div className="flex items-center justify-between">
+					<h4 className="font-medium">Reservation hours</h4>
+					<div className="flex flex-row gap-1.5">
+						<FormField
+							control={form.control}
+							name="minimumCustomerReservationHours"
+							render={({ field }) => (
+								<FormItem>
+									<FormControl className="w-52">
+										<Popover>
+											<PopoverTrigger className="font-medium text-primary">
+												{field.value}
+											</PopoverTrigger>
+											<PopoverContent className="w-fit">
+												<div className="flex flex-col gap-4">
+													<div className="text-sm font-bold">Minimum</div>
+													<Input type="number" {...field} />
+												</div>
+											</PopoverContent>
+										</Popover>
+									</FormControl>
+								</FormItem>
+							)}
+						/>
+						<span>to</span>
+						<FormField
+							control={form.control}
+							name="maximumCustomerReservationHours"
+							render={({ field }) => (
+								<FormItem>
+									<FormControl>
+										<Popover>
+											<PopoverTrigger className="font-medium text-primary">
+												{field.value}
+											</PopoverTrigger>
+											<PopoverContent className="w-fit">
+												<div className="flex flex-col gap-4">
+													<div className="text-sm font-bold">Maximum</div>
+													<Input type="number" {...field} />
+												</div>
+											</PopoverContent>
+										</Popover>
+									</FormControl>
+								</FormItem>
+							)}
+						/>
+					</div>
 				</div>
-				<div className="grid grid-cols-2 gap-4">
-					<h4 className="col-span-2 font-medium">Reservation hours</h4>
-					<FormField
-						control={form.control}
-						name="minimumCustomerReservationHours"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>Minimum</FormLabel>
-								<FormControl className="w-60">
-									<Input type="number" {...field} />
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
-					<FormField
-						control={form.control}
-						name="maximumCustomerReservationHours"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>Maximum</FormLabel>
-								<FormControl className="w-60">
-									<Input type="number" {...field} />
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
+				<FormField
+					control={form.control}
+					name="reservationCostPerHour"
+					render={({ field }) => (
+						<FormItem className="flex items-center justify-between">
+							<FormLabel className="text-base font-medium">
+								Reservation cost/hour
+							</FormLabel>
+							<FormControl>
+								<Popover>
+									<PopoverTrigger className="font-medium text-primary">
+										{new Intl.NumberFormat("en-US", {
+											style: "currency",
+											currency: "PHP",
+										}).format(field.value)}
+									</PopoverTrigger>
+									<PopoverContent className="space-y-4">
+										<div>
+											<h4 className="font-bold">Reservation cost/hour</h4>
+											<p className="text-xs text-muted-foreground">
+												Reservation cost per hour of usage
+											</p>
+										</div>
+
+										<Input type="number" {...field} />
+									</PopoverContent>
+								</Popover>
+							</FormControl>
+						</FormItem>
+					)}
+				/>
+				<div className="flex justify-end pt-8">
+					<Button type="submit" disabled={isSaving || !form.formState.isDirty}>
+						{isSaving && <Loader2 className="mr-2 animate-spin" />}
+						Save Changes
+					</Button>
 				</div>
-				<div className="grid grid-cols-2 gap-4">
-					<h4 className="col-span-2 font-medium">Others</h4>
-					<FormField
-						control={form.control}
-						name="defaultMinimumPerHead"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>Minimum packs</FormLabel>
-								<FormDescription>Minimum packs customers could order</FormDescription>
-								<FormControl className="w-60">
-									<Input type="number" {...field} />
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
-					<FormField
-						control={form.control}
-						name="reservationCostPerHour"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>Reservation cost/hour</FormLabel>
-								<FormDescription>Reservation cost per hour of usage</FormDescription>
-								<FormControl className="w-60">
-									<Input type="number" {...field} />
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
-				</div>
-				<Button type="submit" disabled={isSaving}>
-					{isSaving && <Loader2 className="mr-2 animate-spin" />}
-					Save Changes
-				</Button>
 			</form>
 		</Form>
 	);
+}
+
+function formatTime(time: Date) {
+	const hours = time.getHours();
+	const minutes = time.getMinutes();
+	const meridiem = hours > 12 ? "PM" : "AM";
+	const formattedTime = `${String(hours % 12 || 12).padStart(2, "0")}:${String(
+		minutes
+	).padStart(2, "0")}${meridiem}`;
+	return formattedTime;
 }
