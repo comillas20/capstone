@@ -11,6 +11,7 @@ import { useState } from "react";
 import ProductFilters from "./ProductFilters";
 import { CldImage } from "next-cloudinary";
 import ImageNotAvailable from "@components/ImageNotAvailable";
+import DishProfileDialog from "@components/DishProfileDialog";
 
 type ProductListProps = {
 	categories: {
@@ -54,22 +55,27 @@ export default function ProductList({ categories, dishes }: ProductListProps) {
 					.map(dish => (
 						<Card
 							key={dish.id}
-							className="flex min-h-[15rem] w-52 flex-col drop-shadow-md hover:drop-shadow-xl">
+							className="flex w-52 flex-col drop-shadow-md hover:drop-shadow-xl">
 							<CardContent className="flex flex-1 items-center justify-center p-0">
-								<ImageNotAvailable className="bottom-0 left-0 right-0 top-0 min-h-[15rem] w-full overflow-hidden">
+								<ImageNotAvailable className="overflow-hidden" ratio={3 / 4}>
 									{dish.imgHref && (
-										<CldImage
-											width="200"
-											height="240"
-											src={dish.imgHref}
-											sizes="100vw"
-											alt={dish.name}
-											className="bottom-0 left-0 right-0 top-0 h-60 w-full rounded-t-md transition-all hover:scale-105"
-										/>
+										<DishProfileDialog
+											data={{
+												name: dish.name,
+												category: dish.category.name,
+												imgHref: dish.imgHref,
+											}}>
+											<CldImage
+												src={dish.imgHref}
+												fill
+												alt={dish.name}
+												className="rounded-t-md object-cover transition-all hover:scale-105"
+											/>
+										</DishProfileDialog>
 									)}
 								</ImageNotAvailable>
 							</CardContent>
-							<Separator></Separator>
+							<Separator />
 							<CardFooter className="flex-col rounded-b-lg bg-primary p-2 text-primary-foreground">
 								<CardTitle className="w-full text-sm font-medium">
 									{dish.name}
