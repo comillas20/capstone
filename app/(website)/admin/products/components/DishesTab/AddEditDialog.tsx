@@ -38,7 +38,7 @@ import {
 	uploadImage,
 } from "@lib/utils";
 import { Loader2 } from "lucide-react";
-import DishProfileDialog from "./DishProfileDialog";
+import DishProfileDialog from "@components/DishProfileDialog";
 import {
 	Select,
 	SelectContent,
@@ -123,7 +123,9 @@ export default function AddEditDialog({
 		const orig = {
 			...values,
 			image: imageData,
-			imgHref: values.image ? imageFileName : undefined,
+			imgHref: values.image
+				? DISHES_IMAGE_FOLDER.concat(imageFileName)
+				: undefined,
 		};
 		startSaving(async () => {
 			const submitDish = await createOrUpdateDish(orig);
@@ -178,7 +180,17 @@ export default function AddEditDialog({
 									<FormItem>
 										<div className="flex justify-between">
 											<FormLabel>Dish Image</FormLabel>
-											{data && <DishProfileDialog data={data} />}
+											{data && (
+												<DishProfileDialog data={data}>
+													<Button
+														type="button"
+														variant="link"
+														size="sm"
+														className="h-auto p-0 leading-none">
+														View Current Image
+													</Button>
+												</DishProfileDialog>
+											)}
 										</div>
 
 										<FormControl>

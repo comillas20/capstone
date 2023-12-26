@@ -19,6 +19,7 @@ export async function getAllSets() {
 							name: true,
 							category: true,
 							isAvailable: true,
+							imgHref: true,
 						},
 					},
 					course: {

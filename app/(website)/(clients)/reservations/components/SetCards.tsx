@@ -40,6 +40,7 @@ type SetCardsProps = {
 					id: number;
 					name: string;
 				};
+				imgHref: string | null;
 			}[];
 			course: {
 				id: number;

@@ -15,6 +15,8 @@ export type Reservations = {
 	customerName: string;
 	email: string | null;
 	mobileNumber: string | null;
+	totalPaid?: number; // amount paid by user
+	totalPrice: number; // total amount needed to fully pay
 	reservationTime: string;
 	eventTime: string;
 	initialEventDuration: number;
@@ -71,6 +73,24 @@ export const columns: ColumnDef<Reservations>[] = [
 		),
 		cell: ({ cell }) => {
 			return cell.getValue() ?? "Not Provided";
+		},
+	},
+	{
+		id: "Paid/Total",
+		accessorKey: "totalPaid",
+		header: ({ column }) => (
+			<DataTableColumnHeader column={column} title="Paid/Total" />
+		),
+		cell: ({ row }) => {
+			const paid = new Intl.NumberFormat("en-US", {
+				style: "currency",
+				currency: "PHP",
+			}).format(row.original.totalPaid ?? 0);
+			const needToPay = new Intl.NumberFormat("en-US", {
+				style: "currency",
+				currency: "PHP",
+			}).format(row.original.totalPrice);
+			return `${paid}/${needToPay}`;
 		},
 	},
 	{

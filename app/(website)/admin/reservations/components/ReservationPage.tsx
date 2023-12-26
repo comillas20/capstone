@@ -66,6 +66,7 @@ export default function ReservationPage<TData, TValue>({
 	React.useEffect(() => {
 		const hideAsDefault: VisibilityState = {
 			email: false,
+			"Mobile Number": false,
 		};
 		setColumnVisibility(hideAsDefault);
 	}, []);
