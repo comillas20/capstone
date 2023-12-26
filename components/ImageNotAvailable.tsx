@@ -1,4 +1,5 @@
 import { cn } from "@lib/utils";
+import { AspectRatio } from "./ui/aspect-ratio";
 
 export default function ImageNotAvailable({
 	className,
@@ -7,10 +8,12 @@ export default function ImageNotAvailable({
 }: {
 	className?: string;
 	children?: React.ReactNode;
-} & React.ComponentProps<"div">) {
+} & React.ComponentProps<typeof AspectRatio>) {
 	return (
-		<div className={cn("flex h-full w-full bg-secondary", className)} {...props}>
+		<AspectRatio
+			className={cn("flex h-full w-full bg-secondary", className)}
+			{...props}>
 			{children ? children : <div className="m-auto">No image</div>}
-		</div>
+		</AspectRatio>
 	);
 }
