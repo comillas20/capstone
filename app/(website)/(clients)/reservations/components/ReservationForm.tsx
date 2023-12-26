@@ -1,7 +1,7 @@
 "use client";
 
-import { addDays, addYears, isBefore, isSameMonth } from "date-fns";
-import { createContext, useState } from "react";
+import { addDays, subMonths, isBefore, isSameMonth } from "date-fns";
+import { createContext, useEffect, useState } from "react";
 import { buttonVariants } from "@components/ui/button";
 import { Calendar } from "@components/ui/calendar";
 import { cn } from "@lib/utils";
@@ -35,9 +35,6 @@ export default function ReservationForm({
 	session: Session | null;
 }) {
 	const currentDate = new Date();
-	const [date, setDate] = useState<Date | undefined>(addDays(currentDate, 3));
-	//Note to self: Date type instead of Numbers, so I can use date comparison methods
-	const [month, setMonth] = useState<Date>(currentDate);
 	const settings = useSWR("settings", getSettings);
 	const s2 = settings.data
 		? {
@@ -45,6 +42,25 @@ export default function ReservationForm({
 				maintainanceDates: settings.data.maintainanceDates.map(m => m.date),
 		  }
 		: null;
+	const disabledDays = [
+		...(s2 ? s2.maintainanceDates : []),
+		{ from: subMonths(currentDate, 1), to: addDays(currentDate, 3) },
+	];
+	const later: Date | null = s2
+		? new Date(Math.max(...s2.maintainanceDates.map(date => date.getTime())))
+		: null;
+	const defaultSelectableDate = later
+		? addDays(later, 1)
+		: addDays(currentDate, 3);
+	const [date, setDate] = useState<Date | undefined>(defaultSelectableDate);
+	//Note to self: Date type instead of Numbers, so I can use date comparison methods
+	const [month, setMonth] = useState<Date>(currentDate);
+	// necessary
+	// apparently state hook declaration outspeed settings.data
+	// so @later is always null by the time code reaches here
+	useEffect(() => {
+		setDate(defaultSelectableDate);
+	}, [settings.data]);
 	return (
 		s2 && (
 			<ReservationFormContext.Provider
@@ -80,11 +96,10 @@ export default function ReservationForm({
 								buttonVariants({ variant: "ghost" }),
 								"h-11 w-11 p-0 font-normal aria-selected:opacity-100"
 							),
+							day_disabled: "bg-muted text-muted-foreground opacity-50",
 							day_today: "bg-primary text-primary-foreground opacity-50",
 						}}
-						disabled={date =>
-							addDays(date, 1) < addDays(currentDate, 3) || date > addYears(date, 1)
-						}
+						disabled={disabledDays}
 						fixedWeeks
 						required
 					/>
