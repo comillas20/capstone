@@ -13,18 +13,18 @@ export async function doesNameExists(name: string) {
 	return !!isNameFound;
 }
 
-export async function doesEmailExists(email: string) {
-	const isEmailFound = await prisma.account.findUnique({
-		select: {
-			id: true,
-		},
-		where: {
-			email: email,
-		},
-	});
+// export async function doesEmailExists(email: string) {
+// 	const isEmailFound = await prisma.account.findUnique({
+// 		select: {
+// 			id: true,
+// 		},
+// 		where: {
+// 			email: email,
+// 		},
+// 	});
 
-	return !!isEmailFound;
-}
+// 	return !!isEmailFound;
+// }
 
 export async function doesPhoneNumberExists(phoneNumber: string) {
 	const isPhoneNumberFound = await prisma.account.findUnique({
@@ -41,8 +41,7 @@ export async function doesPhoneNumberExists(phoneNumber: string) {
 
 type UserData = {
 	name: string;
-	email?: string;
-	phoneNumber?: string;
+	phoneNumber: string;
 	password: string;
 	role: "ADMIN" | "USER";
 };

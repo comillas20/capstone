@@ -24,18 +24,18 @@ export async function doesNameExists(name: string) {
 	return !!isNameFound;
 }
 
-export async function doesEmailExists(email: string) {
-	const isEmailFound = await prisma.account.findUnique({
-		select: {
-			id: true,
-		},
-		where: {
-			email: email,
-		},
-	});
+// export async function doesEmailExists(email: string) {
+// 	const isEmailFound = await prisma.account.findUnique({
+// 		select: {
+// 			id: true,
+// 		},
+// 		where: {
+// 			email: email,
+// 		},
+// 	});
 
-	return !!isEmailFound;
-}
+// 	return !!isEmailFound;
+// }
 
 export async function doesPhoneNumberExists(phoneNumber: string) {
 	const isPhoneNumberFound = await prisma.account.findUnique({
@@ -52,10 +52,9 @@ export async function doesPhoneNumberExists(phoneNumber: string) {
 
 type UserData = {
 	id: number;
-	name?: string;
-	image?: string;
-	email?: string;
-	phoneNumber?: string;
+	name: string;
+	image: string | null;
+	phoneNumber: string;
 	password?: string;
 };
 
@@ -63,9 +62,7 @@ export async function editUserAccount(data: UserData) {
 	const hashedPassword = data.password
 		? await bcrypt.hash(data.password, 10)
 		: undefined;
-	const imageWithFolder = data.image
-		? "profile_images/".concat(data.image)
-		: undefined;
+	const imageWithFolder = data.image ?? undefined;
 	const user = await prisma.account.update({
 		data: { ...data, image: imageWithFolder, password: hashedPassword },
 		where: {

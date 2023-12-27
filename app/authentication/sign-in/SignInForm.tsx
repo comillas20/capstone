@@ -1,9 +1,9 @@
 "use client";
 import { Button, buttonVariants } from "@components/ui/button";
 import { Input } from "@components/ui/input";
-import { FacebookIcon, Loader2, MoveLeftIcon } from "lucide-react";
+import { Loader2, MoveLeftIcon } from "lucide-react";
 import * as z from "zod";
-import { cn, isEmailValid, isPhoneNumberValid } from "@lib/utils";
+import { cn, isPhoneNumberValid } from "@lib/utils";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -21,11 +21,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 export default function SignInForm() {
 	const signInSchema = z.object({
-		emailOrPhoneNumber: z
-			.string()
-			.refine(eop => isEmailValid(eop) || isPhoneNumberValid(eop), {
-				message: "Please input a valid email or mobile number",
-			}),
+		phoneNumber: z.string().refine(eop => isPhoneNumberValid(eop), {
+			message: "Please input a valid mobile number",
+		}),
 		password: z.string().min(8, {
 			message: "Password must have atleast 8 characters",
 		}),
@@ -34,7 +32,7 @@ export default function SignInForm() {
 	const form = useForm<z.infer<typeof signInSchema>>({
 		resolver: zodResolver(signInSchema),
 		defaultValues: {
-			emailOrPhoneNumber: "",
+			phoneNumber: "",
 			password: "",
 		},
 	});
@@ -44,7 +42,7 @@ export default function SignInForm() {
 	const onSubmit = (data: z.infer<typeof signInSchema>) => {
 		startSubmitting(async () => {
 			const signInData = await signIn("credentials", {
-				emailOrPhoneNumber: data.emailOrPhoneNumber,
+				emailOrPhoneNumber: data.phoneNumber,
 				password: data.password,
 				redirect: true,
 				callbackUrl: searchParams.get("callbackUrl") ?? "/",
@@ -82,12 +80,12 @@ export default function SignInForm() {
 						<div className="grid gap-4">
 							<FormField
 								control={form.control}
-								name="emailOrPhoneNumber"
+								name="phoneNumber"
 								render={({ field }) => (
 									<FormItem className="grid gap-2">
-										<FormLabel>Email or mobile number</FormLabel>
+										<FormLabel>Mobile number</FormLabel>
 										<FormControl>
-											<Input type="text" placeholder="Email/Mobile number" {...field} />
+											<Input type="text" placeholder="Mobile number" {...field} />
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -106,52 +104,6 @@ export default function SignInForm() {
 									</FormItem>
 								)}
 							/>
-							{/* <div className="relative">
-								<div className="absolute inset-0 flex items-center">
-									<span className="w-full border-t" />
-								</div>
-								<div className="relative flex justify-center text-xs uppercase">
-									<span className="bg-background px-2 text-muted-foreground">
-										Or continue with
-									</span>
-								</div>
-							</div> */}
-							{/* NOTE TO SELF: UNTIL YOU KNOW HOW TO STORE ACCOUNTS 
-							FROM OAUTH WITHOUT CONFLICTING TO CREDENTAILS, DONT OPEN THIS */}
-							{/* Current problems include, not being able to merge accounts from Oauth to credentials
-							because there is no way the system can identify if the two account with same (say, email for example)
-							is actually from the same owner */}
-							{/* <div className="grid grid-cols-2 gap-6">
-								<Button
-									variant="outline"
-									type="button"
-									onClick={async () => {
-										const signInData = await signIn("facebook", {
-											redirect: true,
-											callbackUrl: searchParams.get("callbackUrl") ?? "/",
-										});
-									}}>
-									<FacebookIcon className="mr-2 h-4 w-4" />
-									Facebook
-								</Button>
-								<Button
-									variant="outline"
-									type="button"
-									onClick={async () => {
-										const signInData = await signIn("google", {
-											redirect: true,
-											callbackUrl: searchParams.get("callbackUrl") ?? "/",
-										});
-									}}>
-									<svg role="img" viewBox="0 0 24 24" className="mr-2 h-4 w-4">
-										<path
-											fill="currentColor"
-											d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"
-										/>
-									</svg>
-									Google
-								</Button>
-							</div> */}
 						</div>
 						<div className="flex flex-col gap-4">
 							<div className="w-full space-y-2">

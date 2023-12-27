@@ -24,9 +24,7 @@ export default async function SettingsAccountPage() {
 				</p>
 			</div>
 			<Separator />
-			{session && session.user && (
-				<AccountForm user={data ? data : session.user} />
-			)}
+			{data && <AccountForm user={data} />}
 		</div>
 	);
 }

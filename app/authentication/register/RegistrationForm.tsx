@@ -16,20 +16,18 @@ import {
 	FormMessage,
 } from "@components/ui/form";
 import { Input } from "@components/ui/input";
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 import {
 	createNewAccount,
-	doesEmailExists,
 	doesNameExists,
 	doesPhoneNumberExists,
 } from "./serverActions";
 import { Loader2, MoveLeftIcon } from "lucide-react";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export function RegistrationForm() {
-	const [isEmailPhoneBothEmpty, setIsEmailPhoneBothEmpty] = useState(false);
 	const [isCreating, startCreating] = useTransition();
 
 	const accountFormSchema = z
@@ -42,58 +40,25 @@ export function RegistrationForm() {
 				.refine(async name => !(await doesNameExists(name)), {
 					message: "Name already exists",
 				}),
-			email: z
-				.string()
-				.optional()
-				.superRefine(async (email, ctx) => {
-					if (!email) {
-						return email; // Return early if email is empty
-					}
+			phone: z.string().superRefine(async (phone, ctx) => {
+				if (!isPhoneNumberValid(phone)) {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: "Please provide a valid phone number",
+						fatal: true,
+					});
+					return z.NEVER;
+				}
 
-					if (!isEmailValid(email)) {
-						ctx.addIssue({
-							code: z.ZodIssueCode.custom,
-							message: "Please provide a valid email",
-							fatal: true,
-						});
-						return z.NEVER;
-					}
+				if (await doesPhoneNumberExists(phone)) {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: "Phone number already exists",
+					});
+				}
 
-					if (await doesEmailExists(email)) {
-						ctx.addIssue({
-							code: z.ZodIssueCode.custom,
-							message: "Email already exists",
-						});
-					}
-
-					return email;
-				}),
-			phone: z
-				.string()
-				.optional()
-				.superRefine(async (phone, ctx) => {
-					if (!phone) {
-						return phone; // Return early if email is empty
-					}
-
-					if (!isPhoneNumberValid(phone)) {
-						ctx.addIssue({
-							code: z.ZodIssueCode.custom,
-							message: "Please provide a valid phone number",
-							fatal: true,
-						});
-						return z.NEVER;
-					}
-
-					if (await doesPhoneNumberExists(phone)) {
-						ctx.addIssue({
-							code: z.ZodIssueCode.custom,
-							message: "Phone number already exists",
-						});
-					}
-
-					return phone;
-				}),
+				return phone;
+			}),
 			password: z.string().min(8, {
 				message: "Password must have atleast 8 characters",
 			}),
@@ -110,45 +75,38 @@ export function RegistrationForm() {
 		resolver: zodResolver(accountFormSchema),
 		defaultValues: {
 			name: "",
-			email: undefined,
-			phone: undefined,
+			phone: "",
 			password: "",
 			confirmPassword: "",
 		},
 	});
 
+	const searchParams = useSearchParams();
 	function onSubmit(data: CreateAccountFormValues) {
-		if (!data.email && !data.phone) {
-			setIsEmailPhoneBothEmpty(true);
-			return;
-		} else {
-			startCreating(async () => {
-				type UserData = {
-					name: string;
-					email?: string;
-					phoneNumber?: string;
-					password: string;
-					role: "ADMIN" | "USER";
-				};
-				const newData: UserData = {
-					name: data.name,
-					email: data.email,
-					phoneNumber: data.phone,
+		startCreating(async () => {
+			type UserData = {
+				name: string;
+				phoneNumber: string;
+				password: string;
+				role: "ADMIN" | "USER";
+			};
+			const newData: UserData = {
+				name: data.name,
+				phoneNumber: data.phone,
+				password: data.password,
+				role: "USER",
+			};
+			const newUser = await createNewAccount(newData);
+			if (newUser) {
+				const signInData = await signIn("credentials", {
+					emailOrPhoneNumber: newUser.phoneNumber,
 					password: data.password,
-					role: "USER",
-				};
-				const newUser = await createNewAccount(newData);
-				if (newUser) {
-					const signInData = await signIn("credentials", {
-						emailOrPhoneNumber: newUser.email ?? newUser.phoneNumber,
-						password: newUser.password,
-						redirect: true,
-						callbackUrl: "/products",
-					});
-					form.reset(); // in case the user isnt redirected to home yet
-				}
-			});
-		}
+					redirect: true,
+					callbackUrl: searchParams.get("callbackUrl") ?? "/",
+				});
+				form.reset(); // in case the user isnt redirected to home yet
+			}
+		});
 	}
 	const router = useRouter();
 	return (
@@ -192,54 +150,19 @@ export function RegistrationForm() {
 									</FormItem>
 								)}
 							/>
-							<div className="grid grid-cols-2 gap-4">
-								<FormField
-									control={form.control}
-									name="email"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Email</FormLabel>
-											<FormControl>
-												<Input
-													type="email"
-													placeholder="Email"
-													{...field}
-													onChange={e => {
-														field.onChange(e);
-														setIsEmailPhoneBothEmpty(false);
-													}}
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-								<FormField
-									control={form.control}
-									name="phone"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Phone Number</FormLabel>
-											<FormControl>
-												<Input
-													placeholder="Phone number"
-													{...field}
-													onChange={e => {
-														field.onChange(e);
-														setIsEmailPhoneBothEmpty(false);
-													}}
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-								{isEmailPhoneBothEmpty && (
-									<p className="col-span-2 text-sm font-medium text-destructive">
-										Email and phone number cannot be both empty
-									</p>
+							<FormField
+								control={form.control}
+								name="phone"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Phone Number</FormLabel>
+										<FormControl>
+											<Input placeholder="Phone number" {...field} />
+										</FormControl>
+										<FormMessage />
+									</FormItem>
 								)}
-							</div>
+							/>
 							<FormField
 								control={form.control}
 								name="password"

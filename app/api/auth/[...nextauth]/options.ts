@@ -18,8 +18,8 @@ export const options: NextAuthOptions = {
 		CredentialsProvider({
 			name: "Credentials",
 			credentials: {
-				emailOrPhoneNumber: {
-					label: "Email or Phone number:",
+				phoneNumber: {
+					label: "Phone number:",
 					type: "text",
 				},
 				password: {
@@ -28,94 +28,84 @@ export const options: NextAuthOptions = {
 				},
 			},
 			async authorize(credentials) {
-				if (!credentials?.emailOrPhoneNumber || !credentials?.password) return null;
+				if (!credentials?.phoneNumber || !credentials?.password) return null;
 				const userFound = await prisma.account.findFirst({
 					where: {
-						OR: [
-							{
-								email: credentials.emailOrPhoneNumber,
-							},
-							{
-								phoneNumber: credentials.emailOrPhoneNumber,
-							},
-						],
+						phoneNumber: credentials.phoneNumber,
 					},
 				});
 
-				if (!userFound)
-					throw new Error("Incorrect email/mobile number and password");
+				if (!userFound) throw new Error("Incorrect mobile number and/or password");
 
 				const password = await bcrypt.compare(
 					credentials.password,
 					userFound.password
 				);
 
-				if (!password)
-					throw new Error("Incorrect email/mobile number and password");
+				if (!password) throw new Error("Incorrect mobile number and/or password");
 
 				return {
 					id: userFound.id.toString(), //doesnt work, but causes an error when deleted
 					userID: userFound.id.toString(),
 					name: userFound.name,
 					image: userFound.image,
-					email: userFound.email,
 					phoneNumber: userFound.phoneNumber,
 					role: userFound.role,
 					provider: "CREDENTIALS",
 				};
 			},
 		}),
-		GoogleProvider({
-			profile(profile) {
-				let userRole = "USER";
+		// GoogleProvider({
+		// 	profile(profile) {
+		// 		let userRole = "USER";
 
-				if (profile?.email == "comillasjin20@gmail.com") {
-					userRole = "ADMIN";
-				}
+		// 		if (profile?.email == "comillasjin20@gmail.com") {
+		// 			userRole = "ADMIN";
+		// 		}
 
-				return {
-					...profile,
-					userID: profile.sub,
-					role: userRole,
-					image: profile.picture,
-					provider: "GOOGLE",
-				};
-			},
-			clientId: process.env.GOOGLE_ID as string,
-			clientSecret: process.env.GOOGLE_SECRET as string,
-		}),
-		FacebookProvider({
-			profile(profile) {
-				let userRole = "USER";
+		// 		return {
+		// 			...profile,
+		// 			userID: profile.sub,
+		// 			role: userRole,
+		// 			image: profile.picture,
+		// 			provider: "GOOGLE",
+		// 		};
+		// 	},
+		// 	clientId: process.env.GOOGLE_ID as string,
+		// 	clientSecret: process.env.GOOGLE_SECRET as string,
+		// }),
+		// FacebookProvider({
+		// 	profile(profile) {
+		// 		let userRole = "USER";
 
-				if (profile?.email == "comillasjin20@gmail.com") {
-					userRole = "ADMIN";
-				}
-				// SAMPLE DATA from profile object
-				// {
-				//   id: '1716939068772456',
-				//   name: 'Jino Joy Comillas',
-				//   email: 'jinojoycomillas20@gmail.com',
-				//   picture: {
-				//     data: {
-				//       height: 50,
-				//       is_silhouette: false,
-				//       url: 'https://platform-lookaside.fbsbx.com/platform/profilepic/?asid=1716939068772456&height=50&width=50&ext=1705041784&hash=AfpgKa4OPmjnklL3mrVTlzbu0Cg7NZj0jCbprV1JarowjA',
-				//       width: 50
-				//     }
-				//   }
-				// }
-				return {
-					...profile,
-					userID: profile.id,
-					role: userRole,
-					image: profile.picture.data.url,
-					provider: "FACEBOOK",
-				};
-			},
-			clientId: process.env.FACEBOOK_ID as string,
-			clientSecret: process.env.FACEBOOK_SECRET as string,
-		}),
+		// 		if (profile?.email == "comillasjin20@gmail.com") {
+		// 			userRole = "ADMIN";
+		// 		}
+		// 		// SAMPLE DATA from profile object
+		// 		// {
+		// 		//   id: '1716939068772456',
+		// 		//   name: 'Jino Joy Comillas',
+		// 		//   email: 'jinojoycomillas20@gmail.com',
+		// 		//   picture: {
+		// 		//     data: {
+		// 		//       height: 50,
+		// 		//       is_silhouette: false,
+		// 		//       url: 'https://platform-lookaside.fbsbx.com/platform/profilepic/?asid=1716939068772456&height=50&width=50&ext=1705041784&hash=AfpgKa4OPmjnklL3mrVTlzbu0Cg7NZj0jCbprV1JarowjA',
+		// 		//       width: 50
+		// 		//     }
+		// 		//   }
+		// 		// }
+		// 		return {
+		// 			...profile,
+		// 			userID: profile.id,
+		// 			role: userRole,
+		// 			image: profile.picture.data.url,
+		// 			provider: "FACEBOOK",
+		// 		};
+		// 	},
+		// 	clientId: process.env.FACEBOOK_ID as string,
+		// 	clientSecret: process.env.FACEBOOK_SECRET as string,
+		// }),
 	],
 	callbacks: {
 		async jwt({ token, user }) {

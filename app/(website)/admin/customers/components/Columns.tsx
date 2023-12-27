@@ -8,8 +8,7 @@ import { convertDateToString } from "@lib/utils";
 
 type Customers = {
 	name: string;
-	email: string | null;
-	phoneNumber: string | null;
+	phoneNumber: string;
 	createdAt: Date;
 };
 
@@ -42,23 +41,11 @@ export const columns: ColumnDef<Customers>[] = [
 		),
 	},
 	{
-		accessorKey: "email",
-		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="Email" />
-		),
-		cell: ({ cell }) => {
-			return cell.getValue() ?? "Not Provided";
-		},
-	},
-	{
 		id: "Mobile Number",
 		accessorKey: "phoneNumber",
 		header: ({ column }) => (
 			<DataTableColumnHeader column={column} title="Mobile Number" />
 		),
-		cell: ({ cell }) => {
-			return cell.getValue() ?? "Not Provided";
-		},
 	},
 	{
 		id: "Created",

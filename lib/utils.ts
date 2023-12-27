@@ -139,6 +139,7 @@ export function convertExcelValueToDateString(
 }
 
 export const DISHES_IMAGE_FOLDER = "jakelou/dishes/";
+export const AVATAR_IMAGE_FOLDER = "profile_images/";
 type CloudinaryPresets = "DISHES" | "PROFILE_IMAGES";
 
 /**

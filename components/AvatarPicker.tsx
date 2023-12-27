@@ -7,7 +7,7 @@ import {
 	DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import React, { useState } from "react";
-import { cn } from "@lib/utils";
+import { AVATAR_IMAGE_FOLDER, cn } from "@lib/utils";
 import { CldImage } from "next-cloudinary";
 
 const DropdownMenuRadioItem = React.forwardRef<
@@ -60,7 +60,7 @@ export default function AvatarPicker({
 							<CldImage
 								width="200"
 								height="240"
-								src={"profile_images/" + avatar}
+								src={AVATAR_IMAGE_FOLDER + avatar}
 								sizes="100vw"
 								alt={avatar}
 								className="h-full w-full"

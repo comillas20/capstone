@@ -8,7 +8,6 @@ export default async function Customers() {
 	const userAccounts = await prisma.account.findMany({
 		select: {
 			name: true,
-			email: true,
 			phoneNumber: true,
 			createdAt: true,
 		},

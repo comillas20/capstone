@@ -88,8 +88,8 @@ model SubSet {
 model Account {
   id           Int             @id @default(autoincrement())
   name         String          @unique
-  email        String?         @unique @db.VarChar(50)
-  phoneNumber  String?         @unique @db.VarChar(11)
+  // email        String?         @unique @db.VarChar(50)
+  phoneNumber  String         @unique @db.VarChar(11)
   password     String          @db.Text
   role         Role            @default(USER)
   image        String?
