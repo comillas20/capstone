@@ -52,6 +52,7 @@ export default function RestoreBackUpForm() {
 	function onSubmit(values: UploadFormValues) {
 		startUploading(async () => {
 			try {
+				console.log("Opening the file...");
 				setMessage("Opening the file...");
 				const file: File = values.uploadFile as File;
 				const workbook = new ExcelJS.Workbook();
@@ -136,7 +137,11 @@ export default function RestoreBackUpForm() {
 					{message && isUploading && (
 						<p className="text-sm font-medium text-destructive">{message}</p>
 					)}
-					<AlertDialog>
+					<Button type="submit" disabled={isUploading || !form.formState.isDirty}>
+						{isUploading && <Loader2 className="mr-2 animate-spin" />}
+						Upload
+					</Button>
+					{/* <AlertDialog>
 						<AlertDialogTrigger asChild>
 							<Button type="button" disabled={isUploading || !form.formState.isDirty}>
 								Upload
@@ -149,15 +154,17 @@ export default function RestoreBackUpForm() {
 							</AlertDialogDescription>
 							<AlertDialogFooter>
 								<AlertDialogCancel>Cancel</AlertDialogCancel>
-								<AlertDialogAction
-									type="submit"
-									disabled={isUploading || !form.formState.isDirty}>
-									{isUploading && <Loader2 className="mr-2 animate-spin" />}
-									Continue
+								<AlertDialogAction asChild>
+									<Button
+										type="submit"
+										disabled={isUploading || !form.formState.isDirty}>
+										{isUploading && <Loader2 className="mr-2 animate-spin" />}
+										Continue
+									</Button>
 								</AlertDialogAction>
 							</AlertDialogFooter>
 						</AlertDialogContent>
-					</AlertDialog>
+					</AlertDialog> */}
 				</div>
 			</form>
 		</Form>
@@ -179,6 +186,7 @@ function getDishesFromExcel(workbook: ExcelJS.Workbook) {
 				row.getCell(3).value?.toString().toLowerCase() === "true";
 			const category = row.getCell(4).value?.toString();
 			const course = row.getCell(5).value?.toString();
+			const imgHref = row.getCell(6).value?.toString();
 			if (!name && !category && !course) return;
 			const dish = {
 				name: name as string,
@@ -186,6 +194,7 @@ function getDishesFromExcel(workbook: ExcelJS.Workbook) {
 				isAvailable: isAvailable,
 				category: category as string,
 				course: course as string,
+				imgHref: imgHref ? (imgHref as string) : null,
 			};
 			dishes.push(dish);
 		}

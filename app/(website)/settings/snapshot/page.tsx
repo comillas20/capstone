@@ -46,6 +46,7 @@ export type DCC = {
 	isAvailable: boolean;
 	category: string;
 	course: string;
+	imgHref: string | null;
 };
 
 export type Set = {

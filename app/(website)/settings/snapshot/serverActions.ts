@@ -1,6 +1,7 @@
 "use server";
 
 import prisma from "@lib/db";
+import { getCldImageUrl } from "next-cloudinary";
 
 export async function retrieveAllDishCatCoursesForBackUp() {
 	const dishes = await prisma.dish.findMany({
@@ -8,6 +9,7 @@ export async function retrieveAllDishCatCoursesForBackUp() {
 			name: true,
 			createdAt: true,
 			isAvailable: true,
+			imgHref: true,
 			category: {
 				select: {
 					name: true,
@@ -26,12 +28,22 @@ export async function retrieveAllDishCatCoursesForBackUp() {
 		course: dish.category.course.name,
 	}));
 }
+export async function getBase64Image(url: string) {
+	const response = await fetch(url);
+	const blob = await response.blob();
+	const buffer = await blob.arrayBuffer();
+	const base64Image = `data:${blob.type};base64,${Buffer.from(buffer).toString(
+		"base64"
+	)}`;
+	return base64Image;
+}
 type DCC = {
 	name: string;
 	createdAt: Date;
 	isAvailable: boolean;
 	category: string;
 	course: string;
+	imgHref: string | null;
 };
 export async function restoreDishCatCourse(values: DCC) {
 	const newCourse = await prisma.course.upsert({
@@ -64,6 +76,7 @@ export async function restoreDishCatCourse(values: DCC) {
 				connect: { name: values.category },
 			},
 			createdAt: values.createdAt,
+			imgHref: values.imgHref,
 			isAvailable: values.isAvailable,
 		},
 		where: {
@@ -75,6 +88,7 @@ export async function restoreDishCatCourse(values: DCC) {
 				connect: { name: values.category },
 			},
 			createdAt: values.createdAt,
+			imgHref: values.imgHref,
 			isAvailable: values.isAvailable,
 		},
 	});

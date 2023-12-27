@@ -181,6 +181,7 @@ async function createDCCWorksheet(data: DCC[], workbook: ExcelJS.Workbook) {
 		{ header: "Availability", key: "isAvailable", width: 10 },
 		{ header: "Category", key: "category", width: 20 },
 		{ header: "Course", key: "course", width: 20 },
+		{ header: "imgHref", key: "imgHref", width: 20 },
 	];
 
 	dishesSheet.addRows(data);
@@ -235,40 +236,3 @@ async function createSetWorksheet(data: Set, workbook: ExcelJS.Workbook) {
 		}
 	});
 }
-// async function createExcel(options: Options) {
-// 	// Create workbook and worksheet
-// 	const workbook = new ExcelJS.Workbook();
-// 	if (options.dishCatCourses) {
-// 		const dishesSheet = workbook.addWorksheet("Products/Dishes");
-// 		dishesSheet.columns = [
-// 			{ header: "Name", key: "Name", width: 20 },
-// 			{ header: "Date Created", key: "created", width: 20 },
-// 			{ header: "Date Updated", key: "updated", width: 20 },
-// 			{ header: "Availability", key: "isAvailable", width: 10 },
-// 			{ header: "Category", key: "category", width: 20 },
-// 			{ header: "Course", key: "course", width: 20 },
-// 		];
-// 	}
-
-// 	const worksheet = workbook.addWorksheet("My Sheet");
-
-// 	// Define columns
-// 	worksheet.columns = [
-// 		{ header: "Id", key: "id", width: 10 },
-// 		{ header: "Name", key: "name", width: 32 },
-// 		{ header: "D.O.B.", key: "DOB", width: 10 },
-// 	];
-
-// 	// Add rows
-// 	worksheet.addRow({ id: 1, name: "John Doe", dob: new Date(1970, 1, 1) });
-// 	worksheet.addRow({ id: 2, name: "Jane Doe", dob: new Date(1965, 1, 7) });
-
-// 	// Write the Excel file to a buffer
-// 	const buffer = await workbook.xlsx.writeBuffer();
-
-// 	// Create a Blob from the Buffer
-// 	const blob = new Blob([buffer], {
-// 		type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-// 	});
-// 	return blob;
-// }
