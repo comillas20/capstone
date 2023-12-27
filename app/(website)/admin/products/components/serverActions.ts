@@ -68,20 +68,20 @@ export async function uploadImage(formData: FormData) {
 	return data.secure_url;
 }
 
-async function deleteImages(public_ids: string[]) {
-	cloudinary.v2.config({
-		cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-		api_key: process.env.CLOUDINARY_API_KEY,
-		api_secret: process.env.CLOUDINARY_API_SECRET,
-	});
-	try {
-		const deleteResult = await cloudinary.v2.api.delete_resources(public_ids);
-	} catch (error) {
-		console.error(error);
-	}
-}
+// async function deleteImages(public_ids: string[]) {
+// 	cloudinary.v2.config({
+// 		cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+// 		api_key: process.env.CLOUDINARY_API_KEY,
+// 		api_secret: process.env.CLOUDINARY_API_SECRET,
+// 	});
+// 	try {
+// 		const deleteResult = await cloudinary.v2.api.delete_resources(public_ids);
+// 	} catch (error) {
+// 		console.error(error);
+// 	}
+// }
 
-type dishAndImages = { id: number; imgHref: string }[];
+// type dishAndImages = { id: number; imgHref: string }[];
 export async function deleteDishes(
 	dishes: { id: number; imgHref: string | null }[]
 ) {
@@ -93,10 +93,10 @@ export async function deleteDishes(
 		},
 	});
 
-	const noNulls = (
-		dishes.filter(dish => dish.imgHref !== null) as dishAndImages
-	).map(dish => dish.imgHref);
-	const yeetImage = await deleteImages(noNulls);
+	// const noNulls = (
+	// 	dishes.filter(dish => dish.imgHref !== null) as dishAndImages
+	// ).map(dish => dish.imgHref);
+	// const yeetImage = await deleteImages(noNulls);
 
 	return yeetedDishes;
 }

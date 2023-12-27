@@ -124,7 +124,9 @@ export default function AddEditDialog({
 			...values,
 			image: imageData,
 			imgHref: values.image
-				? DISHES_IMAGE_FOLDER.concat(imageFileName)
+				? data && data.imgHref
+					? data.imgHref
+					: DISHES_IMAGE_FOLDER.concat(imageFileName)
 				: undefined,
 		};
 		startSaving(async () => {

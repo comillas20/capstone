@@ -55,12 +55,12 @@ const adminNav = [
 const userNav = [
 	{
 		// includes available slots, calendar, ToC
-		name: "Reservations",
+		name: "Reserve",
 		href: "/reservations",
 	},
 	{
 		// includes product viewing
-		name: "Products",
+		name: "View Products",
 		href: "/products",
 	},
 	// {
