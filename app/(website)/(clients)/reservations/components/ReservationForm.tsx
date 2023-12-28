@@ -7,8 +7,7 @@ import { Calendar } from "@components/ui/calendar";
 import { cn } from "@lib/utils";
 import SetPicker from "./SetPicker";
 import { Session } from "next-auth";
-import useSWR from "swr";
-import { getSettings } from "@app/(website)/serverActionsGlobal";
+import { findNearestNonDisabledDate } from "@lib/date-utils";
 export type ReservationFormContextProps = {
 	currentDate: Date;
 	month: Date;
@@ -29,47 +28,54 @@ export type ReservationFormContextProps = {
 export const ReservationFormContext = createContext<
 	ReservationFormContextProps | undefined
 >(undefined);
+
+type ReservationFormProps = {
+	session: Session | null;
+	settings: {
+		maintainanceDates: Date[];
+		id: number;
+		openingTime: Date;
+		closingTime: Date;
+		minimumCustomerReservationHours: number;
+		maximumCustomerReservationHours: number;
+		defaultMinimumPerHead: number;
+		reservationCostPerHour: number;
+	};
+};
 export default function ReservationForm({
 	session,
-}: {
-	session: Session | null;
-}) {
+	settings,
+}: ReservationFormProps) {
 	const currentDate = new Date();
-	const settings = useSWR("settings", getSettings);
-	const s2 = settings.data
-		? {
-				...settings.data,
-				maintainanceDates: settings.data.maintainanceDates.map(m => m.date),
-		  }
-		: null;
 	const disabledDays = [
-		...(s2 ? s2.maintainanceDates : []),
-		{ from: subMonths(currentDate, 1), to: addDays(currentDate, 3) },
+		...(settings.maintainanceDates.length > 0 ? settings.maintainanceDates : []),
+		{ from: subMonths(currentDate, 2), to: addDays(currentDate, 3) },
 	];
-	const later: Date | null = s2
-		? new Date(Math.max(...s2.maintainanceDates.map(date => date.getTime())))
-		: null;
-	const defaultSelectableDate = later
-		? addDays(later, 1)
-		: addDays(currentDate, 3);
-	const [date, setDate] = useState<Date | undefined>(defaultSelectableDate);
+	const nearestDateAvailable: Date =
+		settings.maintainanceDates.length > 0
+			? findNearestNonDisabledDate(
+					addDays(currentDate, 3),
+					settings.maintainanceDates
+			  )
+			: addDays(currentDate, 3);
+	// const latest: Date = new Date(
+	// 	Math.max(...settings.maintainanceDates.map(date => date.getTime()))
+	// );
+	// const defaultSelectableDate = latest
+	// 	? addDays(latest, 1)
+	// 	: addDays(currentDate, 3);
+	const [date, setDate] = useState<Date | undefined>(nearestDateAvailable);
 	//Note to self: Date type instead of Numbers, so I can use date comparison methods
 	const [month, setMonth] = useState<Date>(currentDate);
-	// necessary
-	// apparently state hook declaration outspeed settings.data
-	// so @later is always null by the time code reaches here
-	useEffect(() => {
-		setDate(defaultSelectableDate);
-	}, [settings.data]);
 	return (
-		s2 && (
+		settings && (
 			<ReservationFormContext.Provider
 				value={{
 					currentDate,
 					date,
 					month,
 					session,
-					settings: s2,
+					settings,
 				}}>
 				<div className="flex flex-col items-start gap-12 xl:flex-row">
 					<SetPicker />

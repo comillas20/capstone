@@ -8,7 +8,6 @@ import { Button, buttonVariants } from "@components/ui/button";
 import {
 	Form,
 	FormControl,
-	FormDescription,
 	FormField,
 	FormItem,
 	FormLabel,
@@ -16,13 +15,11 @@ import {
 } from "@components/ui/form";
 import { Input } from "@components/ui/input";
 import { toast } from "@components/ui/use-toast";
-import { useState, useTransition } from "react";
-import { Loader2, X } from "lucide-react";
+import { useTransition } from "react";
+import { Loader2 } from "lucide-react";
 import TimePicker from "@components/TimePicker";
 import { Calendar } from "@components/ui/calendar";
-import { ScrollArea } from "@components/ui/scroll-area";
-import { cn, convertDateToString } from "@lib/utils";
-import { isBefore } from "date-fns";
+import { cn } from "@lib/utils";
 import { saveSettings } from "./serverActions";
 import {
 	Popover,

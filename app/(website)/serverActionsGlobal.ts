@@ -79,7 +79,7 @@ export async function getAllServices() {
 }
 
 export async function getSettings() {
-	return await prisma.adminSettings.findUnique({
+	const settings = await prisma.adminSettings.findUnique({
 		where: { id: 1 },
 		include: {
 			maintainanceDates: {
@@ -89,4 +89,12 @@ export async function getSettings() {
 			},
 		},
 	});
+
+	const rework = settings
+		? {
+				...settings,
+				maintainanceDates: settings.maintainanceDates.map(m => m.date),
+		  }
+		: null;
+	return rework;
 }

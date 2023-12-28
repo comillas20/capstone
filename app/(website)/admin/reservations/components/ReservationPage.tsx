@@ -21,18 +21,24 @@ import { convertDateToString } from "@lib/utils";
 import { Calendar } from "@components/ui/calendar";
 import { DataTableToolbar } from "./DataTableToolbar";
 import ReservationTable from "./ReservationTable";
+import { findNearestNonDisabledDate } from "@lib/date-utils";
 
 interface ReservationPageProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];
 	data: TData[];
+	maintainanceDates: Date[] | undefined;
 }
 
 export default function ReservationPage<TData, TValue>({
 	columns,
 	data,
+	maintainanceDates,
 }: ReservationPageProps<TData, TValue>) {
 	const currentDate = new Date();
-	const [date, setDate] = React.useState<Date | undefined>(currentDate);
+	const nearestDateAvailable: Date = maintainanceDates
+		? findNearestNonDisabledDate(currentDate, maintainanceDates)
+		: currentDate;
+	const [date, setDate] = React.useState<Date | undefined>(nearestDateAvailable);
 
 	const [rowSelection, setRowSelection] = React.useState({});
 	const [columnVisibility, setColumnVisibility] =
@@ -85,6 +91,7 @@ export default function ReservationPage<TData, TValue>({
 						setDate(date);
 					}}
 					mode="single"
+					disabled={maintainanceDates}
 				/>
 				<div className="space-y-4 xl:flex-1">
 					<ReservationTable table={table} columns={columns} />

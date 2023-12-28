@@ -1,20 +1,15 @@
-import { z } from "zod";
-
+import { getSettings } from "@app/(website)/serverActionsGlobal";
 import { columns } from "./components/Columns";
 import ReservationPage from "./components/ReservationPage";
-import { DataTableToolbar } from "./components/DataTableToolbar";
 import dummyReservations from "./dummyData";
-import { Calendar } from "@components/ui/calendar";
 import { convertDateToString } from "@lib/utils";
-
-// Simulate a database read for tasks.
-async function getTasks() {}
 
 export default async function ReservationsPage() {
 	const mod = dummyReservations.map(dummy => ({
 		...dummy,
 		eventTime: convertDateToString(new Date(dummy.eventTime)),
 	}));
+	const settings = await getSettings();
 	return (
 		<div className="hidden h-full flex-1 flex-col space-y-8 md:flex">
 			<div className="flex items-center justify-between space-y-2">
@@ -27,7 +22,11 @@ export default async function ReservationsPage() {
 			</div>
 			<div className="flex gap-4">
 				{/* <AdminCalendar  /> */}
-				<ReservationPage data={mod} columns={columns} />
+				<ReservationPage
+					data={mod}
+					columns={columns}
+					maintainanceDates={settings?.maintainanceDates}
+				/>
 			</div>
 		</div>
 	);
