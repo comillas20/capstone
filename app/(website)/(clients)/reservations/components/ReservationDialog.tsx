@@ -29,7 +29,7 @@ import {
 import { signIn } from "next-auth/react";
 import { Session } from "next-auth";
 import { createReservation, getCurrentUser } from "../serverActions";
-import { Loader2, X } from "lucide-react";
+import { AlertTriangle, Loader2, Pencil, X } from "lucide-react";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -175,12 +175,17 @@ export default function ReservationDialog({
 							<DialogDescription>Just a bit more...</DialogDescription>
 						</DialogHeader>
 						<Separator className="mb-4" />
-						<div className="grid grid-cols-[1fr_auto_1fr_auto_1fr] grid-rows-2">
-							<span className="text-sm font-bold">Packs/dish:</span>
+						<div className="grid grid-cols-[1fr_auto_1fr_auto_1fr] grid-rows-2 gap-y-1">
+							<span className="flex items-center text-sm font-bold">Packs/dish:</span>
 							<Separator orientation="vertical" className="row-span-2 mx-4" />
-							<div className="text-sm font-bold">Start of event</div>
+							<div className="flex items-center gap-2 text-sm font-bold">
+								Start of event
+								{timeLinkName === defaultTimeLinkName && (
+									<AlertTriangle className="text-yellow-300" size={15} />
+								)}
+							</div>
 							<Separator orientation="vertical" className="row-span-2 mx-4" />
-							<div className="text-sm font-bold">Renting Hours</div>
+							<div className="flex items-center text-sm font-bold">Renting Hours</div>
 							<Popover>
 								<PopoverTrigger asChild>
 									<a className="inline cursor-pointer text-primary">{numberOfPacks}</a>
@@ -371,8 +376,10 @@ export default function ReservationDialog({
 						</div>
 						<AlertDialog>
 							<AlertDialogTrigger className="text-left">
-								<div className="space-y-2">
-									<h3 className="text-sm font-bold">Message (Optional)</h3>
+								<div className="group space-y-2">
+									<h3 className="text-sm font-bold group-hover:text-primary">
+										Message (Optional) <Pencil className="inline" size={15} />
+									</h3>
 									<p className="overflow-hidden text-ellipsis whitespace-nowrap text-sm">
 										{message}
 									</p>
@@ -383,7 +390,7 @@ export default function ReservationDialog({
 									<AlertDialogTitle>Message</AlertDialogTitle>
 									<AlertDialogDescription>
 										Special requests, or anything goes here. (Prices may increase/decrease
-										based of said requests)
+										based of said requests and is subjected to the manager's review)
 									</AlertDialogDescription>
 								</AlertDialogHeader>
 								<Textarea

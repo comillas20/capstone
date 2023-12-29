@@ -123,11 +123,11 @@ export default async function UserNav() {
 					} else {
 						return (
 							<DropdownMenuGroup>
-								<DropdownMenuItem asChild>
+								{/* <DropdownMenuItem asChild>
 									<Link href="/settings/general" className="h-full w-full">
 										General
 									</Link>
-								</DropdownMenuItem>
+								</DropdownMenuItem> */}
 								<DropdownMenuItem asChild>
 									<Link href="/settings/account" className="h-full w-full">
 										Account

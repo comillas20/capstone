@@ -27,7 +27,7 @@ export default async function SettingsLayout({
 					<aside className="lg:-mx-4 lg:w-1/5">
 						<SidebarNav role={session?.user.role} />
 					</aside>
-					<div className="flex-1 lg:max-w-2xl">{children}</div>
+					<div className="max-w-2xl flex-1">{children}</div>
 				</div>
 			</div>
 		</main>

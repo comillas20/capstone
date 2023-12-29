@@ -12,6 +12,7 @@ import { Button } from "@components/ui/button";
 import Link from "next/link";
 
 export type Reservations = {
+	id: number;
 	customerName: string;
 	email: string | null;
 	mobileNumber: string | null;
@@ -19,7 +20,7 @@ export type Reservations = {
 	totalPrice: number; // total amount needed to fully pay
 	reservationTime: string;
 	eventTime: string;
-	initialEventDuration: number;
+	eventDuration: number;
 	status: status;
 };
 export const columns: ColumnDef<Reservations>[] = [
@@ -43,6 +44,10 @@ export const columns: ColumnDef<Reservations>[] = [
 		),
 		enableSorting: false,
 		enableHiding: false,
+	},
+	{
+		accessorKey: "id",
+		header: ({ column }) => <DataTableColumnHeader column={column} title="ID" />,
 	},
 	{
 		id: "Customer",
@@ -114,10 +119,10 @@ export const columns: ColumnDef<Reservations>[] = [
 		),
 	},
 	{
-		id: "Initial Duration",
-		accessorKey: "initialEventDuration",
+		id: "Duration",
+		accessorKey: "eventDuration",
 		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="Initial Duration" />
+			<DataTableColumnHeader column={column} title="Duration" />
 		),
 		cell: ({ cell }) => {
 			return (cell.getValue() as string) + " hours";
