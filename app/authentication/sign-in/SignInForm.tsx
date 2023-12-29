@@ -42,7 +42,7 @@ export default function SignInForm() {
 	const onSubmit = (data: z.infer<typeof signInSchema>) => {
 		startSubmitting(async () => {
 			const signInData = await signIn("credentials", {
-				emailOrPhoneNumber: data.phoneNumber,
+				phoneNumber: data.phoneNumber,
 				password: data.password,
 				redirect: true,
 				callbackUrl: searchParams.get("callbackUrl") ?? "/",

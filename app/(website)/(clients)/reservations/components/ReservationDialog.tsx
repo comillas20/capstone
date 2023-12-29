@@ -499,15 +499,6 @@ export default function ReservationDialog({
 											)}
 										</div>
 									</div>
-									{/* <div>{selectedSet.price}</div>
-							<div>
-								<div className="text-sm font-bold">Location</div>
-								<div>Brgy. Taft, Narciso St., Surigao City</div>
-							</div>
-							<div>Month: {month.getMonth()}</div>
-							<div>Event Time: {timeLinkName}</div>
-							<div>Time use: {timeUse}</div>
-							<div>Services: {JSON.stringify(selectedServices, undefined, " ")}</div> */}
 									<DialogFooter className="mt-4 flex gap-4">
 										<TabsList className="bg-inherit p-0">
 											<TabsTrigger asChild value="reserve" type="button">

@@ -99,7 +99,7 @@ export function RegistrationForm() {
 			const newUser = await createNewAccount(newData);
 			if (newUser) {
 				const signInData = await signIn("credentials", {
-					emailOrPhoneNumber: newUser.phoneNumber,
+					phoneNumber: newUser.phoneNumber,
 					password: data.password,
 					redirect: true,
 					callbackUrl: searchParams.get("callbackUrl") ?? "/",
