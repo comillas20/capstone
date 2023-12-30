@@ -11,7 +11,7 @@ export default async function SignInPage({
 	children: React.ReactNode;
 }) {
 	const session = await getServerSession(options);
-	return session && session.user.name ? (
+	return session && session.user.id ? (
 		<div className="flex h-screen flex-col items-center justify-center gap-4">
 			<span>You are already signed in. No need to repeat things.</span>
 			<Button>
