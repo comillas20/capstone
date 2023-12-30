@@ -14,8 +14,6 @@ export default async function SignInPage({
 	return session && session.user.id ? (
 		<div className="flex h-screen flex-col items-center justify-center gap-4">
 			<span>You are already signed in. No need to sign-in again.</span>
-			{/* test */}
-			<span>{JSON.stringify(session)}</span>
 			<Button>
 				<ArrowLeft className="mr-4" />
 				<Link href={"/"}>Home</Link>
