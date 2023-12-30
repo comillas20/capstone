@@ -81,7 +81,7 @@ export default function ReservationDialog({
 	const allOtherServices = useSWR("getAllServices", getAllServices);
 	const currentUser = useSWR(
 		"currentUser",
-		async () => await getCurrentUser(parseInt(session.user.userID))
+		async () => await getCurrentUser(session.user.id)
 	);
 	const [selectedServices, setSelectedServices] = useState<string[]>([]);
 	const [inputValues, setInputValues] = useState<
@@ -514,10 +514,9 @@ export default function ReservationDialog({
 										</TabsList>
 										<TermsOfPayment
 											onClick={() => {
-												if (session.user && allOtherServices.data) {
+												if (currentUser.data && allOtherServices.data) {
 													const r: Reservation = {
-														email: session.user.email ?? null,
-														phoneNumber: session.user.phoneNumber ?? null,
+														phoneNumber: currentUser.data.phoneNumber,
 														eventDate: time,
 														eventDuration: timeUse,
 														orders: selectedDishes, //dishes
@@ -586,8 +585,7 @@ type Reservation = {
 	eventDate: Date;
 	userID: number;
 	userName: string;
-	phoneNumber: string | null;
-	email: string | null;
+	phoneNumber: string;
 	totalPrice: number;
 	eventDuration: number;
 	orders: {
