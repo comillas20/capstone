@@ -47,6 +47,10 @@ type UserData = {
 };
 
 export async function createNewAccount(data: UserData) {
+	const accountCount = await prisma.account.count();
+	if (accountCount === 0) {
+		data.role = "ADMIN";
+	}
 	const hashedPassword = await bcrypt.hash(data.password, 10);
 	return await prisma.account.create({
 		data: { ...data, password: hashedPassword },

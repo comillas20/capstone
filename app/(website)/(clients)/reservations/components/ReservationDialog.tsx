@@ -28,7 +28,7 @@ import {
 } from "./ReservationForm";
 import { signIn } from "next-auth/react";
 import { Session } from "next-auth";
-import { createReservation, getCurrentUser } from "../serverActions";
+import { getCurrentUser } from "../serverActions";
 import { AlertTriangle, Loader2, Pencil, X } from "lucide-react";
 import {
 	AlertDialog,

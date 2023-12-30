@@ -11,7 +11,7 @@ const dummyReservations: Reservations[] = [
 		mobileNumber: "555-1234",
 		reservationTime: "2023-11-29T12:00:00",
 		eventTime: "2023-11-30T14:00:00",
-		initialEventDuration: 2,
+		eventDuration: 2,
 		status: status.true,
 	},
 	{
@@ -20,7 +20,7 @@ const dummyReservations: Reservations[] = [
 		mobileNumber: "555-5678",
 		reservationTime: "2023-11-29T14:30:00",
 		eventTime: "2023-12-01T10:00:00",
-		initialEventDuration: 3,
+		eventDuration: 3,
 		status: status.false,
 	},
 	{
@@ -29,7 +29,7 @@ const dummyReservations: Reservations[] = [
 		mobileNumber: null,
 		reservationTime: "2023-11-29T14:30:00",
 		eventTime: "2023-12-01T10:00:00",
-		initialEventDuration: 3,
+		eventDuration: 3,
 		status: status.false,
 	},
 	{
@@ -38,7 +38,7 @@ const dummyReservations: Reservations[] = [
 		mobileNumber: "09123456789",
 		reservationTime: "2023-11-29T14:30:00",
 		eventTime: "2023-12-01T10:00:00",
-		initialEventDuration: 3,
+		eventDuration: 3,
 		status: status.false,
 	},
 	{
@@ -47,7 +47,7 @@ const dummyReservations: Reservations[] = [
 		mobileNumber: "09123456789",
 		reservationTime: "2023-11-29T14:30:00",
 		eventTime: "2023-12-01T10:00:00",
-		initialEventDuration: 3,
+		eventDuration: 3,
 		status: status.false,
 	},
 	// Add more dummy data as needed
