@@ -14,10 +14,9 @@ export enum status {
 	false = "Pending",
 }
 export type Reservations = {
-	id: number;
+	id: string;
 	customerName: string;
-	email: string | null;
-	mobileNumber: string | null;
+	mobileNumber: string;
 	totalPaid?: number; // amount paid by user
 	totalPrice: number; // total amount needed to fully pay
 	reservationTime: string;
@@ -64,23 +63,11 @@ export const columns: ColumnDef<Reservations>[] = [
 		),
 	},
 	{
-		accessorKey: "email",
-		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="Email" />
-		),
-		cell: ({ cell }) => {
-			return cell.getValue() ?? "Not Provided";
-		},
-	},
-	{
 		id: "Mobile Number",
 		accessorKey: "mobileNumber",
 		header: ({ column }) => (
 			<DataTableColumnHeader column={column} title="Mobile Number" />
 		),
-		cell: ({ cell }) => {
-			return cell.getValue() ?? "Not Provided";
-		},
 	},
 	{
 		id: "Paid/Total",
