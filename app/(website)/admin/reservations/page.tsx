@@ -31,8 +31,3 @@ export default async function ReservationsPage() {
 		</div>
 	);
 }
-
-export enum status {
-	true = "Accepted",
-	false = "Pending",
-}

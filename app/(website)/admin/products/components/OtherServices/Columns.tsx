@@ -5,7 +5,7 @@ import { Checkbox } from "@components/ui/checkbox";
 import { useState } from "react";
 import { DataTableColumnHeader } from "@app/(website)/admin/components/DataTableColumnHeader";
 import { DataTableRowActions } from "./DataTableRowActions";
-import { isAvailable, isRequired } from "../../page";
+import { isAvailable, isRequired } from "../ProductPageProvider";
 export type Services = {
 	id: number;
 	name: string;
