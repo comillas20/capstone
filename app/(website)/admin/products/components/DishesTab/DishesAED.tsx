@@ -4,6 +4,7 @@ import {
 	DialogContent,
 	DialogDescription,
 	DialogHeader,
+	DialogTrigger,
 } from "@components/ui/dialog";
 import { DialogClose, DialogTitle } from "@radix-ui/react-dialog";
 import { Dishes } from "./DishColumns";
@@ -20,22 +21,19 @@ import {
 } from "@components/ui/form";
 import { Input } from "@components/ui/input";
 import { useSWRConfig } from "swr";
-import { createOrUpdateDish } from "../serverActions";
+import { createOrUpdateDish, deleteDishes } from "../serverActions";
 import { isAvailable as iaEnum } from "../../page";
 import {
-	PRODUCTS_CATEGORIES_KEY,
-	PRODUCTS_COURSES_KEY,
 	PRODUCTS_DISHES_KEY,
 	ProductPageContext,
 	ProductPageContextProps,
 } from "../ProductPageProvider";
-import { useContext, useEffect, useTransition } from "react";
+import { useContext, useTransition } from "react";
 import { toast } from "@components/ui/use-toast";
 import {
 	DISHES_IMAGE_FOLDER,
 	generateRandomString,
 	imageWrapper,
-	uploadImage,
 } from "@lib/utils";
 import { Loader2 } from "lucide-react";
 import DishProfileDialog from "@components/DishProfileDialog";
@@ -46,16 +44,11 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@components/ui/select";
-
 type AddEditDialogProps = {
 	data?: Dishes;
-	onOpenChange: React.Dispatch<React.SetStateAction<boolean>>;
-} & React.ComponentProps<typeof Dialog>;
-export default function AddEditDialog({
-	data,
-	open,
-	onOpenChange,
-}: AddEditDialogProps) {
+	children: React.ReactNode;
+};
+export function AddEditDialog({ data, children }: AddEditDialogProps) {
 	const { dishes, categories } = useContext(
 		ProductPageContext
 	) as ProductPageContextProps;
@@ -142,14 +135,15 @@ export default function AddEditDialog({
 				mutate(PRODUCTS_DISHES_KEY);
 			}
 		});
-		onOpenChange(false);
+		// onOpenChange(false);
 	}
-	useEffect(() => {
-		form.reset();
-	}, [open]);
+	// useEffect(() => {
+	// 	form.reset();
+	// }, [open]);
 	return (
 		dishes && (
-			<Dialog open={open} onOpenChange={onOpenChange}>
+			<Dialog>
+				<DialogTrigger asChild>{children}</DialogTrigger>
 				<DialogContent>
 					<DialogHeader className="mb-4">
 						<DialogTitle>{data ? "Edit" : "Create"}</DialogTitle>
@@ -280,5 +274,68 @@ export default function AddEditDialog({
 				</DialogContent>
 			</Dialog>
 		)
+	);
+}
+
+type DeleteDialogProps = {
+	data: Dishes[];
+	children: React.ReactNode;
+} & React.ComponentProps<typeof Dialog>;
+
+export function DeleteDialog({ data, children }: DeleteDialogProps) {
+	const [isSaving, startSaving] = useTransition();
+	const { mutate } = useSWRConfig();
+
+	return (
+		<Dialog>
+			<DialogTrigger asChild>{children}</DialogTrigger>
+			<DialogContent>
+				<DialogHeader className="mb-4">
+					<DialogTitle className="text-destructive">Delete</DialogTitle>
+					<DialogDescription>
+						Deleting{" "}
+						{data.length > 1 ? "selected dishes" : data[0] ? data[0].name : "ERROR"}
+					</DialogDescription>
+					<div className="text-destructive">This action cannot be undo. Delete?</div>
+					<div className="flex justify-end gap-4">
+						<DialogClose asChild>
+							<Button variant={"secondary"} type="button">
+								Cancel
+							</Button>
+						</DialogClose>
+						<DialogClose asChild>
+							<Button
+								type="button"
+								variant={"destructive"}
+								onClick={() => {
+									const toBeYeeted: { id: number; imgHref: string | null }[] = data.map(
+										d => ({
+											id: d.id,
+											imgHref: d.imgHref,
+										})
+									);
+									startSaving(async () => {
+										const submitDish = await deleteDishes(toBeYeeted);
+										if (submitDish) {
+											const plural =
+												data.length > 1 ? "The selected dishes are" : data[0].name + " is";
+											toast({
+												title: "Success",
+												description: plural + " successfully deleted!",
+												duration: 5000,
+											});
+											mutate(PRODUCTS_DISHES_KEY);
+										}
+									});
+								}}
+								disabled={isSaving}>
+								{isSaving && <Loader2 className="mr-2" />}
+								Delete
+							</Button>
+						</DialogClose>
+					</div>
+				</DialogHeader>
+			</DialogContent>
+		</Dialog>
 	);
 }

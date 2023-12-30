@@ -2,10 +2,9 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@components/ui/checkbox";
-import AddEditDialog from "./AddEditDialog";
+import { AddEditDialog, DeleteDialog } from "./DishesAED";
 import { useState } from "react";
 import { isAvailable } from "../../page";
-import DeleteDialog from "./DeleteDialog";
 import { DataTableColumnHeader } from "@app/(website)/admin/components/DataTableColumnHeader";
 import { DataTableRowActions } from "./DataTableRowActions";
 import { AlertCircle } from "lucide-react";
@@ -120,17 +119,6 @@ export const columns: ColumnDef<Dishes>[] = [
 						table={table}
 						addEditOpener={setIsAEOpen}
 						deleteOpener={setIsDeleteOpen}
-					/>
-					<AddEditDialog
-						key={row.original.name}
-						data={row.original}
-						open={isAEOpen}
-						onOpenChange={setIsAEOpen}
-					/>
-					<DeleteDialog
-						data={[row.original]}
-						open={isDeleteOpen}
-						onOpenChange={setIsDeleteOpen}
 					/>
 				</>
 			);

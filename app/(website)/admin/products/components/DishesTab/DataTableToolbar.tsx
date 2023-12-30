@@ -5,9 +5,8 @@ import { Button } from "@components/ui/button";
 import { Input } from "@components/ui/input";
 import { DataTableViewOptions } from "@app/(website)/admin/components//DataTableViewOptions";
 import { Info, Plus } from "lucide-react";
-import AddEditDialog from "./AddEditDialog";
+import { AddEditDialog, DeleteDialog } from "./DishesAED";
 import { useContext, useState } from "react";
-import DeleteDialog from "./DeleteDialog";
 import { Dishes } from "./DishColumns";
 import {
 	ProductPageContext,
@@ -42,19 +41,14 @@ export function DataTableToolbar<TData>({
 				/>
 				<DataTableViewOptions table={table} />
 				{(table.getIsSomeRowsSelected() || table.getIsAllRowsSelected()) && (
-					<>
+					<DeleteDialog data={selectedRowsData}>
 						<Button
 							variant="destructive"
 							onClick={() => setIsDeleteDialogOpen(true)}
 							className="h-8">
 							Delete selected
 						</Button>
-						<DeleteDialog
-							open={isDeleteDialogOpen}
-							onOpenChange={setIsDeleteDialogOpen}
-							data={selectedRowsData}
-						/>
-					</>
+					</DeleteDialog>
 				)}
 			</div>
 			{categories?.length == 0 && (
@@ -63,15 +57,16 @@ export function DataTableToolbar<TData>({
 					Please add a category first before adding a dish
 				</p>
 			)}
-			<Button
-				size="sm"
-				className="flex h-8"
-				onClick={() => setIsOpen(true)}
-				disabled={categories?.length == 0}>
-				<Plus className="mr-2" />
-				Dish
-			</Button>
-			<AddEditDialog open={isOpen} onOpenChange={setIsOpen} />
+			<AddEditDialog key={isOpen.toString()}>
+				<Button
+					size="sm"
+					className="flex h-8"
+					onClick={() => setIsOpen(true)}
+					disabled={categories?.length == 0}>
+					<Plus className="mr-2" />
+					Dish
+				</Button>
+			</AddEditDialog>
 		</div>
 	);
 }

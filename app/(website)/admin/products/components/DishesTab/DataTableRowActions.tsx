@@ -10,6 +10,8 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@components/ui/dropdown-menu";
+import { AddEditDialog, DeleteDialog } from "./DishesAED";
+import { Dishes } from "./DishColumns";
 
 interface DataTableRowActionsProps<TData> {
 	row: Row<TData>;
@@ -21,8 +23,6 @@ interface DataTableRowActionsProps<TData> {
 export function DataTableRowActions<TData>({
 	row,
 	table,
-	addEditOpener,
-	deleteOpener,
 }: DataTableRowActionsProps<TData>) {
 	return (
 		<DropdownMenu>
@@ -36,12 +36,12 @@ export function DataTableRowActions<TData>({
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end" className="w-[160px]">
-				<DropdownMenuItem onSelect={() => addEditOpener(true)}>
-					Edit {row.getValue("name")}
-				</DropdownMenuItem>
-				<DropdownMenuItem onSelect={() => deleteOpener(true)}>
-					Delete {row.getValue("name")}
-				</DropdownMenuItem>
+				<AddEditDialog key={row.getValue("name")} data={row.original as Dishes}>
+					<DropdownMenuItem>Edit {row.getValue("name")}</DropdownMenuItem>
+				</AddEditDialog>
+				<DeleteDialog data={[row.original as Dishes]}>
+					<DropdownMenuItem>Delete {row.getValue("name")}</DropdownMenuItem>
+				</DeleteDialog>
 			</DropdownMenuContent>
 		</DropdownMenu>
 	);
