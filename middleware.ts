@@ -8,12 +8,12 @@ export default withAuth(
 			req.nextauth.token?.role !== "ADMIN"
 		)
 			return NextResponse.rewrite(new URL("/denied", req.url));
-	},
-	{
-		callbacks: {
-			authorized: ({ token }) => !!token,
-		},
 	}
+	// {
+	// 	callbacks: {
+	// 		authorized: ({ token }) => !!token,
+	// 	},
+	// }
 );
 
 export const config = { matcher: ["/admin/:path*", "/settings/:path*"] };

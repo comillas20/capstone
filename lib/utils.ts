@@ -51,15 +51,16 @@ export function convertTimeTo12HourFormat(time: string) {
 	return date.toLocaleTimeString([], dateOptions);
 }
 
-export function isEmailValid(email: string): boolean {
-	// Regular expression for a simple email validation
-	const emailRegex = /^[^\s@]+@[^\s@]{3,}\.[^\s@]{2,}$/;
-	return emailRegex.test(email);
-}
-
 export function isPhoneNumberValid(phoneNumber: string): boolean {
-	const phoneNumberRegex = /^(\+63|0)[1-9]\d{9}$/;
+	const phoneNumberRegex = /^(\+63|0)9\d{9}$/;
 	return phoneNumberRegex.test(phoneNumber);
+}
+export function convertPhoneNumber(phoneNumber: string): string {
+	if (phoneNumber.startsWith("09") && phoneNumber.length === 11) {
+		return "+63" + phoneNumber.slice(1);
+	} else {
+		return phoneNumber;
+	}
 }
 
 /**

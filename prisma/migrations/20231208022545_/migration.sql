@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE `set` ALTER COLUMN `price` DROP DEFAULT;
