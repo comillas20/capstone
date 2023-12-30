@@ -21,12 +21,11 @@ import {
 } from "@components/ui/form";
 import { Input } from "@components/ui/input";
 import { toast } from "@components/ui/use-toast";
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 import {
 	doesNameExists,
 	doesPhoneNumberExists,
 	editUserAccount,
-	getAccountID,
 } from "./serverActions";
 import { Loader2 } from "lucide-react";
 import AvatarPicker from "@components/AvatarPicker";

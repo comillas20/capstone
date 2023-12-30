@@ -20,7 +20,7 @@ export default async function WebsiteLayout({
 					<MainNav className="mx-6" navBtns={mainNav} />
 					<div className="ml-auto flex items-center space-x-4">
 						<ThemeModeSwitcher />
-						<UserNav />
+						<UserNav session={session} />
 					</div>
 				</div>
 			</nav>

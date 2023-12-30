@@ -7,14 +7,13 @@ import prisma from "@lib/db";
 export default async function SettingsAccountPage() {
 	const session = await getServerSession(options);
 	// session details is static(?), until user log outs
-	const data =
-		session && session.user.provider === "CREDENTIALS"
-			? await prisma.account.findUnique({
-					where: {
-						id: parseInt(session.user.userID),
-					},
-			  })
-			: undefined;
+	const data = session
+		? await prisma.account.findUnique({
+				where: {
+					id: session.user.id,
+				},
+		  })
+		: undefined;
 	return (
 		<div className="space-y-6">
 			<div>
