@@ -1,36 +1,10 @@
 "use client";
-import img1 from "@app/sample/placeholder1.jpg";
-import img2 from "@app/sample/placeholder2.jpg";
-import img3 from "@app/sample/placeholder3.jpg";
+import img1 from "public/img1.jpg";
+import img2 from "public/img2.jpg";
+import img3 from "public/img3.jpg";
 import { Button } from "@components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
-// import { useEffect, useState } from "react";
-// export default function Slideshow() {
-// 	const slides = [img1, img2, img3];
-// 	const [slideIndex, setSlideIndex] = useState(0);
-
-// 	const showSlides = () => {
-// 		setSlideIndex(prevIndex => (prevIndex + 1) % slides.length);
-// 	};
-
-// 	useEffect(() => {
-// 		const intervalId = setInterval(showSlides, 4000);
-
-// 		return () => clearInterval(intervalId);
-// 	}, [slideIndex]);
-// 	return (
-// 		<div className="h-[40rem] w-full bg-secondary">
-// 			<Image
-// 				src={slides[slideIndex]}
-// 				alt="placeholder1"
-// 				className="h-full w-full transition-opacity fade-in-5 fade-out-5"
-// 				objectFit="cover"
-// 			/>
-// 		</div>
-// 	);
-// }
-
 import { Fade } from "react-slideshow-image";
 import "react-slideshow-image/dist/styles.css";
 
