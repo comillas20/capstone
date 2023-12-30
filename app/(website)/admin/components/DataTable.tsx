@@ -83,7 +83,7 @@ export function DataTable<TData, TValue>({
 	React.useEffect(() => {
 		if (selectFirstRowAsDefault) setRowSelection({ "0": true });
 		if (hideAsDefault) setColumnVisibility(hideAsDefault);
-	}, []);
+	}, [selectFirstRowAsDefault, hideAsDefault]);
 	return (
 		<div className="space-y-4">
 			{Toolbar && <Toolbar table={table} />}

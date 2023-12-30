@@ -18,7 +18,7 @@ export default function DataTableToolbar<TData>({
 	const searchInURL = useSearchParams().get("customer");
 	useEffect(() => {
 		if (searchInURL) table.getColumn("name")?.setFilterValue(searchInURL);
-	}, []);
+	}, [searchInURL, table]);
 	return (
 		<div className="flex flex-1 items-center space-x-2">
 			<Input

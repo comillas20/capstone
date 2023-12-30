@@ -109,9 +109,9 @@ export function AddEditDialog({ data, children }: CategoryDialogProps) {
 	const [isSaving, startSaving] = useTransition();
 	const { mutate } = useSWRConfig();
 	const [isThisOpen, setIsThisOpen] = useState<boolean>();
-	useEffect(() => {
-		form.reset();
-	}, [isThisOpen]);
+	// useEffect(() => {
+	// 	form.reset();
+	// }, [isThisOpen]);
 	function onSubmit(values: z.infer<typeof formSchema>) {
 		setIsThisOpen(false);
 		startSaving(async () => {

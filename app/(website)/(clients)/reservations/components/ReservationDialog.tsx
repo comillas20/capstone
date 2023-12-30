@@ -390,7 +390,7 @@ export default function ReservationDialog({
 									<AlertDialogTitle>Message</AlertDialogTitle>
 									<AlertDialogDescription>
 										Special requests, or anything goes here. (Prices may increase/decrease
-										based of said requests and is subjected to the manager's review)
+										based of said requests and is subjected to the manager&apos;s review)
 									</AlertDialogDescription>
 								</AlertDialogHeader>
 								<Textarea

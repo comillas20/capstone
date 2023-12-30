@@ -42,7 +42,7 @@ export default function TimePicker({
 			setHourMin(initialHourMin % 12 || 12);
 			setHourLimit(initialHourLimit % 12);
 		}
-	}, []);
+	}, [initialHourMin, initialHourLimit]);
 
 	const [hours, setHours] = useState<number>(
 		defaultHour > 12 ? defaultHour - 12 : defaultHour

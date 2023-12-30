@@ -1,12 +1,14 @@
 import { Button } from "@components/ui/button";
 import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogHeader,
-	DialogTrigger,
-} from "@components/ui/dialog";
-import { DialogClose, DialogTitle } from "@radix-ui/react-dialog";
+	AlertDialog,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogHeader,
+	AlertDialogTrigger,
+	AlertDialogCancel,
+	AlertDialogTitle,
+	AlertDialogAction,
+} from "@components/ui/alert-dialog";
 import { Dishes } from "./DishColumns";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -142,15 +144,15 @@ export function AddEditDialog({ data, children }: AddEditDialogProps) {
 	// }, [open]);
 	return (
 		dishes && (
-			<Dialog>
-				<DialogTrigger asChild>{children}</DialogTrigger>
-				<DialogContent>
-					<DialogHeader className="mb-4">
-						<DialogTitle>{data ? "Edit" : "Create"}</DialogTitle>
-						<DialogDescription>
+			<AlertDialog>
+				<AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
+				<AlertDialogContent>
+					<AlertDialogHeader className="mb-4">
+						<AlertDialogTitle>{data ? "Edit" : "Create"}</AlertDialogTitle>
+						<AlertDialogDescription>
 							{data ? data.name : "Create a new dish"}
-						</DialogDescription>
-					</DialogHeader>
+						</AlertDialogDescription>
+					</AlertDialogHeader>
 					<Form {...form}>
 						<form
 							onSubmit={form.handleSubmit(onSubmit)}
@@ -256,14 +258,14 @@ export function AddEditDialog({ data, children }: AddEditDialogProps) {
 							</div>
 
 							<div className="flex justify-end gap-4">
-								<DialogClose asChild>
+								<AlertDialogCancel asChild>
 									<Button
 										variant={"secondary"}
 										onClick={() => form.reset()}
 										type="button">
 										Cancel
 									</Button>
-								</DialogClose>
+								</AlertDialogCancel>
 								<Button type="submit" disabled={isSaving}>
 									{isSaving && <Loader2 className="mr-2 animate-spin" />}
 									Save
@@ -271,8 +273,8 @@ export function AddEditDialog({ data, children }: AddEditDialogProps) {
 							</div>
 						</form>
 					</Form>
-				</DialogContent>
-			</Dialog>
+				</AlertDialogContent>
+			</AlertDialog>
 		)
 	);
 }
@@ -280,30 +282,30 @@ export function AddEditDialog({ data, children }: AddEditDialogProps) {
 type DeleteDialogProps = {
 	data: Dishes[];
 	children: React.ReactNode;
-} & React.ComponentProps<typeof Dialog>;
+} & React.ComponentProps<typeof AlertDialog>;
 
 export function DeleteDialog({ data, children }: DeleteDialogProps) {
 	const [isSaving, startSaving] = useTransition();
 	const { mutate } = useSWRConfig();
 
 	return (
-		<Dialog>
-			<DialogTrigger asChild>{children}</DialogTrigger>
-			<DialogContent>
-				<DialogHeader className="mb-4">
-					<DialogTitle className="text-destructive">Delete</DialogTitle>
-					<DialogDescription>
+		<AlertDialog>
+			<AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
+			<AlertDialogContent>
+				<AlertDialogHeader className="mb-4">
+					<AlertDialogTitle className="text-destructive">Delete</AlertDialogTitle>
+					<AlertDialogDescription>
 						Deleting{" "}
 						{data.length > 1 ? "selected dishes" : data[0] ? data[0].name : "ERROR"}
-					</DialogDescription>
+					</AlertDialogDescription>
 					<div className="text-destructive">This action cannot be undo. Delete?</div>
 					<div className="flex justify-end gap-4">
-						<DialogClose asChild>
+						<AlertDialogCancel asChild>
 							<Button variant={"secondary"} type="button">
 								Cancel
 							</Button>
-						</DialogClose>
-						<DialogClose asChild>
+						</AlertDialogCancel>
+						<AlertDialogAction asChild>
 							<Button
 								type="button"
 								variant={"destructive"}
@@ -332,10 +334,10 @@ export function DeleteDialog({ data, children }: DeleteDialogProps) {
 								{isSaving && <Loader2 className="mr-2" />}
 								Delete
 							</Button>
-						</DialogClose>
+						</AlertDialogAction>
 					</div>
-				</DialogHeader>
-			</DialogContent>
-		</Dialog>
+				</AlertDialogHeader>
+			</AlertDialogContent>
+		</AlertDialog>
 	);
 }

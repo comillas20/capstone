@@ -16,8 +16,6 @@ import { Dishes } from "./DishColumns";
 interface DataTableRowActionsProps<TData> {
 	row: Row<TData>;
 	table: Table<TData>;
-	addEditOpener: React.Dispatch<React.SetStateAction<boolean>>;
-	deleteOpener: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export function DataTableRowActions<TData>({

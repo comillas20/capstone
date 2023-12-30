@@ -125,7 +125,7 @@ export default function SignInForm() {
 								<Link
 									href="/authentication/register"
 									className="flex items-end text-xs text-primary">
-									Don't have an account?
+									Don&apos;t have an account?
 								</Link>
 							</div>
 						</div>

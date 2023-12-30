@@ -13,10 +13,6 @@ import {
 	createOrUpdateSubset,
 	isSubSetAlreadyExistsInASet,
 } from "../serverActions";
-import {
-	getAllCourses,
-	getAllDishes,
-} from "@app/(website)/serverActionsGlobal";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -124,19 +120,19 @@ export default function SubSetAddEditDialog({
 					selectionQuantity: 1,
 			  },
 	});
-	useEffect(() => {
-		form.reset({
-			id: editSubSetData ? editSubSetData.id : -1,
-			name: editSubSetData ? editSubSetData.name : "",
-			setID: setID,
-			dishes: editSubSetData ? editSubSetData.dishes.map(dish => dish.id) : [],
-			courseID: editSubSetData ? editSubSetData.course.id.toString() : "",
-			selectionQuantity: editSubSetData ? editSubSetData.selectionQuantity : 1,
-		});
-	}, [editSubSetData, form.reset]);
-	useEffect(() => {
-		form.reset();
-	}, [props.open]);
+	// useEffect(() => {
+	// 	form.reset({
+	// 		id: editSubSetData ? editSubSetData.id : -1,
+	// 		name: editSubSetData ? editSubSetData.name : "",
+	// 		setID: setID,
+	// 		dishes: editSubSetData ? editSubSetData.dishes.map(dish => dish.id) : [],
+	// 		courseID: editSubSetData ? editSubSetData.course.id.toString() : "",
+	// 		selectionQuantity: editSubSetData ? editSubSetData.selectionQuantity : 1,
+	// 	});
+	// }, [editSubSetData, form.reset]);
+	// useEffect(() => {
+	// 	form.reset();
+	// }, [props.open]);
 	function onSubmit(values: z.infer<typeof formSchema>) {
 		const modSelectionQuantity =
 			values.selectionQuantity > values.dishes.length

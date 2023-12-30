@@ -1,4 +1,4 @@
-export default function (props: React.ComponentProps<"svg">) {
+export default function JakelouLogo(props: React.ComponentProps<"svg">) {
 	const fill = props.fill ?? "#F9FCFE";
 	return (
 		<svg

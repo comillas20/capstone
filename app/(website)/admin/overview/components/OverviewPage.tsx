@@ -92,6 +92,7 @@ export default function Overview() {
 					<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
 						{cards.map(card => (
 							<OverviewCard
+								key={card.title}
 								title={card.title}
 								svg={card.svg}
 								content={card.content}

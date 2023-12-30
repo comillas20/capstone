@@ -1,11 +1,14 @@
 import { Button } from "@components/ui/button";
 import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogHeader,
-} from "@components/ui/dialog";
-import { DialogClose, DialogTitle } from "@radix-ui/react-dialog";
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from "@components/ui/alert-dialog";
 import { Services } from "./Columns";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -20,14 +23,14 @@ import {
 } from "@components/ui/form";
 import { Input } from "@components/ui/input";
 import { useSWRConfig } from "swr";
-import { createOrUpadteServices } from "../serverActions";
+import { createOrUpadteServices, deleteServices } from "../serverActions";
 import { isAvailable as iaEnum, isRequired as irEnum } from "../../page";
 import {
 	PRODUCTS_SERVICES_KEY,
 	ProductPageContext,
 	ProductPageContextProps,
 } from "../ProductPageProvider";
-import { useContext, useEffect, useTransition } from "react";
+import { useContext, useTransition } from "react";
 import { toast } from "@components/ui/use-toast";
 import { Loader2 } from "lucide-react";
 import {
@@ -41,13 +44,9 @@ import HelpToolTip from "@components/HelpTooltip";
 
 type AddEditDialogProps = {
 	data?: Services;
-	onOpenChange: React.Dispatch<React.SetStateAction<boolean>>;
-} & React.ComponentProps<typeof Dialog>;
-export default function AddEditDialog({
-	data,
-	open,
-	onOpenChange,
-}: AddEditDialogProps) {
+	children: React.ReactNode;
+};
+export function AddEditDialog({ data, children }: AddEditDialogProps) {
 	const { services } = useContext(ProductPageContext) as ProductPageContextProps;
 	const formSchema = z
 		.object({
@@ -104,7 +103,6 @@ export default function AddEditDialog({
 	const [isSaving, startSaving] = useTransition();
 	const { mutate } = useSWRConfig();
 	function onSubmit(values: z.infer<typeof formSchema>) {
-		onOpenChange(false);
 		startSaving(async () => {
 			const submitDish = await createOrUpadteServices(values);
 			if (submitDish) {
@@ -126,14 +124,15 @@ export default function AddEditDialog({
 	// }, [open]);
 	return (
 		services && (
-			<Dialog open={open} onOpenChange={onOpenChange}>
-				<DialogContent>
-					<DialogHeader className="mb-4">
-						<DialogTitle>{data ? "Edit" : "Create"}</DialogTitle>
-						<DialogDescription>
+			<AlertDialog>
+				<AlertDialogTrigger>{children}</AlertDialogTrigger>
+				<AlertDialogContent>
+					<AlertDialogHeader className="mb-4">
+						<AlertDialogTitle>{data ? "Edit" : "Create"}</AlertDialogTitle>
+						<AlertDialogDescription>
 							{data ? data.name : "Create a new service"}
-						</DialogDescription>
-					</DialogHeader>
+						</AlertDialogDescription>
+					</AlertDialogHeader>
 					<Form {...form}>
 						<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
 							<FormField
@@ -204,12 +203,14 @@ export default function AddEditDialog({
 															service.
 														</p>
 														<p>
-															For example, if a service is priced 'per hour', 'hour' is the
-															unit. If a product is sold 'per case', then 'case' is the unit.
+															For example, if a service is priced &apos;per hour&apos;,
+															&apos;hour&apos; is the unit. If a product is sold &apos;per
+															case&apos;, then &apos;case&apos; is the unit.
 														</p>
 														<p>
 															The number inputted here will act as a multiplier. Example values
-															are: 1 for "50php per case", 3 for "70php per 3 meters, etc."
+															are: 1 for &apos;50php per case&apos;, 3 for &apos;70php per 3
+															meters, etc.&apos;
 														</p>
 														<p>Leave empty if not applicable to the current service</p>
 													</div>
@@ -237,7 +238,7 @@ export default function AddEditDialog({
 												<HelpToolTip className="inline" size={15}>
 													<div className="w-96 space-y-2">
 														<p>Name of the unit</p>
-														<p>"case", "meter" for example.</p>
+														<p>&apos;case&apos;, &apos;meter&apos; for example.</p>
 														<p>
 															Leave empty if not applicable to the current service and if the
 															Unit field is empty
@@ -278,14 +279,14 @@ export default function AddEditDialog({
 							</div>
 
 							<div className="flex justify-end gap-4">
-								<DialogClose asChild>
+								<AlertDialogCancel asChild>
 									<Button
 										variant={"secondary"}
 										onClick={() => form.reset()}
 										type="button">
 										Cancel
 									</Button>
-								</DialogClose>
+								</AlertDialogCancel>
 								<Button type="submit" disabled={isSaving}>
 									{isSaving && <Loader2 className="mr-2 animate-spin" />}
 									Save
@@ -293,8 +294,68 @@ export default function AddEditDialog({
 							</div>
 						</form>
 					</Form>
-				</DialogContent>
-			</Dialog>
+				</AlertDialogContent>
+			</AlertDialog>
 		)
+	);
+}
+
+type DeleteDialogProps = {
+	data: Services[];
+	children: React.ReactNode;
+} & React.ComponentProps<typeof AlertDialog>;
+
+export function DeleteDialog({ data, children }: DeleteDialogProps) {
+	const [isSaving, startSaving] = useTransition();
+	const { mutate } = useSWRConfig();
+
+	return (
+		<AlertDialog>
+			<AlertDialogTrigger>{children}</AlertDialogTrigger>
+			<AlertDialogContent>
+				<AlertDialogHeader className="mb-4">
+					<AlertDialogTitle className="text-destructive">Delete</AlertDialogTitle>
+					<AlertDialogDescription>
+						Deleting{" "}
+						{data.length > 1 ? "selected services" : data[0] ? data[0].name : "ERROR"}
+					</AlertDialogDescription>
+					<div className="text-destructive">This action cannot be undo. Delete?</div>
+					<div className="flex justify-end gap-4">
+						<AlertDialogCancel asChild>
+							<Button variant={"secondary"} type="button">
+								Cancel
+							</Button>
+						</AlertDialogCancel>
+						<AlertDialogAction asChild>
+							<Button
+								type="button"
+								variant={"destructive"}
+								onClick={() => {
+									startSaving(async () => {
+										const ids = data.map(service => service.id);
+										const submitDish = await deleteServices(ids);
+										if (submitDish) {
+											const plural =
+												data.length > 1
+													? "The selected services are"
+													: data[0].name + " is";
+											toast({
+												title: "Success",
+												description: plural + " successfully deleted!",
+												duration: 5000,
+											});
+											mutate(PRODUCTS_SERVICES_KEY);
+										}
+									});
+								}}
+								disabled={isSaving}>
+								{isSaving && <Loader2 className="mr-2" />}
+								Delete
+							</Button>
+						</AlertDialogAction>
+					</div>
+				</AlertDialogHeader>
+			</AlertDialogContent>
+		</AlertDialog>
 	);
 }

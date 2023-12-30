@@ -137,33 +137,8 @@ export const columns: ColumnDef<Reservations>[] = [
 	{
 		id: "actions",
 		cell: ({ row }) => {
-			const [isAcceptDialogOpen, setIsAcceptDialogOpen] = useState(false);
-			const [isDenyDialogOpen, setIsDenyDialogOpen] = useState(false);
 			return (
-				row.original.status == status.false && (
-					<>
-						<DataTableRowActions
-							onOpenAcceptDialogChange={setIsAcceptDialogOpen}
-							onOpenDenyDialogChange={setIsDenyDialogOpen}
-						/>
-						<IrreversableConfirmationDialog
-							title={"Accept reservation"}
-							description={"Accepting " + row.original.customerName + "'s reservation"}
-							message="This action cannot be undo. Continue?"
-							open={isAcceptDialogOpen}
-							onOpenChange={setIsAcceptDialogOpen}>
-							<Button>Accept</Button>
-						</IrreversableConfirmationDialog>
-						<IrreversableConfirmationDialog
-							title={"Deny reservation"}
-							description={"Denying " + row.original.customerName + "'s reservation"}
-							message="This action cannot be undo. Continue?"
-							open={isDenyDialogOpen}
-							onOpenChange={setIsDenyDialogOpen}>
-							<Button>Deny</Button>
-						</IrreversableConfirmationDialog>
-					</>
-				)
+				row.original.status == status.false && <DataTableRowActions row={row} />
 			);
 		},
 	},

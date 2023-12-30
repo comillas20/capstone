@@ -164,9 +164,9 @@ export default function SetCards({
 													{subSet.dishes.map(dish => (
 														<CheckboxItem
 															key={dish.id.toString()}
-															value={subSet.name + "_jin_" + dish.id.toString()}
-															children={dish.name}
-														/>
+															value={subSet.name + "_jin_" + dish.id.toString()}>
+															{dish.name}
+														</CheckboxItem>
 													))}
 												</CheckboxGroup>
 											)}

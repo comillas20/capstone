@@ -6,8 +6,6 @@ import { useState } from "react";
 import { DataTableColumnHeader } from "@app/(website)/admin/components/DataTableColumnHeader";
 import { DataTableRowActions } from "./DataTableRowActions";
 import { isAvailable, isRequired } from "../../page";
-import AddEditDialog from "./AddEditDialog";
-import DeleteDialog from "./DeleteDialog";
 export type Services = {
 	id: number;
 	name: string;
@@ -100,31 +98,6 @@ export const columns: ColumnDef<Services>[] = [
 	},
 	{
 		id: "actions",
-		cell: ({ row, table }) => {
-			// const payment = row.original;
-			const [isAEOpen, setIsAEOpen] = useState(false);
-			const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-			return (
-				<>
-					<DataTableRowActions
-						row={row}
-						table={table}
-						addEditOpener={setIsAEOpen}
-						deleteOpener={setIsDeleteOpen}
-					/>
-					<AddEditDialog
-						key={JSON.stringify(row.original)}
-						open={isAEOpen}
-						onOpenChange={setIsAEOpen}
-						data={row.original}
-					/>
-					<DeleteDialog
-						open={isDeleteOpen}
-						onOpenChange={setIsDeleteOpen}
-						data={[row.original]}
-					/>
-				</>
-			);
-		},
+		cell: ({ row, table }) => <DataTableRowActions row={row} table={table} />,
 	},
 ];

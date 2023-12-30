@@ -9,16 +9,25 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@components/ui/dropdown-menu";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from "@components/ui/alert-dialog";
+import { Row } from "@tanstack/react-table";
 
-interface DataTableRowActionsProps {
-	onOpenAcceptDialogChange: React.Dispatch<React.SetStateAction<boolean>>;
-	onOpenDenyDialogChange: React.Dispatch<React.SetStateAction<boolean>>;
+interface DataTableRowActionsProps<TData> {
+	row: Row<TData>;
 }
 
-export function DataTableRowActions({
-	onOpenAcceptDialogChange,
-	onOpenDenyDialogChange,
-}: DataTableRowActionsProps) {
+export function DataTableRowActions<TData>({
+	row,
+}: DataTableRowActionsProps<TData>) {
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
@@ -30,12 +39,58 @@ export function DataTableRowActions({
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end" className="w-[160px]">
-				<DropdownMenuItem onSelect={() => onOpenAcceptDialogChange(true)}>
-					Accept
-				</DropdownMenuItem>
-				<DropdownMenuItem onSelect={() => onOpenDenyDialogChange(true)}>
-					Deny
-				</DropdownMenuItem>
+				<AlertDialog>
+					<AlertDialogTrigger asChild>
+						<DropdownMenuItem>Accept</DropdownMenuItem>
+					</AlertDialogTrigger>
+					<AlertDialogContent>
+						<AlertDialogHeader className="mb-4">
+							<AlertDialogTitle className="text-destructive">
+								Accept reservation
+							</AlertDialogTitle>
+							<AlertDialogDescription>
+								{"Accepting " + row.getValue("Customer") + "'s reservation"}
+							</AlertDialogDescription>
+							<div className="text-destructive">
+								This action cannot be undo. Continue?
+							</div>
+						</AlertDialogHeader>
+						<div className="flex justify-end gap-4">
+							<AlertDialogCancel asChild>
+								<Button variant={"secondary"} type="button">
+									Cancel
+								</Button>
+							</AlertDialogCancel>
+							<AlertDialogAction>Accept</AlertDialogAction>
+						</div>
+					</AlertDialogContent>
+				</AlertDialog>
+				<AlertDialog>
+					<AlertDialogTrigger asChild>
+						<DropdownMenuItem>Deny</DropdownMenuItem>
+					</AlertDialogTrigger>
+					<AlertDialogContent>
+						<AlertDialogHeader className="mb-4">
+							<AlertDialogTitle className="text-destructive">
+								Deny reservation
+							</AlertDialogTitle>
+							<AlertDialogDescription>
+								{"Denying " + row.getValue("Customer") + "'s reservation"}
+							</AlertDialogDescription>
+							<div className="text-destructive">
+								This action cannot be undo. Continue?
+							</div>
+						</AlertDialogHeader>
+						<div className="flex justify-end gap-4">
+							<AlertDialogCancel asChild>
+								<Button variant={"secondary"} type="button">
+									Cancel
+								</Button>
+							</AlertDialogCancel>
+							<AlertDialogAction>Deny</AlertDialogAction>
+						</div>
+					</AlertDialogContent>
+				</AlertDialog>
 			</DropdownMenuContent>
 		</DropdownMenu>
 	);

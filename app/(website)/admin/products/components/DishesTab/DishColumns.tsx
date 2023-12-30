@@ -109,19 +109,6 @@ export const columns: ColumnDef<Dishes>[] = [
 	},
 	{
 		id: "actions",
-		cell: ({ row, table }) => {
-			const [isAEOpen, setIsAEOpen] = useState(false);
-			const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-			return (
-				<>
-					<DataTableRowActions
-						row={row}
-						table={table}
-						addEditOpener={setIsAEOpen}
-						deleteOpener={setIsDeleteOpen}
-					/>
-				</>
-			);
-		},
+		cell: ({ row, table }) => <DataTableRowActions row={row} table={table} />,
 	},
 ];

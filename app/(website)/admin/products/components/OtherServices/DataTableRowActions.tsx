@@ -10,19 +10,17 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@components/ui/dropdown-menu";
+import { AddEditDialog, DeleteDialog } from "./ServicesAED";
+import { Services } from "./Columns";
 
 interface DataTableRowActionsProps<TData> {
 	row: Row<TData>;
 	table: Table<TData>;
-	addEditOpener: React.Dispatch<React.SetStateAction<boolean>>;
-	deleteOpener: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export function DataTableRowActions<TData>({
 	row,
 	table,
-	addEditOpener,
-	deleteOpener,
 }: DataTableRowActionsProps<TData>) {
 	return (
 		<DropdownMenu>
@@ -36,12 +34,14 @@ export function DataTableRowActions<TData>({
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end" className="w-[160px]">
-				<DropdownMenuItem onSelect={() => addEditOpener(true)}>
-					Edit {row.getValue("Service")}
-				</DropdownMenuItem>
-				<DropdownMenuItem onSelect={() => deleteOpener(true)}>
-					Delete {row.getValue("Service")}
-				</DropdownMenuItem>
+				<AddEditDialog
+					key={JSON.stringify(row.original)}
+					data={row.original as Services}>
+					<DropdownMenuItem>Edit {row.getValue("Service")}</DropdownMenuItem>
+				</AddEditDialog>
+				<DeleteDialog data={[row.original as Services]}>
+					<DropdownMenuItem>Delete {row.getValue("Service")}</DropdownMenuItem>
+				</DeleteDialog>
 			</DropdownMenuContent>
 		</DropdownMenu>
 	);

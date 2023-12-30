@@ -25,5 +25,5 @@ const EditableButtonText = forwardRef<
 		</Button>
 	);
 });
-
+EditableButtonText.displayName = "EditableButtonText";
 export default EditableButtonText;

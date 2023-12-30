@@ -20,11 +20,9 @@ interface DataTableToolbarProps<TData> {
 export function DataTableToolbar<TData>({
 	table,
 }: DataTableToolbarProps<TData>) {
-	const [isOpen, setIsOpen] = useState(false);
 	const { categories } = useContext(
 		ProductPageContext
 	) as ProductPageContextProps;
-	const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 	const selectedRowsData: Dishes[] = table
 		.getSelectedRowModel()
 		.rows.map(({ original }) => original) as unknown as Dishes[];
@@ -42,10 +40,7 @@ export function DataTableToolbar<TData>({
 				<DataTableViewOptions table={table} />
 				{(table.getIsSomeRowsSelected() || table.getIsAllRowsSelected()) && (
 					<DeleteDialog data={selectedRowsData}>
-						<Button
-							variant="destructive"
-							onClick={() => setIsDeleteDialogOpen(true)}
-							className="h-8">
+						<Button variant="destructive" className="h-8">
 							Delete selected
 						</Button>
 					</DeleteDialog>
@@ -57,12 +52,8 @@ export function DataTableToolbar<TData>({
 					Please add a category first before adding a dish
 				</p>
 			)}
-			<AddEditDialog key={isOpen.toString()}>
-				<Button
-					size="sm"
-					className="flex h-8"
-					onClick={() => setIsOpen(true)}
-					disabled={categories?.length == 0}>
+			<AddEditDialog>
+				<Button size="sm" className="flex h-8" disabled={categories?.length == 0}>
 					<Plus className="mr-2" />
 					Dish
 				</Button>

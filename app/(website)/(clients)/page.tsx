@@ -27,10 +27,10 @@ export default function LandingPage() {
 				<div className="flex-1 p-4">
 					<h5 className="font-semibold">About Us</h5>
 					<p>
-						We're dedicated to crafting unforgettable dining experiences. From
+						We&apos;re dedicated to crafting unforgettable dining experiences. From
 						intimate gatherings to large events, we specialize in creating delectable
 						menus tailored to your unique tastes. With attention to detail and a
-						passion for great food, we're here to make your moments special.
+						passion for great food, we&apos;re here to make your moments special.
 					</p>
 				</div>
 				<div className="flex flex-1 flex-col gap-4 p-4">

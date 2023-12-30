@@ -7,8 +7,7 @@ import { DataTableViewOptions } from "@app/(website)/admin/components//DataTable
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { Services } from "./Columns";
-import AddEditDialog from "./AddEditDialog";
-import DeleteDialog from "./DeleteDialog";
+import { AddEditDialog, DeleteDialog } from "./ServicesAED";
 
 interface DataTableToolbarProps<TData> {
 	table: Table<TData>;
@@ -17,8 +16,6 @@ interface DataTableToolbarProps<TData> {
 export function DataTableToolbar<TData>({
 	table,
 }: DataTableToolbarProps<TData>) {
-	const [isOpen, setIsOpen] = useState(false);
-	const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 	const selectedRowsData: Services[] = table
 		.getSelectedRowModel()
 		.rows.map(({ original }) => original) as unknown as Services[];
@@ -35,27 +32,19 @@ export function DataTableToolbar<TData>({
 				/>
 				<DataTableViewOptions table={table} />
 				{(table.getIsSomeRowsSelected() || table.getIsAllRowsSelected()) && (
-					<>
-						<Button
-							size={"sm"}
-							variant="destructive"
-							onClick={() => setIsDeleteDialogOpen(true)}
-							className="h-8">
+					<DeleteDialog data={selectedRowsData}>
+						<Button size={"sm"} variant="destructive" className="h-8">
 							Delete selected
 						</Button>
-						<DeleteDialog
-							open={isDeleteDialogOpen}
-							onOpenChange={setIsDeleteDialogOpen}
-							data={selectedRowsData}
-						/>
-					</>
+					</DeleteDialog>
 				)}
 			</div>
-			<Button size="sm" className="flex h-8" onClick={() => setIsOpen(true)}>
-				<Plus className="mr-2" />
-				Service
-			</Button>
-			<AddEditDialog open={isOpen} onOpenChange={setIsOpen} />
+			<AddEditDialog>
+				<Button size="sm" className="flex h-8">
+					<Plus className="mr-2" />
+					Service
+				</Button>
+			</AddEditDialog>
 		</div>
 	);
 }
