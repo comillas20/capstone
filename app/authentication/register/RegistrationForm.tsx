@@ -4,12 +4,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
-import { cn, isEmailValid, isPhoneNumberValid } from "@lib/utils";
+import { cn, convertPhoneNumber, isPhoneNumberValid } from "@lib/utils";
 import { Button, buttonVariants } from "@components/ui/button";
 import {
 	Form,
 	FormControl,
-	FormDescription,
 	FormField,
 	FormItem,
 	FormLabel,
@@ -92,7 +91,7 @@ export function RegistrationForm() {
 			};
 			const newData: UserData = {
 				name: data.name,
-				phoneNumber: data.phone,
+				phoneNumber: convertPhoneNumber(data.phone),
 				password: data.password,
 				role: "USER",
 			};

@@ -3,7 +3,7 @@ import { Button, buttonVariants } from "@components/ui/button";
 import { Input } from "@components/ui/input";
 import { Loader2, MoveLeftIcon } from "lucide-react";
 import * as z from "zod";
-import { cn, isPhoneNumberValid } from "@lib/utils";
+import { cn, convertPhoneNumber, isPhoneNumberValid } from "@lib/utils";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -21,7 +21,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 export default function SignInForm() {
 	const signInSchema = z.object({
-		phoneNumber: z.string().refine(eop => isPhoneNumberValid(eop), {
+		phoneNumber: z.string().refine(value => isPhoneNumberValid(value), {
 			message: "Please input a valid mobile number",
 		}),
 		password: z.string().min(8, {
@@ -42,7 +42,7 @@ export default function SignInForm() {
 	const onSubmit = (data: z.infer<typeof signInSchema>) => {
 		startSubmitting(async () => {
 			const signInData = await signIn("credentials", {
-				phoneNumber: data.phoneNumber,
+				phoneNumber: convertPhoneNumber(data.phoneNumber),
 				password: data.password,
 				redirect: true,
 				callbackUrl: searchParams.get("callbackUrl") ?? "/",
@@ -72,7 +72,7 @@ export default function SignInForm() {
 						Sign in with your account
 					</h1>
 					<p className="text-sm text-muted-foreground">
-						Enter your email or phone number you used to register below to continue
+						Enter your phone number you used to register below to continue
 					</p>
 				</div>
 				<Form {...form}>

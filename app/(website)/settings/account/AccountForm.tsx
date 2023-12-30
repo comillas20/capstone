@@ -6,7 +6,7 @@ import * as z from "zod";
 
 import {
 	AVATAR_IMAGE_FOLDER,
-	isEmailValid,
+	convertPhoneNumber,
 	isPhoneNumberValid,
 } from "@lib/utils";
 import { Button } from "@components/ui/button";
@@ -113,7 +113,7 @@ export function AccountForm({ user }: AccountFormProps) {
 				id: data.id,
 				name: data.name,
 				image: data.image,
-				phoneNumber: data.phone,
+				phoneNumber: convertPhoneNumber(data.phone),
 				password: data.password,
 			};
 			const userData = await editUserAccount(updateData);
