@@ -6,9 +6,16 @@ import {
 	DropdownMenuRadioGroup,
 	DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import React, { useState } from "react";
+import React from "react";
 import { AVATAR_IMAGE_FOLDER, cn } from "@lib/utils";
-import { CldImage } from "next-cloudinary";
+import Image from "next/image";
+import male_1 from "public/avatars/male-1.png";
+import male_2 from "public/avatars/male-2.png";
+import male_3 from "public/avatars/male-3.png";
+import male_4 from "public/avatars/male-4.png";
+import female_1 from "public/avatars/female-1.png";
+import female_2 from "public/avatars/female-2.png";
+import female_3 from "public/avatars/female-3.png";
 
 const DropdownMenuRadioItem = React.forwardRef<
 	React.ElementRef<typeof DropdownMenuPrimitive.RadioItem>,
@@ -35,13 +42,13 @@ export default function AvatarPicker({
 	...props
 }: AvatarPicker) {
 	const avatars = [
-		"male-1",
-		"female-1",
-		"male-2",
-		"female-2",
-		"male-3",
-		"female-3",
-		"male-4",
+		{ name: "male-1", img: male_1 },
+		{ name: "female-1", img: female_1 },
+		{ name: "male-2", img: male_2 },
+		{ name: "female-2", img: female_2 },
+		{ name: "male-3", img: male_3 },
+		{ name: "female-3", img: female_3 },
+		{ name: "male-4", img: male_4 },
 	];
 	return (
 		<DropdownMenu>
@@ -54,15 +61,17 @@ export default function AvatarPicker({
 					{...props}>
 					{avatars.map(avatar => (
 						<DropdownMenuRadioItem
-							key={avatar}
-							value={avatar}
+							key={avatar.name}
+							value={avatar.name}
 							className="h-12 w-12 rounded-full p-1 data-[state=checked]:border-2 data-[state=checked]:border-primary">
-							<CldImage
+							<Image
 								width="200"
 								height="240"
-								src={AVATAR_IMAGE_FOLDER + avatar}
+								src={avatar.img}
 								sizes="100vw"
-								alt={avatar}
+								alt={avatar.name}
+								loading="lazy"
+								blurDataURL="data:image/jpeg..."
 								className="h-full w-full"
 							/>
 						</DropdownMenuRadioItem>
