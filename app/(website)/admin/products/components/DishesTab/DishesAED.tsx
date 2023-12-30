@@ -24,7 +24,7 @@ import {
 import { Input } from "@components/ui/input";
 import { useSWRConfig } from "swr";
 import { createOrUpdateDish, deleteDishes } from "../serverActions";
-import { isAvailable as iaEnum } from "../../page";
+import { isAvailable as iaEnum } from "../ProductPageProvider";
 import {
 	PRODUCTS_DISHES_KEY,
 	ProductPageContext,

@@ -36,13 +36,3 @@ export default async function ProductsPage() {
 		</Tabs>
 	);
 }
-
-export enum isAvailable {
-	true = "Available",
-	false = "N/A",
-}
-
-export enum isRequired {
-	true = "Yes",
-	false = "No",
-}

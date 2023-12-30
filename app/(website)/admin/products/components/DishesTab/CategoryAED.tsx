@@ -10,7 +10,7 @@ import { useSWRConfig } from "swr";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useContext, useEffect, useState, useTransition } from "react";
+import { useContext, useState, useTransition } from "react";
 import { toast } from "@components/ui/use-toast";
 import {
 	Form,
@@ -29,11 +29,7 @@ import {
 	ProductPageContext,
 	ProductPageContextProps,
 } from "../ProductPageProvider";
-import {
-	createOrUpdateCategory,
-	deleteCategory,
-	deleteCourse,
-} from "../serverActions";
+import { createOrUpdateCategory, deleteCategory } from "../serverActions";
 import {
 	Select,
 	SelectContent,

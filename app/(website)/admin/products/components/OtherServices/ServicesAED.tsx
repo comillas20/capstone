@@ -24,7 +24,10 @@ import {
 import { Input } from "@components/ui/input";
 import { useSWRConfig } from "swr";
 import { createOrUpadteServices, deleteServices } from "../serverActions";
-import { isAvailable as iaEnum, isRequired as irEnum } from "../../page";
+import {
+	isAvailable as iaEnum,
+	isRequired as irEnum,
+} from "../ProductPageProvider";
 import {
 	PRODUCTS_SERVICES_KEY,
 	ProductPageContext,

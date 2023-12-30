@@ -2,9 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@components/ui/checkbox";
-import { AddEditDialog, DeleteDialog } from "./DishesAED";
-import { useState } from "react";
-import { isAvailable } from "../../page";
+import { isAvailable } from "../ProductPageProvider";
 import { DataTableColumnHeader } from "@app/(website)/admin/components/DataTableColumnHeader";
 import { DataTableRowActions } from "./DataTableRowActions";
 import { AlertCircle } from "lucide-react";

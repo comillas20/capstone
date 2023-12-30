@@ -104,3 +104,13 @@ export default function ProductPageProvider({
 		</ProductPageContext.Provider>
 	);
 }
+
+export enum isAvailable {
+	true = "Available",
+	false = "N/A",
+}
+
+export enum isRequired {
+	true = "Yes",
+	false = "No",
+}
