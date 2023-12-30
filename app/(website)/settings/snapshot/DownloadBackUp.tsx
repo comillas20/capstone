@@ -21,7 +21,7 @@ import {
 	retrieveAllDishCatCoursesForBackUp,
 	retrieveSetsForBackUp,
 } from "./serverActions";
-import { DCC, WorksheetNames } from "./page";
+import { DCC, WorksheetNames } from "./types";
 import {
 	Tooltip,
 	TooltipContent,

@@ -15,7 +15,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import ExcelJS from "exceljs";
 import { useState, useTransition } from "react";
-import { DCC, Set, WorksheetNames } from "./page";
+import { DCC, Set, WorksheetNames } from "./types";
 import { Loader2 } from "lucide-react";
 import { restoreDishCatCourse, restoreSets } from "./serverActions";
 import { convertExcelValueToDateString } from "@lib/utils";
