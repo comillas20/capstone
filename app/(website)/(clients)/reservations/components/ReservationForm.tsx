@@ -32,7 +32,6 @@ export const ReservationFormContext = createContext<
 type ReservationFormProps = {
 	session: Session | null;
 	settings: {
-		maintainanceDates: Date[];
 		id: number;
 		openingTime: Date;
 		closingTime: Date;
@@ -41,31 +40,24 @@ type ReservationFormProps = {
 		defaultMinimumPerHead: number;
 		reservationCostPerHour: number;
 	};
+	maintainanceDates: Date[];
 };
 export default function ReservationForm({
 	session,
 	settings,
+	maintainanceDates,
 }: ReservationFormProps) {
 	const currentDate = new Date();
 	const disabledDays = [
-		...(settings.maintainanceDates.length > 0 ? settings.maintainanceDates : []),
+		...(maintainanceDates.length > 0 ? maintainanceDates : []),
 		{ from: subMonths(currentDate, 2), to: addDays(currentDate, 3) },
 	];
 	const nearestDateAvailable: Date =
-		settings.maintainanceDates.length > 0
-			? findNearestNonDisabledDate(
-					addDays(currentDate, 3),
-					settings.maintainanceDates
-			  )
+		maintainanceDates.length > 0
+			? findNearestNonDisabledDate(addDays(currentDate, 3), maintainanceDates)
 			: addDays(currentDate, 3);
-	// const latest: Date = new Date(
-	// 	Math.max(...settings.maintainanceDates.map(date => date.getTime()))
-	// );
-	// const defaultSelectableDate = latest
-	// 	? addDays(latest, 1)
-	// 	: addDays(currentDate, 3);
 	const [date, setDate] = useState<Date | undefined>(nearestDateAvailable);
-	//Note to self: Date type instead of Numbers, so I can use date comparison methods
+	//Note to self: Date type instead of numbers, so I can use date comparison methods
 	const [month, setMonth] = useState<Date>(currentDate);
 	return (
 		settings && (
