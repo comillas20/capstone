@@ -18,9 +18,16 @@ export type Set = {
 	minimumPerHead: number;
 	price: number;
 	subSets: {
-		course: string;
-		dishes: string[];
 		name: string;
+		course: string;
+		dishes: {
+			name: string;
+			createdAt: Date;
+			isAvailable: boolean;
+			category: string;
+			course: string;
+			imgHref: string | null;
+		}[];
 		selectionQuantity: number;
 	}[];
 };

@@ -52,7 +52,6 @@ export default function RestoreBackUpForm() {
 	function onSubmit(values: UploadFormValues) {
 		startUploading(async () => {
 			try {
-				console.log("Opening the file...");
 				setMessage("Opening the file...");
 				const file: File = values.uploadFile as File;
 				const workbook = new ExcelJS.Workbook();
@@ -63,6 +62,7 @@ export default function RestoreBackUpForm() {
 
 				setMessage("Reading the file...");
 				const dishes = getDishesFromExcel(workbook);
+				const sets = getSetsFromExcel(workbook);
 				let dishCount = 0,
 					setCount = 0;
 				if (dishes) {
@@ -74,19 +74,16 @@ export default function RestoreBackUpForm() {
 						}
 					});
 				}
-				const sets = getSetsFromExcel(workbook);
 				if (sets) {
-					// if dish successfully uploads all dishes
-					if (dishCount === dishes?.length) {
-						sets.forEach(async set => {
-							const setUpload = await restoreSets(set);
-							if (setUpload) {
-								setCount++;
-								setMessage("Uploading sets (" + setCount + "/" + sets.length + ")");
-							}
-						});
-					}
+					sets.forEach(async set => {
+						const setUpload = await restoreSets(set);
+						if (setUpload) {
+							setCount++;
+							setMessage("Uploading sets (" + setCount + "/" + sets.length + ")");
+						}
+					});
 				}
+
 				// Note to self: all code here will be executed first before uploading
 
 				// toast({
@@ -143,7 +140,7 @@ export default function RestoreBackUpForm() {
 					</Button>
 					{/* <AlertDialog>
 						<AlertDialogTrigger asChild>
-							<Button type="button" disabled={isUploading || !form.formState.isDirty}>
+							<Button type="button" disabled={!form.formState.isDirty}>
 								Upload
 							</Button>
 						</AlertDialogTrigger>
@@ -215,7 +212,10 @@ function getSetsFromExcel(workbook: ExcelJS.Workbook) {
 		subset: string | undefined,
 		course: string | undefined,
 		selectionQuantity: string | undefined,
-		dish: string | undefined;
+		dish: string | undefined,
+		isAvailable: boolean,
+		category: string | undefined,
+		imgHref: string | undefined;
 	worksheet.eachRow({ includeEmpty: false }, function (row, rowNumber) {
 		if (rowNumber > 1) {
 			name = row.getCell(1).value?.toString();
@@ -229,6 +229,9 @@ function getSetsFromExcel(workbook: ExcelJS.Workbook) {
 			course = row.getCell(6).value?.toString();
 			selectionQuantity = row.getCell(7).value?.toString();
 			dish = row.getCell(8).value?.toString();
+			isAvailable = row.getCell(9).value?.toString().toLowerCase() === "true";
+			category = row.getCell(10).value?.toString();
+			imgHref = row.getCell(11).value?.toString();
 			if (name && price && minimumPerHead) {
 				// Push previous set, before it gets replaced by the new set below
 				if (currentSet) sets.push(currentSet);
@@ -244,18 +247,40 @@ function getSetsFromExcel(workbook: ExcelJS.Workbook) {
 							selectionQuantity: selectionQuantity
 								? parseInt(selectionQuantity as string)
 								: 1,
-							dishes: [dish as string],
+							dishes: [
+								{
+									name: dish as string,
+									isAvailable: isAvailable as boolean,
+									createdAt: new Date(),
+									category: category as string,
+									course: course as string,
+									imgHref: imgHref ? (imgHref as string) : null,
+								},
+							],
 						},
 					],
 				};
 			} else if (!name && !price && !minimumPerHead && subset && course) {
-				currentSet?.subSets.push({
+				// NOTE: currentSet CANNOT BE undefined,
+				// unless someone modified the excel and deleted all columns other than dishes
+				// this else if block SHOULD RUN AFTER the if block setting the currentSet's set
+				if (!currentSet) return;
+				currentSet.subSets.push({
 					name: subset as string,
 					course: course as string,
 					selectionQuantity: selectionQuantity
 						? parseInt(selectionQuantity as string)
 						: 1,
-					dishes: [dish as string],
+					dishes: [
+						{
+							name: dish as string,
+							isAvailable: isAvailable as boolean,
+							createdAt: new Date(),
+							category: category as string,
+							course: course as string,
+							imgHref: imgHref ? (imgHref as string) : null,
+						},
+					],
 				});
 			} else if (
 				!name &&
@@ -265,10 +290,27 @@ function getSetsFromExcel(workbook: ExcelJS.Workbook) {
 				!course &&
 				dish
 			) {
-				currentSet?.subSets[currentSet.subSets.length - 1].dishes.push(dish);
+				// NOTE: currentSet CANNOT BE undefined,
+				// unless someone modified the excel and deleted all columns other than dishes
+				// this else if block SHOULD RUN AFTER the else if block above setting the currentSet's subSet
+				if (!currentSet) return;
+				const thisSubset = currentSet.subSets[currentSet.subSets.length - 1].dishes;
+				currentSet.subSets[currentSet.subSets.length - 1].dishes.push({
+					name: dish as string,
+					isAvailable: isAvailable as boolean,
+					createdAt: new Date(),
+					category: category as string,
+					// course doesn't exist in this line
+					// so, copy the course from previous line
+
+					// because course being undefined here means
+					// this line and the previous line are on the same subSet (which means same course)
+					course: thisSubset[thisSubset.length - 1].course,
+					imgHref: imgHref ? (imgHref as string) : null,
+				});
 			}
 		}
 	});
 	if (currentSet) sets.push(currentSet);
-	return sets.length !== 0 ? sets : null;
+	return sets.length > 0 ? sets : null;
 }

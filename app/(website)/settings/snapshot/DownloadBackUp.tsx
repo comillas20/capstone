@@ -94,43 +94,30 @@ export default function DownloadBackUp() {
 							control={form.control}
 							name="dishCatCourses"
 							render={({ field }) => (
-								<>
-									<FormItem>
-										<FormControl>
-											<CheckboxWithText
-												onCheckedChange={field.onChange}
-												checked={field.value}>
-												Products/Dishes, Categories, and Courses
-												<TooltipProvider>
-													<Tooltip>
-														<TooltipTrigger asChild>
-															<AlertCircle size={15} className="text-primary" />
-														</TooltipTrigger>
-														<TooltipContent>
-															<p>Images cannot be saved</p>
-														</TooltipContent>
-													</Tooltip>
-												</TooltipProvider>
-											</CheckboxWithText>
-										</FormControl>
-									</FormItem>
-									<FormItem>
-										<FormField
-											control={form.control}
-											name="sets"
-											render={child => (
-												<FormControl>
-													<CheckboxWithText
-														onCheckedChange={child.field.onChange}
-														checked={field.value && child.field.value}
-														disabled={!field.value}>
-														Sets
-													</CheckboxWithText>
-												</FormControl>
-											)}
-										/>
-									</FormItem>
-								</>
+								<FormItem>
+									<FormControl>
+										<CheckboxWithText
+											onCheckedChange={field.onChange}
+											checked={field.value}>
+											Products/Dishes
+										</CheckboxWithText>
+									</FormControl>
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
+							name="sets"
+							render={({ field }) => (
+								<FormItem>
+									<FormControl>
+										<CheckboxWithText
+											onCheckedChange={field.onChange}
+											checked={field.value}>
+											Sets
+										</CheckboxWithText>
+									</FormControl>
+								</FormItem>
 							)}
 						/>
 						<Separator />
@@ -186,6 +173,8 @@ async function createDCCWorksheet(data: DCC[], workbook: ExcelJS.Workbook) {
 
 	dishesSheet.addRows(data);
 }
+// the set type from server
+// different from the set type from types.ts
 type Set = {
 	name: string;
 	createdAt: Date;
@@ -194,7 +183,12 @@ type Set = {
 	subSets: {
 		name: string | null;
 		course: string;
-		dishes: string[];
+		dishes: {
+			name: string;
+			isAvailable: boolean;
+			imgHref: string | null;
+			category: string;
+		}[];
 		selectionQuantity: number;
 	}[];
 }[];
@@ -209,6 +203,9 @@ async function createSetWorksheet(data: Set, workbook: ExcelJS.Workbook) {
 		{ header: "Course", key: "course", width: 20 },
 		{ header: "selectionQuantity", key: "selectionQuantity", width: 20 },
 		{ header: "Dishes", key: "dishes", width: 20 },
+		{ header: "Availability", key: "isAvailable", width: 10 },
+		{ header: "Category", key: "category", width: 20 },
+		{ header: "imgHref", key: "imgHref", width: 20 },
 	];
 
 	data.forEach(set => {
@@ -221,6 +218,8 @@ async function createSetWorksheet(data: Set, workbook: ExcelJS.Workbook) {
 
 		for (let ssIndex = 0; ssIndex < set.subSets.length; ssIndex++) {
 			const ssData = {
+				// if this is the first row for this set, add the set data
+				// making the set data on the same line as the first subset data
 				...(ssIndex === 0 ? setData : {}),
 				subsetName: set.subSets[ssIndex].name,
 				course: set.subSets[ssIndex].course,
@@ -228,8 +227,13 @@ async function createSetWorksheet(data: Set, workbook: ExcelJS.Workbook) {
 			};
 			for (let dIndex = 0; dIndex < set.subSets[ssIndex].dishes.length; dIndex++) {
 				const dishData = {
+					// if this is the first row for this subSet, add the subSet data
+					// making the subSet data on the same line as the first dish data
 					...(dIndex === 0 ? ssData : {}),
-					dishes: set.subSets[ssIndex].dishes[dIndex],
+					dishes: set.subSets[ssIndex].dishes[dIndex].name,
+					isAvailable: set.subSets[ssIndex].dishes[dIndex].isAvailable,
+					category: set.subSets[ssIndex].dishes[dIndex].category,
+					imgHref: set.subSets[ssIndex].dishes[dIndex].imgHref,
 				};
 				setsSheet.addRow(dishData);
 			}

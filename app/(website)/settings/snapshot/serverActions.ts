@@ -1,7 +1,6 @@
 "use server";
 
 import prisma from "@lib/db";
-import { getCldImageUrl } from "next-cloudinary";
 
 export async function retrieveAllDishCatCoursesForBackUp() {
 	const dishes = await prisma.dish.findMany({
@@ -28,15 +27,6 @@ export async function retrieveAllDishCatCoursesForBackUp() {
 		course: dish.category.course.name,
 	}));
 }
-export async function getBase64Image(url: string) {
-	const response = await fetch(url);
-	const blob = await response.blob();
-	const buffer = await blob.arrayBuffer();
-	const base64Image = `data:${blob.type};base64,${Buffer.from(buffer).toString(
-		"base64"
-	)}`;
-	return base64Image;
-}
 type DCC = {
 	name: string;
 	createdAt: Date;
@@ -46,54 +36,56 @@ type DCC = {
 	imgHref: string | null;
 };
 export async function restoreDishCatCourse(values: DCC) {
-	const newCourse = await prisma.course.upsert({
-		create: {
-			name: values.course,
-			categories: {
-				connectOrCreate: {
-					create: { name: values.category },
-					where: { name: values.category },
+	const [course, dishes] = await prisma.$transaction([
+		prisma.course.upsert({
+			create: {
+				name: values.course,
+				categories: {
+					connectOrCreate: {
+						create: { name: values.category },
+						where: { name: values.category },
+					},
 				},
 			},
-		},
-		where: {
-			name: values.course,
-		},
-		update: {
-			name: values.course,
-			categories: {
-				connectOrCreate: {
-					create: { name: values.category },
-					where: { name: values.category },
+			where: {
+				name: values.course,
+			},
+			update: {
+				name: values.course,
+				categories: {
+					connectOrCreate: {
+						create: { name: values.category },
+						where: { name: values.category },
+					},
 				},
 			},
-		},
-	});
-	const newDish = await prisma.dish.upsert({
-		create: {
-			name: values.name,
-			category: {
-				connect: { name: values.category },
+		}),
+		prisma.dish.upsert({
+			create: {
+				name: values.name,
+				category: {
+					connect: { name: values.category },
+				},
+				createdAt: values.createdAt,
+				imgHref: values.imgHref,
+				isAvailable: values.isAvailable,
 			},
-			createdAt: values.createdAt,
-			imgHref: values.imgHref,
-			isAvailable: values.isAvailable,
-		},
-		where: {
-			name: values.name,
-		},
-		update: {
-			name: values.name,
-			category: {
-				connect: { name: values.category },
+			where: {
+				name: values.name,
 			},
-			createdAt: values.createdAt,
-			imgHref: values.imgHref,
-			isAvailable: values.isAvailable,
-		},
-	});
+			update: {
+				name: values.name,
+				category: {
+					connect: { name: values.category },
+				},
+				createdAt: values.createdAt,
+				imgHref: values.imgHref,
+				isAvailable: values.isAvailable,
+			},
+		}),
+	]);
 
-	return { ...newCourse, ...newDish };
+	return { ...course, ...dishes };
 }
 
 export async function retrieveSetsForBackUp() {
@@ -115,6 +107,13 @@ export async function retrieveSetsForBackUp() {
 					dishes: {
 						select: {
 							name: true,
+							isAvailable: true,
+							imgHref: true,
+							category: {
+								select: {
+									name: true,
+								},
+							},
 						},
 					},
 					selectionQuantity: true,
@@ -128,7 +127,10 @@ export async function retrieveSetsForBackUp() {
 		subSets: set.subSets.map(subSet => ({
 			...subSet,
 			course: subSet.course.name,
-			dishes: subSet.dishes.map(dish => dish.name),
+			dishes: subSet.dishes.map(dish => ({
+				...dish,
+				category: dish.category.name,
+			})),
 		})),
 	}));
 }
@@ -140,7 +142,14 @@ type Set = {
 	price: number;
 	subSets: {
 		course: string;
-		dishes: string[];
+		dishes: {
+			name: string;
+			createdAt: Date;
+			isAvailable: boolean;
+			category: string;
+			course: string;
+			imgHref: string | null;
+		}[];
 		name: string;
 		selectionQuantity: number;
 	}[];
@@ -165,28 +174,22 @@ export async function restoreSets(values: Set) {
 	});
 	const newSubSets = await Promise.all(
 		values.subSets.map(async subSet => {
-			// First, find the course
-			let course = await prisma.course.findUnique({
-				where: { name: subSet.course },
+			const course = await prisma.course.upsert({
+				create: {
+					name: subSet.course,
+				},
+				where: {
+					name: subSet.course,
+				},
+				update: {
+					name: subSet.course,
+				},
 			});
-
-			// If the course doesn't exist, create it
-			if (!course) {
-				course = await prisma.course.create({
-					data: { name: subSet.course },
-				});
-			}
-
-			return prisma.subSet.upsert({
+			const newSubSet = await prisma.subSet.upsert({
 				create: {
 					name: subSet.name,
 					setID: newSet.id,
 					courseID: course.id,
-					dishes: {
-						connect: subSet.dishes.map(dish => ({
-							name: dish,
-						})),
-					},
 				},
 				where: {
 					name_setID: {
@@ -198,13 +201,52 @@ export async function restoreSets(values: Set) {
 					name: subSet.name,
 					setID: newSet.id,
 					courseID: course.id,
-					dishes: {
-						connect: subSet.dishes.map(dish => ({
-							name: dish,
-						})),
-					},
 				},
 			});
+			const dishes = await Promise.all(
+				subSet.dishes.map(
+					async dish =>
+						await prisma.dish.upsert({
+							create: {
+								name: dish.name,
+								category: {
+									connectOrCreate: {
+										create: { name: dish.category, courseID: course.id },
+										where: { name: dish.category },
+									},
+								},
+								createdAt: dish.createdAt,
+								imgHref: dish.imgHref,
+								isAvailable: dish.isAvailable,
+								subSet: {
+									connect: { id: newSubSet.id },
+								},
+							},
+							where: {
+								name: dish.name,
+							},
+							update: {
+								category: {
+									connectOrCreate: {
+										create: { name: dish.category, courseID: course.id },
+										where: { name: dish.category },
+									},
+								},
+								createdAt: dish.createdAt,
+								imgHref: dish.imgHref,
+								isAvailable: dish.isAvailable,
+								subSet: {
+									connect: { id: newSubSet.id },
+								},
+							},
+							include: {
+								subSet: true,
+							},
+						})
+				)
+			);
+
+			return { ...newSubSet, course: { ...course }, dishes: { ...dishes } };
 		})
 	);
 
