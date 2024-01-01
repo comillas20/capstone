@@ -34,7 +34,7 @@ export default function FAQ({ data }: FAQProps) {
 				<h4 className="text-lg font-medium">FAQs</h4>
 				<Accordion type="single" collapsible className="w-full">
 					{data.map(faq => (
-						<AccordionItem value={String(faq.id)}>
+						<AccordionItem key={faq.id} value={String(faq.id)}>
 							<AccordionTrigger>{faq.question}</AccordionTrigger>
 							<AccordionContent>{faq.answer}</AccordionContent>
 						</AccordionItem>
