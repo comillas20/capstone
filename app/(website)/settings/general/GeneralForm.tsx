@@ -1,14 +1,4 @@
 "use client";
-import {
-	Dialog,
-	DialogContent,
-	DialogFooter,
-	DialogHeader,
-	DialogTrigger,
-} from "@components/ui/dialog";
-import { Textarea } from "@components/ui/textarea";
-import { DialogClose } from "@radix-ui/react-dialog";
-import { Label } from "@components/ui/label";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";

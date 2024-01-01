@@ -11,7 +11,7 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@components/ui/popover";
-import { MessageSquare } from "lucide-react";
+import { MessageCircleQuestion } from "lucide-react";
 
 type FAQProps = {
 	data: {
@@ -27,7 +27,7 @@ export default function FAQ({ data }: FAQProps) {
 				<Button
 					size={"icon"}
 					className="fixed bottom-8 right-8 z-50 h-16 w-16 rounded-full border border-white p-4">
-					<MessageSquare className="aspect-square w-full" />
+					<MessageCircleQuestion className="aspect-square h-full w-full" />
 				</Button>
 			</PopoverTrigger>
 			<PopoverContent className="relative right-24" side="top">
