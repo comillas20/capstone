@@ -6,6 +6,14 @@ import FAQ from "./FAQ";
 
 export default async function LandingPage() {
 	const faq = await prisma.fAQ.findMany();
+	const admin = await prisma.account.findFirst({
+		where: {
+			role: "ADMIN",
+		},
+		select: {
+			phoneNumber: true,
+		},
+	});
 	return (
 		<div className="-mx-32 -my-4">
 			<main>
@@ -38,15 +46,18 @@ export default async function LandingPage() {
 				<div className="flex flex-1 flex-col gap-4 p-4">
 					<h5 className="font-semibold">Contact us</h5>
 					<div className="flex flex-col gap-2">
-						<div className="flex w-full items-center rounded">
-							<div className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-input bg-background p-3 text-sm font-medium">
-								<PhoneIcon className="h-[1.2rem] w-[1.2rem]" />
+						{admin && (
+							<div className="flex w-full items-center rounded">
+								<div className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-input bg-background p-3 text-sm font-medium">
+									<PhoneIcon className="h-[1.2rem] w-[1.2rem]" />
+								</div>
+								<div className="ml-4 space-y-1">
+									<p className="text-sm font-medium leading-none">Manager </p>
+									<p className="text-sm text-muted-foreground">{admin.phoneNumber}</p>
+								</div>
 							</div>
-							<div className="ml-4 space-y-1">
-								<p className="text-sm font-medium leading-none">Manager </p>
-								<p className="text-sm text-muted-foreground">0946 021 6927</p>
-							</div>
-						</div>
+						)}
+
 						<Link
 							className="flex w-full items-center rounded"
 							href="https://www.facebook.com/jakeloucateringsurigao"
