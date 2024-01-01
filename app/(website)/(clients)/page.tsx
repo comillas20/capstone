@@ -1,15 +1,17 @@
 import Link from "next/link";
 import Slideshow from "./Slideshow";
-import Chatbot from "./Chatbot";
 import { FacebookIcon, PhoneIcon } from "lucide-react";
+import prisma from "@lib/db";
+import FAQ from "./FAQ";
 
-export default function LandingPage() {
+export default async function LandingPage() {
+	const faq = await prisma.fAQ.findMany();
 	return (
 		<div className="-mx-32 -my-4">
 			<main>
 				<Slideshow />
 				{/* insert texts */}
-				<Chatbot />
+				{faq && faq.length > 0 && <FAQ data={faq} />}
 			</main>
 
 			<footer className="flex flex-col justify-around gap-8 bg-secondary p-8 md:flex-row">

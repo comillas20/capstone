@@ -117,16 +117,17 @@ model AdminSettings {
   minimumCustomerReservationHours Int
   maximumCustomerReservationHours Int
   defaultMinimumPerHead           Int
-  maintainanceDates               MaintainanceDates[]
-  reservationCostPerHour          Int
+  reservationCostPerHour          Float
 }
 
 model MaintainanceDates {
-  id              Int           @id @default(autoincrement())
-  date            DateTime
-  adminSettingsID Int
-  adminSettings   AdminSettings @relation(fields: [adminSettingsID], references: [id], onDelete: Cascade)
-  @@unique([adminSettingsID, date])
+  date            DateTime @id
+}
+
+model FAQ {
+  id Int @id @default(autoincrement())
+  question String
+  answer String @db.Text
 }
 
 model OtherServices {

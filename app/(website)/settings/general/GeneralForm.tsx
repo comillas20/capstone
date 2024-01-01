@@ -1,5 +1,14 @@
 "use client";
-
+import {
+	Dialog,
+	DialogContent,
+	DialogFooter,
+	DialogHeader,
+	DialogTrigger,
+} from "@components/ui/dialog";
+import { Textarea } from "@components/ui/textarea";
+import { DialogClose } from "@radix-ui/react-dialog";
+import { Label } from "@components/ui/label";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -16,7 +25,7 @@ import {
 import { Input } from "@components/ui/input";
 import { toast } from "@components/ui/use-toast";
 import { useTransition } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 import TimePicker from "@components/TimePicker";
 import { Calendar } from "@components/ui/calendar";
 import { cn } from "@lib/utils";
@@ -26,6 +35,13 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@components/ui/popover";
+import {
+	Accordion,
+	AccordionContent,
+	AccordionItem,
+	AccordionTrigger,
+} from "@components/ui/accordion";
+import { CreateOrUpdateFAQ } from "./FAQDialog";
 
 type GeneralFormProps = {
 	settings: {
@@ -35,12 +51,21 @@ type GeneralFormProps = {
 		minimumCustomerReservationHours: number; //in hours
 		maximumCustomerReservationHours: number; //in hours
 		defaultMinimumPerHead: number;
-		maintainanceDates?: Date[];
 		reservationCostPerHour: number;
 	} | null;
+	maintainanceDates?: Date[];
+	faq?: {
+		id: number;
+		question: string;
+		answer: string;
+	}[];
 };
 
-export function GeneralForm({ settings }: GeneralFormProps) {
+export function GeneralForm({
+	settings,
+	maintainanceDates,
+	faq,
+}: GeneralFormProps) {
 	const generalFormSchema = z.object({
 		id: z.number(),
 		openingTime: z.date(),
@@ -49,6 +74,14 @@ export function GeneralForm({ settings }: GeneralFormProps) {
 		maximumCustomerReservationHours: z.number(),
 		defaultMinimumPerHead: z.number(),
 		maintainanceDates: z.date().array().optional(),
+		faq: z
+			.object({
+				id: z.number(),
+				question: z.string(),
+				answer: z.string(),
+			})
+			.array()
+			.optional(),
 		reservationCostPerHour: z.number(),
 	});
 
@@ -64,7 +97,8 @@ export function GeneralForm({ settings }: GeneralFormProps) {
 					minimumCustomerReservationHours: settings.minimumCustomerReservationHours,
 					maximumCustomerReservationHours: settings.maximumCustomerReservationHours,
 					defaultMinimumPerHead: settings.defaultMinimumPerHead,
-					maintainanceDates: settings.maintainanceDates,
+					maintainanceDates: maintainanceDates,
+					faq: faq,
 					reservationCostPerHour: settings.reservationCostPerHour,
 			  }
 			: {
@@ -82,7 +116,8 @@ export function GeneralForm({ settings }: GeneralFormProps) {
 	function onSubmit(data: GeneralFormValues) {
 		startSaving(async () => {
 			const md = data.maintainanceDates ?? [];
-			const o = { ...data, maintainanceDates: md };
+			const faq = data.faq ?? [];
+			const o = { ...data, maintainanceDates: md, faq: faq };
 			const ss = await saveSettings(o);
 			if (ss) {
 				toast({
@@ -296,6 +331,70 @@ export function GeneralForm({ settings }: GeneralFormProps) {
 						</FormItem>
 					)}
 				/>
+				<Accordion type="single" collapsible>
+					<AccordionItem value="item-1" className="border-b-0">
+						<FormField
+							control={form.control}
+							name="faq"
+							render={({ field }) => (
+								<FormItem className="flex flex-col justify-between">
+									<FormLabel>
+										<AccordionTrigger className="p-0 text-base font-medium hover:no-underline">
+											Frequently Asked Questions
+										</AccordionTrigger>
+									</FormLabel>
+									<FormControl>
+										<AccordionContent className="flex flex-col gap-0.5">
+											{field.value && field.value.length > 0 ? (
+												<>
+													{field.value.map(faq => (
+														<CreateOrUpdateFAQ
+															key={String(faq.id).concat(faq.question)}
+															FAQ={faq}
+															prevValues={field.value}
+															onValueChange={field.onChange}>
+															<Button
+																type="button"
+																variant="ghost"
+																size="sm"
+																className="flex justify-between gap-8 rounded-none">
+																<span className="text-ellipsis">{faq.question}</span>
+																<span className="text-ellipsis">{faq.answer}</span>
+															</Button>
+														</CreateOrUpdateFAQ>
+													))}
+													<CreateOrUpdateFAQ
+														prevValues={field.value}
+														onValueChange={field.onChange}>
+														<Button
+															type="button"
+															variant="link"
+															size="sm"
+															className="flex w-full justify-center">
+															<Plus />
+														</Button>
+													</CreateOrUpdateFAQ>
+												</>
+											) : (
+												<CreateOrUpdateFAQ
+													prevValues={field.value}
+													onValueChange={field.onChange}>
+													<Button
+														type="button"
+														variant="link"
+														size="sm"
+														className="flex w-full justify-center">
+														<Plus />
+													</Button>
+												</CreateOrUpdateFAQ>
+											)}
+										</AccordionContent>
+									</FormControl>
+								</FormItem>
+							)}
+						/>
+					</AccordionItem>
+				</Accordion>
 				<div className="flex justify-end pt-8">
 					<Button type="submit" disabled={isSaving || !form.formState.isDirty}>
 						{isSaving && <Loader2 className="mr-2 animate-spin" />}

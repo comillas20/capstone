@@ -11,6 +11,11 @@ type AdminSettings = {
 	defaultMinimumPerHead: number;
 	reservationCostPerHour: number;
 	maintainanceDates: Date[];
+	faq: {
+		id: number;
+		question: string;
+		answer: string;
+	}[];
 };
 export async function saveSettings(settings: AdminSettings) {
 	const as = await prisma.adminSettings.upsert({
@@ -26,7 +31,6 @@ export async function saveSettings(settings: AdminSettings) {
 			id: settings.id,
 		},
 		update: {
-			id: settings.id,
 			openingTime: settings.openingTime,
 			closingTime: settings.closingTime,
 			defaultMinimumPerHead: settings.defaultMinimumPerHead,
@@ -35,11 +39,10 @@ export async function saveSettings(settings: AdminSettings) {
 			reservationCostPerHour: settings.reservationCostPerHour,
 		},
 	});
-	const mdArray: { adminSettingsID: number; date: Date }[] =
-		settings.maintainanceDates.map(date => ({
-			adminSettingsID: as.id,
-			date: date,
-		}));
+	// have to put this inside an object first
+	const mdArray: { date: Date }[] = settings.maintainanceDates.map(date => ({
+		date: date,
+	}));
 
 	const [d, c] = await prisma.$transaction([
 		prisma.maintainanceDates.deleteMany(),
@@ -48,5 +51,12 @@ export async function saveSettings(settings: AdminSettings) {
 		}),
 	]);
 
-	return { ...as, ...c };
+	const [g, f] = await prisma.$transaction([
+		prisma.fAQ.deleteMany(),
+		prisma.fAQ.createMany({
+			data: settings.faq,
+		}),
+	]);
+
+	return { ...as, ...c, ...f };
 }
