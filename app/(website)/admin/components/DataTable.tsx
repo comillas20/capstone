@@ -27,7 +27,6 @@ import {
 } from "@components/ui/table";
 
 import { DataTablePagination } from "./DataTablePagination";
-import { cn } from "@lib/utils";
 
 interface DataTableToolbarProps<TData> {
 	table: t<TData>;
@@ -37,8 +36,6 @@ interface DataTableProps<TData, TValue> {
 	data: TData[];
 	Toolbar: React.ComponentType<DataTableToolbarProps<TData>>;
 	rowClassName?: string;
-	selectFirstRowAsDefault?: boolean;
-	singleSelection?: (data: TData) => void;
 	hideAsDefault?: VisibilityState;
 }
 
@@ -47,9 +44,7 @@ export function DataTable<TData, TValue>({
 	data,
 	Toolbar,
 	rowClassName,
-	selectFirstRowAsDefault,
 	hideAsDefault,
-	singleSelection,
 }: DataTableProps<TData, TValue>) {
 	const [rowSelection, setRowSelection] = React.useState({});
 	const [columnVisibility, setColumnVisibility] =
@@ -81,9 +76,8 @@ export function DataTable<TData, TValue>({
 		getFacetedUniqueValues: getFacetedUniqueValues(),
 	});
 	React.useEffect(() => {
-		if (selectFirstRowAsDefault) setRowSelection({ "0": true });
 		if (hideAsDefault) setColumnVisibility(hideAsDefault);
-	}, [selectFirstRowAsDefault, hideAsDefault]);
+	}, [hideAsDefault]);
 	return (
 		<div className="space-y-4">
 			{Toolbar && <Toolbar table={table} />}
@@ -109,19 +103,7 @@ export function DataTable<TData, TValue>({
 							<TableRow
 								key={row.id}
 								data-state={row.getIsSelected() && "selected"}
-								className={cn(
-									!!singleSelection
-										? "data-[state=selected]:bg-primary data-[state=selected]:text-primary-foreground"
-										: "",
-									rowClassName
-								)}
-								onClick={() => {
-									if (singleSelection && !row.getIsSelected()) {
-										table.toggleAllRowsSelected(false);
-										row.toggleSelected(true);
-										singleSelection(row.original);
-									}
-								}}>
+								className={rowClassName}>
 								{row.getVisibleCells().map(cell => (
 									<TableCell key={cell.id}>
 										{flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -138,7 +120,7 @@ export function DataTable<TData, TValue>({
 					)}
 				</TableBody>
 			</Table>
-			<DataTablePagination table={table} singleSelection={!!singleSelection} />
+			<DataTablePagination table={table} />
 		</div>
 	);
 }
