@@ -1,6 +1,6 @@
 "use client";
 import SetCard from "./SetCard";
-import { DataTable } from "@app/(website)/admin/components/DataTable";
+import { SetTable } from "./SetTable";
 import { Sets, columns } from "./SetColumns";
 import { DataTableToolbar } from "./DataTableToolbar";
 import { convertDateToString } from "@lib/utils";
@@ -15,8 +15,9 @@ export default function SetsPage() {
 	const [selectedSet, setSelectedSet] = useState(sets && sets[0]);
 	const selectedSetIndex = useRef(0);
 
+	// row order is not the same with the set order, so I have to find the set by name first
 	function changeSet(rowData: Sets) {
-		const isSetNotEmpty = sets && sets.length != 0;
+		const isSetNotEmpty = sets && sets.length > 0;
 		if (isSetNotEmpty) {
 			const set = sets.find(set => set.name === rowData.name) ?? "N/A";
 			const setIndex =
@@ -55,13 +56,11 @@ export default function SetsPage() {
 						<SetCard data={selectedSet} className="xl:col-span-5" />
 					)}
 					<div className="xl:col-span-7">
-						<DataTable
+						<SetTable
 							data={setTable}
 							columns={columns}
 							Toolbar={DataTableToolbar}
-							selectFirstRowAsDefault
-							singleSelection={changeSet}
-							hideAsDefault={hideOnDefault}
+							onSetChange={changeSet}
 						/>
 					</div>
 				</div>
