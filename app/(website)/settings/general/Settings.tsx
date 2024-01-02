@@ -44,7 +44,7 @@ export function OpeningHour() {
 			setOTime(data as Date);
 		}
 	}, [data]);
-	const [isSaving, startSaving] = useTransition();
+	const [isSaving, startSaving] = useSettingSaver();
 	if (error) return <div>Failed to load</div>;
 	else if (data || data === null)
 		return (
@@ -63,11 +63,9 @@ export function OpeningHour() {
 					<div className="flex justify-end">
 						<Button
 							onClick={() => {
-								startSaving(async () =>
-									saveSetting(
-										{ name: Settings.openingHour, type: "date", value: String(oTime) },
-										Settings.openingHour
-									)
+								startSaving(
+									{ name: Settings.openingHour, type: "date", value: String(oTime) },
+									Settings.openingHour
 								);
 							}}
 							disabled={isSaving}>
@@ -95,7 +93,7 @@ export function ClosingHour() {
 			setCTime(data as Date);
 		}
 	}, [data]);
-	const [isSaving, startSaving] = useTransition();
+	const [isSaving, startSaving] = useSettingSaver();
 	if (error) return <div>Failed to load</div>;
 	else if (data || data === null)
 		return (
@@ -114,11 +112,9 @@ export function ClosingHour() {
 					<div className="flex justify-end">
 						<Button
 							onClick={() => {
-								startSaving(async () =>
-									saveSetting(
-										{ name: Settings.closingHour, type: "date", value: String(cTime) },
-										Settings.closingHour
-									)
+								startSaving(
+									{ name: Settings.closingHour, type: "date", value: String(cTime) },
+									Settings.closingHour
 								);
 							}}
 							disabled={isSaving}>
@@ -154,7 +150,7 @@ export function MinimumPerHead() {
 			setMPH(data as number);
 		}
 	}, [data]);
-	const [isSaving, startSaving] = useTransition();
+	const [isSaving, startSaving] = useSettingSaver();
 	if (error) return <div>Failed to load</div>;
 	else if (data || data === null)
 		return (
@@ -178,11 +174,9 @@ export function MinimumPerHead() {
 					<div className="flex justify-end">
 						<Button
 							onClick={() => {
-								startSaving(async () =>
-									saveSetting(
-										{ name: Settings.minPerHead, type: "int", value: String(mph) },
-										Settings.minPerHead
-									)
+								startSaving(
+									{ name: Settings.minPerHead, type: "int", value: String(mph) },
+									Settings.minPerHead
 								);
 							}}
 							disabled={isSaving}>
@@ -214,7 +208,7 @@ export function ReservationHours() {
 			setMaxHours(max.data as number);
 		}
 	}, [min.data, max.data]);
-	const [isSaving, startSaving] = useTransition();
+	const [isSaving, startSaving] = useSettingSaver();
 	if (min.error || max.error) return <div>Failed to load</div>;
 	else if (min.data !== undefined && max.data !== undefined)
 		return (
@@ -246,24 +240,22 @@ export function ReservationHours() {
 					<div className="flex justify-end">
 						<Button
 							onClick={() => {
-								startSaving(async () => {
-									await saveSetting(
-										{
-											name: Settings.minReservationHours,
-											type: "int",
-											value: String(minHours),
-										},
-										Settings.minReservationHours
-									);
-									await saveSetting(
-										{
-											name: Settings.maxReservationHours,
-											type: "int",
-											value: String(maxHours),
-										},
-										Settings.maxReservationHours
-									);
-								});
+								startSaving(
+									{
+										name: Settings.minReservationHours,
+										type: "int",
+										value: String(minHours),
+									},
+									Settings.minReservationHours
+								);
+								startSaving(
+									{
+										name: Settings.maxReservationHours,
+										type: "int",
+										value: String(maxHours),
+									},
+									Settings.maxReservationHours
+								);
 							}}
 							disabled={isSaving}>
 							{isSaving && <Loader2 className="mr-2 animate-spin" />}
@@ -288,7 +280,7 @@ export function ReservationCostPerHour() {
 			setCost(data as number);
 		}
 	}, [data]);
-	const [isSaving, startSaving] = useTransition();
+	const [isSaving, startSaving] = useSettingSaver();
 	if (error) return <div>Failed to load</div>;
 	else if (data || data === null)
 		return (
@@ -314,15 +306,13 @@ export function ReservationCostPerHour() {
 					<div className="flex justify-end">
 						<Button
 							onClick={() => {
-								startSaving(async () =>
-									saveSetting(
-										{
-											name: Settings.reservationCostPerHour,
-											type: "float",
-											value: String(cost),
-										},
-										Settings.reservationCostPerHour
-									)
+								startSaving(
+									{
+										name: Settings.reservationCostPerHour,
+										type: "float",
+										value: String(cost),
+									},
+									Settings.reservationCostPerHour
 								);
 							}}
 							disabled={isSaving}>
@@ -458,15 +448,23 @@ type Setting = {
 	value: string;
 };
 
-async function saveSetting(setting: Setting, key: string) {
+function useSettingSaver(): [boolean, (setting: Setting, key: string) => void] {
 	const { mutate } = useSWRConfig();
-	const s = await createOrUpdateSystemSetting(setting);
-	if (s) {
-		toast({
-			title: "Success",
-			description: "Saved!",
-			duration: 5000,
+	const [isSaving, startSaving] = useTransition();
+
+	const saveSetting = (setting: Setting, key: string) => {
+		startSaving(async () => {
+			const s = await createOrUpdateSystemSetting(setting);
+			if (s) {
+				toast({
+					title: "Success",
+					description: "Saved!",
+					duration: 5000,
+				});
+				mutate(key);
+			}
 		});
-		mutate(key);
-	}
+	};
+
+	return [isSaving, saveSetting];
 }
