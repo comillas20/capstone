@@ -70,13 +70,14 @@ export default function ReservationDialog({
 		ReservationFormContext
 	) as ReservationFormContextProps;
 	const defaultTimeLinkName = "Set time";
-	const [timeLinkName, setTimeLinkName] = useState<string>(defaultTimeLinkName); // for display, data not important
+	// for display, other than gatekeeping user, data not so important
+	const [timeLinkName, setTimeLinkName] = useState<string>(defaultTimeLinkName);
 
 	const [numberOfPacks, setNumberOfPacks] = useState<number>(
-		settings.defaultMinimumPerHead
+		settings.minPerHead
 	);
-	const [timeUse, setTimeUse] = useState<number>(4);
-	const [time, setTime] = useState<Date>(new Date()); //24 hour, to store in database
+	const [timeUse, setTimeUse] = useState<number>(settings.minReservationHours);
+	const [time, setTime] = useState<Date>(settings.openingTime); //24 hour, to store in database
 	const [message, setMessage] = useState<string>("");
 	const allOtherServices = useSWR("getAllServices", getAllServices);
 	const currentUser = useSWR(
@@ -181,7 +182,10 @@ export default function ReservationDialog({
 							<div className="flex items-center gap-2 text-sm font-bold">
 								Start of event
 								{timeLinkName === defaultTimeLinkName && (
-									<AlertTriangle className="text-yellow-300" size={15} />
+									<AlertTriangle
+										className="text-yellow-500 dark:text-yellow-300"
+										size={15}
+									/>
 								)}
 							</div>
 							<Separator orientation="vertical" className="row-span-2 mx-4" />
@@ -194,16 +198,14 @@ export default function ReservationDialog({
 									<h5 className="font-bold">Packs</h5>
 									<p className="text-sm text-muted-foreground">
 										Minimum of{" "}
-										<strong className="font-bold">
-											{settings.defaultMinimumPerHead} packs
-										</strong>
+										<strong className="font-bold">{settings.minPerHead} packs</strong>
 									</p>
 									<Separator className="my-2"></Separator>
 									<div className="flex items-center gap-4">
 										<Input
 											className="w-24"
 											type="number"
-											min={settings.defaultMinimumPerHead}
+											min={settings.minPerHead}
 											value={numberOfPacks.toString()}
 											onChange={e => {
 												const np = parseInt(e.target.value, 10);
@@ -213,8 +215,8 @@ export default function ReservationDialog({
 											}}
 											onBlur={e => {
 												const np = parseInt(e.target.value, 10);
-												if (!isNaN(np) && np < settings.defaultMinimumPerHead) {
-													setNumberOfPacks(settings.defaultMinimumPerHead);
+												if (!isNaN(np) && np < settings.minPerHead) {
+													setNumberOfPacks(settings.minPerHead);
 												}
 											}}
 										/>
@@ -288,13 +290,16 @@ export default function ReservationDialog({
 								</PopoverContent>
 							</Popover>
 						</div>
-						<div className="space-y-1.5">
-							<h3 className="text-sm font-bold">Additional services</h3>
-							<p className="text-xs text-muted-foreground">
-								Prices are subject to change without prior notice
-							</p>
-							<Separator />
-						</div>
+						{allOtherServices.data && allOtherServices.data.length > 0 && (
+							<div className="space-y-1.5">
+								<h3 className="text-sm font-bold">Additional services</h3>
+								<p className="text-xs text-muted-foreground">
+									Prices are subject to change without prior notice
+								</p>
+								<Separator />
+							</div>
+						)}
+
 						<div className="flex flex-col gap-y-4">
 							{allOtherServices.data &&
 								allOtherServices.data.some(

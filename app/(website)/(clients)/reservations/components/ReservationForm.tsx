@@ -14,14 +14,12 @@ export type ReservationFormContextProps = {
 	date: Date | undefined;
 	session: Session | null;
 	settings: {
-		id: number;
 		openingTime: Date;
 		closingTime: Date;
-		minimumCustomerReservationHours: number;
-		maximumCustomerReservationHours: number;
-		defaultMinimumPerHead: number;
+		minReservationHours: number;
+		maxReservationHours: number;
+		minPerHead: number;
 		reservationCostPerHour: number;
-		maintainanceDates?: Date[];
 	};
 };
 
@@ -32,12 +30,11 @@ export const ReservationFormContext = createContext<
 type ReservationFormProps = {
 	session: Session | null;
 	settings: {
-		id: number;
 		openingTime: Date;
 		closingTime: Date;
-		minimumCustomerReservationHours: number;
-		maximumCustomerReservationHours: number;
-		defaultMinimumPerHead: number;
+		minReservationHours: number;
+		maxReservationHours: number;
+		minPerHead: number;
 		reservationCostPerHour: number;
 	};
 	maintainanceDates: Date[];
@@ -60,7 +57,7 @@ export default function ReservationForm({
 	//Note to self: Date type instead of numbers, so I can use date comparison methods
 	const [month, setMonth] = useState<Date>(currentDate);
 	return (
-		settings && (
+		<div className="flex flex-col items-start gap-12 xl:flex-row">
 			<ReservationFormContext.Provider
 				value={{
 					currentDate,
@@ -69,40 +66,38 @@ export default function ReservationForm({
 					session,
 					settings,
 				}}>
-				<div className="flex flex-col items-start gap-12 xl:flex-row">
-					<SetPicker />
-					<Calendar
-						className="rounded-md border"
-						mode="single"
-						selected={date}
-						onSelect={setDate}
-						month={month}
-						onMonthChange={date => {
-							//Note to self: reading this is @currentDate isBefore @date ?, same way with isSameMonth
-							if (isBefore(currentDate, date) || isSameMonth(currentDate, date))
-								setMonth(date);
-							// where @date is the current date the user is looking at and @currentdate is today's date
-						}}
-						classNames={{
-							head_cell:
-								"text-muted-foreground rounded-md w-12 font-normal text-[0.8rem]",
-							cell: cn(
-								buttonVariants({ variant: "ghost" }),
-								"h-12 w-12 p-0 font-normal aria-selected:opacity-100"
-							),
-							day: cn(
-								buttonVariants({ variant: "ghost" }),
-								"h-11 w-11 p-0 font-normal aria-selected:opacity-100"
-							),
-							day_disabled: "bg-muted text-muted-foreground opacity-50",
-							day_today: "bg-primary text-primary-foreground opacity-50",
-						}}
-						disabled={disabledDays}
-						fixedWeeks
-						required
-					/>
-				</div>
+				<SetPicker />
 			</ReservationFormContext.Provider>
-		)
+			<Calendar
+				className="rounded-md border"
+				mode="single"
+				selected={date}
+				onSelect={setDate}
+				month={month}
+				onMonthChange={date => {
+					//Note to self: reading this is @currentDate isBefore @date ?, same way with isSameMonth
+					if (isBefore(currentDate, date) || isSameMonth(currentDate, date))
+						setMonth(date);
+					// where @date is the current date the user is looking at and @currentdate is today's date
+				}}
+				classNames={{
+					head_cell:
+						"text-muted-foreground rounded-md w-12 font-normal text-[0.8rem]",
+					cell: cn(
+						buttonVariants({ variant: "ghost" }),
+						"h-12 w-12 p-0 font-normal aria-selected:opacity-100"
+					),
+					day: cn(
+						buttonVariants({ variant: "ghost" }),
+						"h-11 w-11 p-0 font-normal aria-selected:opacity-100"
+					),
+					day_disabled: "bg-muted text-muted-foreground opacity-50",
+					day_today: "bg-primary text-primary-foreground opacity-50",
+				}}
+				disabled={disabledDays}
+				fixedWeeks
+				required
+			/>
+		</div>
 	);
 }
