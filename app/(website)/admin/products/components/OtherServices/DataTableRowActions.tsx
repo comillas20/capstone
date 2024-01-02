@@ -12,6 +12,7 @@ import {
 } from "@components/ui/dropdown-menu";
 import { AddEditDialog, DeleteDialog } from "./ServicesAED";
 import { Services } from "./Columns";
+import { useState } from "react";
 
 interface DataTableRowActionsProps<TData> {
 	row: Row<TData>;
@@ -22,6 +23,7 @@ export function DataTableRowActions<TData>({
 	row,
 	table,
 }: DataTableRowActionsProps<TData>) {
+	const [isOpen, setIsOpen] = useState(false);
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
@@ -37,10 +39,14 @@ export function DataTableRowActions<TData>({
 				<AddEditDialog
 					key={JSON.stringify(row.original)}
 					data={row.original as Services}>
-					<DropdownMenuItem>Edit {row.getValue("Service")}</DropdownMenuItem>
+					<DropdownMenuItem onSelect={e => e.preventDefault()}>
+						Edit {row.getValue("Service")}
+					</DropdownMenuItem>
 				</AddEditDialog>
 				<DeleteDialog data={[row.original as Services]}>
-					<DropdownMenuItem>Delete {row.getValue("Service")}</DropdownMenuItem>
+					<DropdownMenuItem onSelect={e => e.preventDefault()}>
+						Delete {row.getValue("Service")}
+					</DropdownMenuItem>
 				</DeleteDialog>
 			</DropdownMenuContent>
 		</DropdownMenu>

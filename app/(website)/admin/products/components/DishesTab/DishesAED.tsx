@@ -46,6 +46,15 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@components/ui/select";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from "@components/ui/dialog";
+import { DialogClose } from "@radix-ui/react-dialog";
 type AddEditDialogProps = {
 	data?: Dishes;
 	children: React.ReactNode;
@@ -137,22 +146,18 @@ export function AddEditDialog({ data, children }: AddEditDialogProps) {
 				mutate(PRODUCTS_DISHES_KEY);
 			}
 		});
-		// onOpenChange(false);
 	}
-	// useEffect(() => {
-	// 	form.reset();
-	// }, [open]);
 	return (
 		dishes && (
-			<AlertDialog>
-				<AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
-				<AlertDialogContent>
-					<AlertDialogHeader className="mb-4">
-						<AlertDialogTitle>{data ? "Edit" : "Create"}</AlertDialogTitle>
-						<AlertDialogDescription>
+			<Dialog>
+				<DialogTrigger asChild>{children}</DialogTrigger>
+				<DialogContent>
+					<DialogHeader className="mb-4">
+						<DialogTitle>{data ? "Edit" : "Create"}</DialogTitle>
+						<DialogDescription>
 							{data ? data.name : "Create a new dish"}
-						</AlertDialogDescription>
-					</AlertDialogHeader>
+						</DialogDescription>
+					</DialogHeader>
 					<Form {...form}>
 						<form
 							onSubmit={form.handleSubmit(onSubmit)}
@@ -258,14 +263,14 @@ export function AddEditDialog({ data, children }: AddEditDialogProps) {
 							</div>
 
 							<div className="flex justify-end gap-4">
-								<AlertDialogCancel asChild>
+								<DialogClose asChild>
 									<Button
 										variant={"secondary"}
 										onClick={() => form.reset()}
 										type="button">
 										Cancel
 									</Button>
-								</AlertDialogCancel>
+								</DialogClose>
 								<Button type="submit" disabled={isSaving}>
 									{isSaving && <Loader2 className="mr-2 animate-spin" />}
 									Save
@@ -273,8 +278,8 @@ export function AddEditDialog({ data, children }: AddEditDialogProps) {
 							</div>
 						</form>
 					</Form>
-				</AlertDialogContent>
-			</AlertDialog>
+				</DialogContent>
+			</Dialog>
 		)
 	);
 }

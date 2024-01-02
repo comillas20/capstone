@@ -12,6 +12,7 @@ import {
 } from "@components/ui/dropdown-menu";
 import { AddEditDialog, DeleteDialog } from "./DishesAED";
 import { Dishes } from "./DishColumns";
+import { useState } from "react";
 
 interface DataTableRowActionsProps<TData> {
 	row: Row<TData>;
@@ -22,8 +23,9 @@ export function DataTableRowActions<TData>({
 	row,
 	table,
 }: DataTableRowActionsProps<TData>) {
+	const [isOpen, setIsOpen] = useState(false);
 	return (
-		<DropdownMenu>
+		<DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
 			<DropdownMenuTrigger asChild>
 				<Button
 					variant="ghost"
@@ -35,10 +37,14 @@ export function DataTableRowActions<TData>({
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end" className="w-[160px]">
 				<AddEditDialog key={row.getValue("name")} data={row.original as Dishes}>
-					<DropdownMenuItem>Edit {row.getValue("name")}</DropdownMenuItem>
+					<DropdownMenuItem onSelect={e => e.preventDefault()}>
+						Edit {row.getValue("name")}
+					</DropdownMenuItem>
 				</AddEditDialog>
 				<DeleteDialog data={[row.original as Dishes]}>
-					<DropdownMenuItem>Delete {row.getValue("name")}</DropdownMenuItem>
+					<DropdownMenuItem onSelect={e => e.preventDefault()}>
+						Delete {row.getValue("name")}
+					</DropdownMenuItem>
 				</DeleteDialog>
 			</DropdownMenuContent>
 		</DropdownMenu>

@@ -44,6 +44,15 @@ import {
 	SelectValue,
 } from "@components/ui/select";
 import HelpToolTip from "@components/HelpTooltip";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from "@components/ui/dialog";
+import { DialogClose } from "@radix-ui/react-dialog";
 
 type AddEditDialogProps = {
 	data?: Services;
@@ -121,21 +130,17 @@ export function AddEditDialog({ data, children }: AddEditDialogProps) {
 			}
 		});
 	}
-	// useEffect(() => {
-	// 	form.reset();
-	// 	console.log("resetted!");
-	// }, [open]);
 	return (
 		services && (
-			<AlertDialog>
-				<AlertDialogTrigger>{children}</AlertDialogTrigger>
-				<AlertDialogContent>
-					<AlertDialogHeader className="mb-4">
-						<AlertDialogTitle>{data ? "Edit" : "Create"}</AlertDialogTitle>
-						<AlertDialogDescription>
+			<Dialog>
+				<DialogTrigger>{children}</DialogTrigger>
+				<DialogContent>
+					<DialogHeader className="mb-4">
+						<DialogTitle>{data ? "Edit" : "Create"}</DialogTitle>
+						<DialogDescription>
 							{data ? data.name : "Create a new service"}
-						</AlertDialogDescription>
-					</AlertDialogHeader>
+						</DialogDescription>
+					</DialogHeader>
 					<Form {...form}>
 						<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
 							<FormField
@@ -282,14 +287,14 @@ export function AddEditDialog({ data, children }: AddEditDialogProps) {
 							</div>
 
 							<div className="flex justify-end gap-4">
-								<AlertDialogCancel asChild>
+								<DialogClose asChild>
 									<Button
 										variant={"secondary"}
 										onClick={() => form.reset()}
 										type="button">
 										Cancel
 									</Button>
-								</AlertDialogCancel>
+								</DialogClose>
 								<Button type="submit" disabled={isSaving}>
 									{isSaving && <Loader2 className="mr-2 animate-spin" />}
 									Save
@@ -297,8 +302,8 @@ export function AddEditDialog({ data, children }: AddEditDialogProps) {
 							</div>
 						</form>
 					</Form>
-				</AlertDialogContent>
-			</AlertDialog>
+				</DialogContent>
+			</Dialog>
 		)
 	);
 }
