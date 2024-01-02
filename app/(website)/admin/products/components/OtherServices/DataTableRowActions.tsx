@@ -12,7 +12,6 @@ import {
 } from "@components/ui/dropdown-menu";
 import { AddEditDialog, DeleteDialog } from "./ServicesAED";
 import { Services } from "./Columns";
-import { useState } from "react";
 
 interface DataTableRowActionsProps<TData> {
 	row: Row<TData>;
@@ -23,7 +22,6 @@ export function DataTableRowActions<TData>({
 	row,
 	table,
 }: DataTableRowActionsProps<TData>) {
-	const [isOpen, setIsOpen] = useState(false);
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
