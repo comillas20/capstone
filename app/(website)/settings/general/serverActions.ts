@@ -1,62 +1,62 @@
 "use server";
 
 import prisma from "@lib/db";
-
-type AdminSettings = {
-	id: number;
-	openingTime: Date;
-	closingTime: Date;
-	minimumCustomerReservationHours: number;
-	maximumCustomerReservationHours: number;
-	defaultMinimumPerHead: number;
-	reservationCostPerHour: number;
-	maintainanceDates: Date[];
-	faq: {
-		id: number;
-		question: string;
-		answer: string;
-	}[];
+type Setting = {
+	name: string;
+	type: "int" | "float" | "string" | "date";
+	value: string;
 };
-export async function saveSettings(settings: AdminSettings) {
-	const as = await prisma.adminSettings.upsert({
+export async function createOrUpdateSystemSetting(setting: Setting) {
+	return await prisma.systemSettings.upsert({
 		create: {
-			openingTime: settings.openingTime,
-			closingTime: settings.closingTime,
-			defaultMinimumPerHead: settings.defaultMinimumPerHead,
-			minimumCustomerReservationHours: settings.minimumCustomerReservationHours,
-			maximumCustomerReservationHours: settings.maximumCustomerReservationHours,
-			reservationCostPerHour: settings.reservationCostPerHour,
+			name: setting.name,
+			type: setting.type,
+			value: setting.value,
 		},
 		where: {
-			id: settings.id,
+			name: setting.name,
 		},
 		update: {
-			openingTime: settings.openingTime,
-			closingTime: settings.closingTime,
-			defaultMinimumPerHead: settings.defaultMinimumPerHead,
-			minimumCustomerReservationHours: settings.minimumCustomerReservationHours,
-			maximumCustomerReservationHours: settings.maximumCustomerReservationHours,
-			reservationCostPerHour: settings.reservationCostPerHour,
+			value: setting.value,
 		},
 	});
-	// have to put this inside an object first
-	const mdArray: { date: Date }[] = settings.maintainanceDates.map(date => ({
-		date: date,
-	}));
+}
 
+export async function updateMaintainanceDates(dates: Date[]) {
 	const [d, c] = await prisma.$transaction([
 		prisma.maintainanceDates.deleteMany(),
 		prisma.maintainanceDates.createMany({
-			data: mdArray,
+			data: dates.map(d => ({ date: d })),
 		}),
 	]);
+	return c;
+}
 
-	const [g, f] = await prisma.$transaction([
-		prisma.fAQ.deleteMany(),
-		prisma.fAQ.createMany({
-			data: settings.faq,
-		}),
-	]);
+type FAQ = {
+	id: number;
+	question: string;
+	answer: string;
+};
+export async function createOrUpdateFAQ({ id, question, answer }: FAQ) {
+	return await prisma.fAQ.upsert({
+		create: {
+			question: question,
+			answer: answer,
+		},
+		where: {
+			id: id,
+		},
+		update: {
+			question: question,
+			answer: answer,
+		},
+	});
+}
 
-	return { ...as, ...c, ...f };
+export async function deleteFAQ({ id }: FAQ) {
+	return await prisma.fAQ.delete({
+		where: {
+			id: id,
+		},
+	});
 }

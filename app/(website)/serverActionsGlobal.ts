@@ -78,16 +78,53 @@ export async function getAllServices() {
 	return await prisma.otherServices.findMany();
 }
 
-export async function getSettings() {
-	return await prisma.adminSettings.findUnique({
-		where: { id: 1 },
-	});
-}
-
 export async function getMaintainanceDates() {
 	return await prisma.maintainanceDates.findMany();
 }
 
-export async function getFAQ() {
+export async function getFAQs() {
 	return await prisma.fAQ.findMany();
+}
+
+export async function getSystemSettings() {
+	const settings = await prisma.systemSettings.findMany();
+	return settings.map(setting => ({
+		name: setting.name,
+		value: convertValue(setting.type, setting.value),
+	}));
+}
+export async function getSystemSetting(name: string) {
+	const setting = await prisma.systemSettings.findUnique({
+		where: {
+			name: name,
+		},
+	});
+	return setting ? convertValue(setting.type, setting.value) : null;
+}
+
+type SettingType = "int" | "float" | "string" | "date";
+
+interface TypeMap {
+	int: number;
+	float: number;
+	string: string;
+	date: Date;
+}
+
+function convertValue<T extends SettingType>(
+	type: T,
+	value: string
+): TypeMap[T] {
+	switch (type) {
+		case "int":
+			return parseInt(value) as TypeMap[T];
+		case "float":
+			return parseFloat(value) as TypeMap[T];
+		case "string":
+			return value as TypeMap[T];
+		case "date":
+			return new Date(value) as TypeMap[T];
+		default:
+			throw new Error(`Unsupported type: ${type}`);
+	}
 }

@@ -88,7 +88,7 @@ model SubSet {
 model Account {
   id           Int             @id @default(autoincrement())
   name         String          @unique
-  phoneNumber  String         @unique @db.VarChar(13) // +639xxxxxxxx
+  phoneNumber  String          @unique @db.VarChar(13) // +639xxxxxxxx
   password     String          @db.Text
   role         Role            @default(USER)
   image        String?
@@ -110,24 +110,27 @@ model UserPreference {
   darkMode  Boolean
 }
 
-model AdminSettings {
-  id                              Int                 @id @default(autoincrement())
-  openingTime                     DateTime
-  closingTime                     DateTime
-  minimumCustomerReservationHours Int
-  maximumCustomerReservationHours Int
-  defaultMinimumPerHead           Int
-  reservationCostPerHour          Float
+model SystemSettings {
+  name  String            @id
+  type  SettingValueTypes
+  value String
+}
+
+enum SettingValueTypes {
+  int
+  float
+  string
+  date
 }
 
 model MaintainanceDates {
-  date            DateTime @id
+  date DateTime @id
 }
 
 model FAQ {
-  id Int @id @default(autoincrement())
-  question String
-  answer String @db.Text
+  id       Int    @id @default(autoincrement())
+  question String @unique
+  answer   String @db.Text
 }
 
 model OtherServices {
