@@ -17,7 +17,7 @@ import {
 } from "@components/ui/dropdown-menu";
 import prisma from "@lib/db";
 import { UserCircle } from "lucide-react";
-import { Session, getServerSession } from "next-auth";
+import { Session } from "next-auth";
 import Link from "next/link";
 
 export default async function UserNav({
