@@ -2,13 +2,6 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { NextResponse } from "next/server";
 import { Readable } from "stream";
 
-// Disable automatic body parsing
-export const config = {
-	api: {
-		bodyParser: false,
-	},
-};
-
 // Helper function to get raw body
 async function getRawBody(readable: Readable): Promise<Buffer> {
 	const chunks = [];
