@@ -533,11 +533,12 @@ export default function ReservationDialog({
 														userName: currentUser.data?.name as string,
 													};
 													startSaving(async () => {
-														const result = await reserve(r);
+														const result = await createReservation(r);
 														if (result) {
 															window.open(result.data.attributes.checkout_url, "_blank");
 														}
 													});
+													alert("yes");
 												} else {
 													signIn();
 												}
@@ -607,10 +608,6 @@ type Reservation = {
 		name: string;
 	}[];
 };
-async function reserve(reserve: Reservation) {
-	const result = await createReservation(reserve);
-	return result;
-}
 
 function getSelectedServicesTotalPrice(
 	allServicesData: {
