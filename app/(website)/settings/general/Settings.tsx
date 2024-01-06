@@ -399,14 +399,21 @@ export function FAQ() {
 						{data.length > 0 ? (
 							<>
 								{data.map(faq => (
-									<CreateOrUpdateFAQ key={String(faq.id)} data={faq} SWRKey={SWRKey}>
+									<CreateOrUpdateFAQ
+										key={String(faq.id).concat(faq.question, faq.answer)}
+										data={faq}
+										SWRKey={SWRKey}>
 										<Button
 											type="button"
 											variant="ghost"
 											size="sm"
-											className="flex justify-between gap-8 rounded-none">
-											<span className="text-ellipsis">{faq.question}</span>
-											<span className="text-ellipsis">{faq.answer}</span>
+											className="grid grid-cols-2 gap-8 rounded-none">
+											<span className="inline-block max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-left">
+												{faq.question}
+											</span>
+											<span className="inline-block max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-right">
+												{faq.answer}
+											</span>
 										</Button>
 									</CreateOrUpdateFAQ>
 								))}
