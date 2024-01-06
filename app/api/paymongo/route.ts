@@ -15,9 +15,9 @@ export async function POST(req: NextRequest, res: NextResponse) {
 	console.log("Yes, this was called");
 	// This is where you handle the incoming webhook event
 	// const rawBody = await getRawBody(req);
-	const rawBody = await req.json();
-	const event = req.body;
-	console.log("event", event);
+	const rawBody = await req.json(); //this is where I get the event like when user successfully pays
+	//const event = req.body;
+	//console.log("event", event);
 	console.log("Raw body for this request is:", rawBody);
 
 	// Parse the raw body into JSON
@@ -34,5 +34,5 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
 	// Always respond with a 200 or 2xx after receiving the webhook event
 	// res.status(200).json({ received: true });
-	return new Response(null, { status: 200 });
+	return new Response("", { status: 200 });
 }
