@@ -28,7 +28,7 @@ import {
 } from "./ReservationForm";
 import { signIn } from "next-auth/react";
 import { Session } from "next-auth";
-import { getCurrentUser } from "../serverActions";
+import { createReservation, getCurrentUser } from "../serverActions";
 import { AlertTriangle, Loader2, Pencil, X } from "lucide-react";
 import {
 	AlertDialog,
@@ -42,6 +42,7 @@ import {
 	AlertDialogTrigger,
 } from "@components/ui/alert-dialog";
 import { Textarea } from "@components/ui/textarea";
+import { DialogClose } from "@radix-ui/react-dialog";
 type ReservationDialogProps = {
 	selectedDishes: {
 		id: number;
@@ -526,17 +527,17 @@ export default function ReservationDialog({
 														eventDuration: timeUse,
 														orders: selectedDishes, //dishes
 														totalPrice:
-															selectedSet.price +
-															numberOfPacks +
-															getSelectedServicesTotalPrice(
-																allOtherServices.data,
-																selectedServices,
-																inputValues
-															),
+															totalSetPrice + (totalServicesPrice ?? 0) + totalRentingPrice,
+														selectedSet: selectedSet,
 														userID: currentUser.data?.id as number,
 														userName: currentUser.data?.name as string,
 													};
-													startSaving(async () => await reserve(r));
+													startSaving(async () => {
+														const result = await reserve(r);
+														if (result) {
+															window.open(result.data.attributes.checkout_url, "_blank");
+														}
+													});
 												} else {
 													signIn();
 												}
@@ -580,13 +581,21 @@ export function TermsOfPayment(
 				</AlertDialogHeader>
 				<AlertDialogFooter>
 					<AlertDialogCancel>Cancel</AlertDialogCancel>
-					<AlertDialogAction {...props}>{props.children}</AlertDialogAction>
+					<DialogClose asChild>
+						<AlertDialogAction {...props}>{props.children}</AlertDialogAction>
+					</DialogClose>
 				</AlertDialogFooter>
 			</AlertDialogContent>
 		</AlertDialog>
 	);
 }
 type Reservation = {
+	selectedSet: {
+		id: number;
+		name: string;
+		minimumPerHead: number;
+		price: number;
+	};
 	eventDate: Date;
 	userID: number;
 	userName: string;
@@ -599,8 +608,8 @@ type Reservation = {
 	}[];
 };
 async function reserve(reserve: Reservation) {
-	// const a = await createReservation(reserve);
-	// console.log("END", a);
+	const result = await createReservation(reserve);
+	return result;
 }
 
 function getSelectedServicesTotalPrice(

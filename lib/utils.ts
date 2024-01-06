@@ -188,6 +188,23 @@ export function generateRandomString(length: number): string {
 
 	return result;
 }
+/**
+ *
+ * @param length number of digits
+ * @returns a string composing of numbers, just remember 0 could be the first number
+ * and get removed after parsing to int
+ */
+export function generateRandomNumbers(length: number) {
+	const charset = "0123456789";
+	let result = "";
+
+	for (let i = 0; i < length; i++) {
+		const randomIndex = Math.floor(Math.random() * charset.length);
+		result += charset[randomIndex];
+	}
+
+	return result;
+}
 
 export function imageWrapper(
 	file: File,
