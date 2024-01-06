@@ -62,7 +62,7 @@ export default async function page() {
 				<h2 className="text-2xl font-bold tracking-tight">Offers</h2>
 				<p className="text-muted-foreground">Pick the best offers for you!</p>
 			</div>
-			{settings && (
+			{settings && maintainance && (
 				<ReservationForm
 					session={session}
 					settings={settings}
