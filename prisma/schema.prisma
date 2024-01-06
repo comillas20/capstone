@@ -21,8 +21,9 @@ model Reservations {
   totalPrice    Float
   status        ReservationStatus @default(PENDING)
   eventDuration Int
-  orders        Dish[]            @relation("ReservationsDishes")
+  orders        String[]            
   message       String?
+  setName String
 }
 
 enum ReservationStatus {
@@ -37,7 +38,6 @@ model Dish {
   categoryID  Int
   category    Category       @relation(fields: [categoryID], references: [id], onDelete: Cascade)
   subSet      SubSet[]       @relation("DishSubSets")
-  orders      Reservations[] @relation("ReservationsDishes")
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
   isAvailable Boolean        @default(false)
