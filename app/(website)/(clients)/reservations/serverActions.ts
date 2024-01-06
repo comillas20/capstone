@@ -40,7 +40,7 @@ type Result = {
 		};
 	};
 };
-export async function createReservation(reserve: Reservation) {
+export async function createCheckoutSession(reserve: Reservation) {
 	const random = generateRandomNumbers(10);
 	try {
 		const data = {

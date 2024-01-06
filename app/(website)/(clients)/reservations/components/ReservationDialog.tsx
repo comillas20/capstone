@@ -28,7 +28,7 @@ import {
 } from "./ReservationForm";
 import { signIn } from "next-auth/react";
 import { Session } from "next-auth";
-import { createReservation, getCurrentUser } from "../serverActions";
+import { createCheckoutSession, getCurrentUser } from "../serverActions";
 import { AlertTriangle, Loader2, Pencil, X } from "lucide-react";
 import {
 	AlertDialog,
@@ -533,7 +533,7 @@ export default function ReservationDialog({
 														userName: currentUser.data?.name as string,
 													};
 													startSaving(async () => {
-														const result = await createReservation(r);
+														const result = await createCheckoutSession(r);
 														if (result) {
 															window.open(result.data.attributes.checkout_url, "_blank");
 														} else console.log("Error at ReservationDialog: ", result);
