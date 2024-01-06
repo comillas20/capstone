@@ -63,23 +63,19 @@ export default function RestoreBackUpForm() {
 				setMessage("Reading the file...");
 				const dishes = getDishesFromExcel(workbook);
 				const sets = getSetsFromExcel(workbook);
-				let dishCount = 0,
-					setCount = 0;
 				if (dishes) {
-					dishes.forEach(async dish => {
+					dishes.forEach(async (dish, index) => {
 						const dishUpload = await restoreDishCatCourse(dish);
 						if (dishUpload) {
-							dishCount++;
-							setMessage("Uploading dishes (" + dishCount + "/" + dishes.length + ")");
+							setMessage("Uploading dishes (" + index + "/" + dishes.length + ")");
 						}
 					});
 				}
 				if (sets) {
-					sets.forEach(async set => {
+					sets.forEach(async (set, index) => {
 						const setUpload = await restoreSets(set);
 						if (setUpload) {
-							setCount++;
-							setMessage("Uploading sets (" + setCount + "/" + sets.length + ")");
+							setMessage("Uploading sets (" + index + "/" + sets.length + ")");
 						}
 					});
 				}
@@ -205,6 +201,7 @@ function getSetsFromExcel(workbook: ExcelJS.Workbook) {
 	let sets: Set[] = [];
 	let currentSet: Set | undefined;
 	let name: string | undefined,
+		description: string | undefined,
 		createdAtCell: string | undefined,
 		createdAt: string | null,
 		minimumPerHead: string | undefined,
@@ -219,24 +216,26 @@ function getSetsFromExcel(workbook: ExcelJS.Workbook) {
 	worksheet.eachRow({ includeEmpty: false }, function (row, rowNumber) {
 		if (rowNumber > 1) {
 			name = row.getCell(1).value?.toString();
-			createdAtCell = row.getCell(2).value?.toString();
+			description = row.getCell(2).value?.toString();
+			createdAtCell = row.getCell(3).value?.toString();
 			createdAt = createdAtCell
 				? convertExcelValueToDateString(createdAtCell)
 				: null;
-			minimumPerHead = row.getCell(3).value?.toString();
-			price = row.getCell(4).value?.toString();
-			subset = row.getCell(5).value?.toString();
-			course = row.getCell(6).value?.toString();
-			selectionQuantity = row.getCell(7).value?.toString();
-			dish = row.getCell(8).value?.toString();
-			isAvailable = row.getCell(9).value?.toString().toLowerCase() === "true";
-			category = row.getCell(10).value?.toString();
-			imgHref = row.getCell(11).value?.toString();
+			minimumPerHead = row.getCell(4).value?.toString();
+			price = row.getCell(5).value?.toString();
+			subset = row.getCell(6).value?.toString();
+			course = row.getCell(7).value?.toString();
+			selectionQuantity = row.getCell(8).value?.toString();
+			dish = row.getCell(9).value?.toString();
+			isAvailable = row.getCell(10).value?.toString().toLowerCase() === "true";
+			category = row.getCell(11).value?.toString();
+			imgHref = row.getCell(12).value?.toString();
 			if (name && price && minimumPerHead) {
 				// Push previous set, before it gets replaced by the new set below
 				if (currentSet) sets.push(currentSet);
 				currentSet = {
 					name: name as string,
+					description: description ? (description as string) : null,
 					createdAt: createdAt ? new Date(createdAt) : new Date(),
 					minimumPerHead: parseInt(minimumPerHead as string),
 					price: parseFloat(price as string),

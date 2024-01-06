@@ -14,6 +14,7 @@ export type DCC = {
 
 export type Set = {
 	name: string;
+	description: string | null;
 	createdAt: Date;
 	minimumPerHead: number;
 	price: number;

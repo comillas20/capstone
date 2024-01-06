@@ -92,6 +92,7 @@ export async function retrieveSetsForBackUp() {
 	const sets = await prisma.set.findMany({
 		select: {
 			name: true,
+			description: true,
 			price: true,
 			minimumPerHead: true,
 			createdAt: true,
@@ -137,6 +138,7 @@ export async function retrieveSetsForBackUp() {
 
 type Set = {
 	name: string;
+	description: string | null;
 	createdAt: Date;
 	minimumPerHead: number;
 	price: number;
@@ -158,6 +160,7 @@ export async function restoreSets(values: Set) {
 	const newSet = await prisma.set.upsert({
 		create: {
 			name: values.name,
+			description: values.description,
 			createdAt: values.createdAt,
 			minimumPerHead: values.minimumPerHead,
 			price: values.price,
@@ -167,6 +170,7 @@ export async function restoreSets(values: Set) {
 		},
 		update: {
 			name: values.name,
+			description: values.description,
 			createdAt: values.createdAt,
 			minimumPerHead: values.minimumPerHead,
 			price: values.price,

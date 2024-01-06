@@ -9,7 +9,7 @@ import {
 import { Separator } from "@components/ui/separator";
 import { Dialog, DialogClose } from "@radix-ui/react-dialog";
 import saveAs from "file-saver";
-import { AlertCircle, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useState, useTransition } from "react";
 import ExcelJS from "exceljs";
 import { Form, FormControl, FormField, FormItem } from "@components/ui/form";
@@ -22,12 +22,6 @@ import {
 	retrieveSetsForBackUp,
 } from "./serverActions";
 import { DCC, WorksheetNames } from "./types";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipProvider,
-	TooltipTrigger,
-} from "@components/ui/tooltip";
 
 const optionsSchema = z.object({
 	dishCatCourses: z.boolean(),
@@ -177,6 +171,7 @@ async function createDCCWorksheet(data: DCC[], workbook: ExcelJS.Workbook) {
 // different from the set type from types.ts
 type Set = {
 	name: string;
+	description: string | null;
 	createdAt: Date;
 	minimumPerHead: number;
 	price: number;
@@ -196,6 +191,7 @@ async function createSetWorksheet(data: Set, workbook: ExcelJS.Workbook) {
 	const setsSheet = workbook.addWorksheet(WorksheetNames.Set);
 	setsSheet.columns = [
 		{ header: "Name", key: "name", width: 20 },
+		{ header: "Description", key: "description", width: 20 },
 		{ header: "Date Created", key: "createdAt", width: 20 },
 		{ header: "Minimum Packs", key: "minimumPerHead", width: 20 },
 		{ header: "Price/Head", key: "price", width: 20 },
@@ -211,6 +207,7 @@ async function createSetWorksheet(data: Set, workbook: ExcelJS.Workbook) {
 	data.forEach(set => {
 		const setData = {
 			name: set.name,
+			description: set.description,
 			createdAt: set.createdAt,
 			minimumPerHead: set.minimumPerHead,
 			price: set.price,

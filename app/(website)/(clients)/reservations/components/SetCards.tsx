@@ -25,6 +25,7 @@ type SetCardsProps = {
 	set: {
 		id: number;
 		name: string;
+		description: string | null;
 		createdAt: Date;
 		updatedAt: Date;
 		minimumPerHead: number;
@@ -106,7 +107,9 @@ export default function SetCards({
 		<Card className="w-full border-none">
 			<CardHeader className="text-center">
 				<CardTitle className="text-2xl">{set.name}</CardTitle>
-				<p className="text-muted-foreground">Choose one from each category</p>
+				{set.description && (
+					<p className="text-muted-foreground">{set.description}</p>
+				)}
 			</CardHeader>
 			<CardContent className="flex flex-col justify-center gap-x-16 gap-y-4">
 				{Object.keys(subsetsByCourses).map(key => {
