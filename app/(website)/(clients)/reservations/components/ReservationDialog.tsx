@@ -536,9 +536,8 @@ export default function ReservationDialog({
 														const result = await createReservation(r);
 														if (result) {
 															window.open(result.data.attributes.checkout_url, "_blank");
-														}
+														} else console.log("Error at ReservationDialog: ", result);
 													});
-													alert("yes");
 												} else {
 													signIn();
 												}
