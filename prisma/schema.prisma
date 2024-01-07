@@ -13,9 +13,9 @@ datasource db {
 // customer's reservation table
 model Reservations {
   id            String            @id @default(uuid())
-  eventDate     DateTime          @db.Timestamp
-  reservedAt    DateTime          @default(now()) @db.Timestamp
-  updatedAt     DateTime          @updatedAt @db.Timestamp
+  eventDate     DateTime
+  reservedAt    DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt 
   userID        Int
   user          Account           @relation(fields: [userID], references: [id])
   net_amount    Float
@@ -39,8 +39,8 @@ model Dish {
   categoryID  Int
   category    Category       @relation(fields: [categoryID], references: [id], onDelete: Cascade)
   subSet      SubSet[]       @relation("DishSubSets")
-  createdAt   DateTime       @default(now()) @db.Timestamp
-  updatedAt   DateTime       @updatedAt @db.Timestamp
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
   isAvailable Boolean        @default(false)
   imgHref     String?
 }
@@ -64,8 +64,8 @@ model Set {
   id             Int      @id @default(autoincrement())
   name           String   @unique @db.VarChar(50)
   description    String?
-  createdAt      DateTime @default(now()) @db.Timestamp
-  updatedAt      DateTime @updatedAt @db.Timestamp
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
   subSets        SubSet[]
   minimumPerHead Int
   price          Float
@@ -93,8 +93,8 @@ model Account {
   password     String          @db.Text
   role         Role            @default(USER)
   image        String?
-  createdAt    DateTime        @default(now()) @db.Timestamp
-  updatedAt    DateTime        @updatedAt @db.Timestamp
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
   preference   UserPreference?
   reservations Reservations[]
 }
@@ -125,7 +125,7 @@ enum SettingValueTypes {
 }
 
 model MaintainanceDates {
-  date DateTime @id @db.Timestamp
+  date DateTime @id
 }
 
 model FAQ {
