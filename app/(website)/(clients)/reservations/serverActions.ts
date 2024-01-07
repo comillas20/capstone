@@ -84,7 +84,6 @@ export async function createCheckoutSession(reserve: Reservation) {
 		);
 
 		const result: Result = await response.json();
-		console.log(result);
 		return result;
 	} catch (error) {
 		console.error("Error:", error);
