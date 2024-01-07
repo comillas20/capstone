@@ -66,7 +66,7 @@ export async function createCheckoutSession(reserve: Reservation) {
 					statement_descriptor: "Jakelou",
 					metadata: {
 						userID: reserve.userID,
-						eventDate: reserve.eventDate,
+						eventDate: reserve.eventDate.toDateString(),
 						eventDuration: reserve.eventDuration,
 						message: reserve.message,
 						setName: reserve.selectedSet.name,
