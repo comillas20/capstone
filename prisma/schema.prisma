@@ -18,10 +18,11 @@ model Reservations {
   updatedAt     DateTime          @updatedAt
   userID        Int
   user          Account           @relation(fields: [userID], references: [id])
-  totalPrice    Float
+  net_amount    Float
+  fee           Float
   status        ReservationStatus @default(PENDING)
   eventDuration Int
-  orders        String[]            
+  dishes        String[]            
   message       String?
   setName String
 }
