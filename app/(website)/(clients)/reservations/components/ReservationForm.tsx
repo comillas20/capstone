@@ -1,7 +1,7 @@
 "use client";
 
 import { addDays, subMonths, isBefore, isSameMonth } from "date-fns";
-import { createContext, useEffect, useState } from "react";
+import { createContext, useState } from "react";
 import { buttonVariants } from "@components/ui/button";
 import { Calendar } from "@components/ui/calendar";
 import { cn } from "@lib/utils";
@@ -47,7 +47,7 @@ export default function ReservationForm({
 	const currentDate = new Date();
 	const disabledDays = [
 		...(maintainanceDates.length > 0 ? maintainanceDates : []),
-		{ from: subMonths(currentDate, 2), to: addDays(currentDate, 3) },
+		{ from: subMonths(currentDate, 2), to: addDays(currentDate, 2) },
 	];
 	const nearestDateAvailable: Date =
 		maintainanceDates.length > 0
