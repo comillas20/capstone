@@ -19,6 +19,7 @@ type Reservation = {
 		id: number;
 		name: string;
 	}[];
+	message: string;
 };
 export async function getCurrentUser(currentID: number) {
 	return await prisma.account.findUnique({
@@ -63,6 +64,14 @@ export async function createCheckoutSession(reserve: Reservation) {
 					],
 					payment_method_types: ["gcash"],
 					statement_descriptor: "Jakelou",
+					metadata: {
+						userID: reserve.userID,
+						eventDate: reserve.eventDate,
+						eventDuration: reserve.eventDuration,
+						message: reserve.message,
+						setName: reserve.selectedSet.name,
+						dishes: JSON.stringify(reserve.orders.map(order => order.name)),
+					},
 				},
 			},
 		};

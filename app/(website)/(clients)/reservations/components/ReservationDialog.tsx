@@ -531,6 +531,7 @@ export default function ReservationDialog({
 														selectedSet: selectedSet,
 														userID: currentUser.data?.id as number,
 														userName: currentUser.data?.name as string,
+														message: message,
 													};
 													startSaving(async () => {
 														const result = await createCheckoutSession(r);
@@ -606,6 +607,7 @@ type Reservation = {
 		id: number;
 		name: string;
 	}[];
+	message: string;
 };
 
 function getSelectedServicesTotalPrice(
