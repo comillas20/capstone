@@ -43,34 +43,40 @@ type RequestType = {
 	};
 };
 export async function POST(req: NextRequest, res: NextResponse) {
-	const request: RequestType = await req.json(); //this is where I get the event like when user successfully pays
-	const newReservation = await prisma.reservations.create({
-		data: {
-			eventDate: new Date(
-				request.data.attributes.data.attributes.payments[0].attributes.metadata.eventDate
-			),
-			eventDuration: parseInt(
-				request.data.attributes.data.attributes.payments[0].attributes.metadata
-					.eventDuration
-			),
-			setName: request.data.attributes.data.attributes.line_items[0].name,
-			net_amount:
-				request.data.attributes.data.attributes.payments[0].attributes.net_amount /
-				100,
-			fee:
-				request.data.attributes.data.attributes.payments[0].attributes.fee / 100,
-			message:
-				request.data.attributes.data.attributes.payments[0].attributes.metadata
-					.message,
-			dishes: JSON.parse(
-				request.data.attributes.data.attributes.payments[0].attributes.metadata
-					.dishes
-			),
-			userID: parseInt(
-				request.data.attributes.data.attributes.payments[0].attributes.metadata
-					.userID
-			),
-		},
-	});
-	return new Response("ok", { status: 200 });
+	try {
+		const request: RequestType = await req.json(); //this is where I get the event like when user successfully pays
+		const newReservation = await prisma.reservations.create({
+			data: {
+				eventDate: new Date(
+					request.data.attributes.data.attributes.payments[0].attributes.metadata.eventDate
+				),
+				eventDuration: parseInt(
+					request.data.attributes.data.attributes.payments[0].attributes.metadata
+						.eventDuration
+				),
+				setName: request.data.attributes.data.attributes.line_items[0].name,
+				net_amount:
+					request.data.attributes.data.attributes.payments[0].attributes.net_amount /
+					100,
+				fee:
+					request.data.attributes.data.attributes.payments[0].attributes.fee / 100,
+				message:
+					request.data.attributes.data.attributes.payments[0].attributes.metadata
+						.message,
+				dishes: JSON.parse(
+					request.data.attributes.data.attributes.payments[0].attributes.metadata
+						.dishes
+				),
+				userID: parseInt(
+					request.data.attributes.data.attributes.payments[0].attributes.metadata
+						.userID
+				),
+			},
+		});
+		console.log("Reservation created!");
+		return new Response("ok", { status: 200 });
+	} catch (error) {
+		console.error("Reservation created!");
+		return new Response("not ok", { status: 200 });
+	}
 }
