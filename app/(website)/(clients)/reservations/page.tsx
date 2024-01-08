@@ -4,8 +4,11 @@ import { options } from "@app/api/auth/[...nextauth]/options";
 import { Settings } from "@app/(website)/settings/general/page";
 import {
 	getMaintainanceDates,
+	getReservations,
 	getSystemSettings,
 } from "@app/(website)/serverActionsGlobal";
+import ReservationList from "./components/ReservationList";
+import { columns } from "./components/Columns";
 export function generateMetadata() {
 	return {
 		title: "Reservation | Jakelou",
@@ -56,18 +59,32 @@ export default async function page() {
 	const session = await getServerSession(options);
 	const settings = await convertToObject();
 	const maintainance = await getMaintainanceDates();
+	const reservations = session ? await getReservations(session.user.id) : null;
 	return (
-		<div className="flex w-full flex-col space-y-4">
-			<div className="space-y-0.5">
-				<h2 className="text-2xl font-bold tracking-tight">Offers</h2>
-				<p className="text-muted-foreground">Pick the best offers for you!</p>
+		<div className="flex w-full flex-col space-y-32">
+			<div className="flex-col space-y-4">
+				<div className="space-y-0.5">
+					<h2 className="text-2xl font-bold tracking-tight">Offers</h2>
+					<p className="text-muted-foreground">Pick the best offers for you!</p>
+				</div>
+				{settings && maintainance && (
+					<ReservationForm
+						session={session}
+						settings={settings}
+						maintainanceDates={maintainance.map(d => d.date)}
+					/>
+				)}
 			</div>
-			{settings && maintainance && (
-				<ReservationForm
-					session={session}
-					settings={settings}
-					maintainanceDates={maintainance.map(d => d.date)}
-				/>
+			{reservations && (
+				<div className="flex-col space-y-4">
+					<div className="space-y-0.5">
+						<h2 className="text-2xl font-bold tracking-tight">
+							Your Reservation List
+						</h2>
+						<p className="text-muted-foreground">See your history with us!</p>
+					</div>
+					<ReservationList data={reservations} columns={columns} />
+				</div>
 			)}
 		</div>
 	);

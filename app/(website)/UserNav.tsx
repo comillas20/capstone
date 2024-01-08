@@ -108,29 +108,14 @@ export default async function UserNav({
 										Back up & Restore
 									</Link>
 								</DropdownMenuItem>
-								{/* <DropdownMenuItem asChild>
-										<Link href="/settings/createAccount" className="h-full w-full">
-											Create Admin Account
-										</Link>
-									</DropdownMenuItem> */}
 							</DropdownMenuGroup>
 						);
 					} else {
 						return (
 							<DropdownMenuGroup>
-								{/* <DropdownMenuItem asChild>
-									<Link href="/settings/general" className="h-full w-full">
-										General
-									</Link>
-								</DropdownMenuItem> */}
 								<DropdownMenuItem asChild>
 									<Link href="/settings/account" className="h-full w-full">
 										Account
-									</Link>
-								</DropdownMenuItem>
-								<DropdownMenuItem asChild>
-									<Link href="/settings/reservations" className="h-full w-full">
-										Reservations
 									</Link>
 								</DropdownMenuItem>
 							</DropdownMenuGroup>

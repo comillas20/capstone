@@ -1,6 +1,6 @@
 "use server";
 import prisma from "@lib/db";
-import { generateRandomNumbers } from "@lib/utils";
+import { convertDateToString, generateRandomNumbers } from "@lib/utils";
 
 type Reservation = {
 	selectedSet: {
@@ -66,11 +66,12 @@ export async function createCheckoutSession(reserve: Reservation) {
 					statement_descriptor: "Jakelou",
 					metadata: {
 						userID: reserve.userID,
-						eventDate: reserve.eventDate.toDateString(),
+						eventDate: convertDateToString(reserve.eventDate),
 						eventDuration: reserve.eventDuration,
 						message: reserve.message,
 						setName: reserve.selectedSet.name,
 						dishes: JSON.stringify(reserve.orders.map(order => order.name)),
+						totalCost: reserve.totalPrice,
 					},
 				},
 			},

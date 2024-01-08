@@ -20,7 +20,9 @@ export default function OverviewCard({
 			</CardHeader>
 			<CardContent>
 				<div className="text-2xl font-bold">{content}</div>
-				<p className="text-xs text-muted-foreground">{description}</p>
+				{description && (
+					<p className="text-xs text-muted-foreground">{description}</p>
+				)}
 			</CardContent>
 		</Card>
 	);

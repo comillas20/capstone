@@ -32,6 +32,7 @@ type RequestType = {
 								eventDuration: string;
 								userID: string;
 								dishes: string;
+								totalCost: string;
 							};
 						};
 					}[];
@@ -71,12 +72,16 @@ export async function POST(req: NextRequest, res: NextResponse) {
 					request.data.attributes.data.attributes.payments[0].attributes.metadata
 						.userID
 				),
+				totalCost: parseInt(
+					request.data.attributes.data.attributes.payments[0].attributes.metadata
+						.totalCost
+				),
 			},
 		});
 		console.log("Reservation created!");
 		return new Response("ok", { status: 200 });
 	} catch (error) {
-		console.error("Reservation created!");
+		console.error("Reservation not created!");
 		return new Response("not ok", { status: 200 });
 	}
 }
