@@ -1,4 +1,3 @@
-import { options } from "@app/api/auth/[...nextauth]/options";
 import SignOutButton from "@app/authentication/sign-out/SignOutButton";
 import {
 	Avatar,
@@ -19,6 +18,14 @@ import prisma from "@lib/db";
 import { UserCircle } from "lucide-react";
 import { Session } from "next-auth";
 import Link from "next/link";
+import male_1 from "public/avatars/male-1.png";
+import male_2 from "public/avatars/male-2.png";
+import male_3 from "public/avatars/male-3.png";
+import male_4 from "public/avatars/male-4.png";
+import female_1 from "public/avatars/female-1.png";
+import female_2 from "public/avatars/female-2.png";
+import female_3 from "public/avatars/female-3.png";
+import Image from "next/image";
 
 export default async function UserNav({
 	session,
@@ -40,16 +47,26 @@ export default async function UserNav({
 				image: true,
 			},
 		}));
+	const avatars = [
+		{ name: "male-1", img: male_1 },
+		{ name: "female-1", img: female_1 },
+		{ name: "male-2", img: male_2 },
+		{ name: "female-2", img: female_2 },
+		{ name: "male-3", img: male_3 },
+		{ name: "female-3", img: female_3 },
+		{ name: "male-4", img: male_4 },
+	];
+	const src = avatars.find(avatar => avatar.name === data?.image);
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
 				<Button variant="outline" size={"icon"} className="relative rounded-full">
 					<Avatar className="flex h-full w-full items-center justify-center rounded-full bg-muted">
-						{session && data?.image ? (
-							<AvatarCloudinaryImage
+						{session && data && src ? (
+							<Image
 								width={200}
 								height={240}
-								src={data.image}
+								src={src.img}
 								sizes="100vw"
 								alt={data.name ?? "User image"}
 								className="h-full w-full"

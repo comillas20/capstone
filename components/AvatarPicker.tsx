@@ -7,7 +7,7 @@ import {
 	DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import React from "react";
-import { AVATAR_IMAGE_FOLDER, cn } from "@lib/utils";
+import { cn } from "@lib/utils";
 import Image from "next/image";
 import male_1 from "public/avatars/male-1.png";
 import male_2 from "public/avatars/male-2.png";
