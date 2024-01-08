@@ -20,6 +20,7 @@ model Reservations {
   user          Account           @relation(fields: [userID], references: [id])
   net_amount    Float
   fee           Float
+  totalCost     Float
   status        ReservationStatus @default(PENDING)
   eventDuration Int
   dishes        String[]            
