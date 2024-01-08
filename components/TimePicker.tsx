@@ -1,8 +1,7 @@
-"use client";
 import { cn } from "@lib/utils";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 export type Meridiem = "AM" | "PM";
 type TimePickerProps = {
@@ -21,9 +20,6 @@ export default function TimePicker({
 }: TimePickerProps) {
 	const defaultTime = time ?? new Date();
 	const defaultHour = defaultTime.getHours();
-	// const hours = useRef(defaultHour > 12 ? defaultHour - 12 : defaultHour);
-	// const minutes = useRef(defaultTime.getMinutes());
-	const meridiem = useRef<Meridiem>(defaultHour > 12 ? "PM" : "AM");
 	const [initialHourMin, initialHourLimit] = [
 		minimumTime ? minimumTime.getHours() : 0,
 		maximumTime ? maximumTime.getHours() : 12,
@@ -35,10 +31,13 @@ export default function TimePicker({
 	const [hourMin, setHourMin] = useState<number>(initialHourMin);
 	const [hourLimit, setHourLimit] = useState<number>(initialHourLimit);
 
+	const [meridiem, setMeridiem] = useState<Meridiem>(
+		defaultHour > 11 ? "PM" : "AM"
+	);
 	// if minimum is set 12pm or after
 	useEffect(() => {
 		if (initialHourMin >= 12) {
-			meridiem.current = "PM";
+			setMeridiem("PM");
 			setHourMin(initialHourMin % 12 || 12);
 			setHourLimit(initialHourLimit % 12);
 		}
@@ -59,16 +58,17 @@ export default function TimePicker({
 			const input = parseInt(e.target.value, 10);
 			if (isNaN(input)) return;
 			if (hourOrMinute === "HOUR") {
-				// hours.current = Math.max(hourMin, Math.min(input, hourLimit));
+				if (input === 0) setMeridiem("AM");
+				else if (input === 12) setMeridiem("PM");
 				setHours(Math.max(hourMin, Math.min(input, hourLimit)));
 			} else if (hourOrMinute === "MINUTE") {
-				// minutes.current = Math.max(mMin, Math.min(input, mMax));
 				setMinutes(Math.max(mMin, Math.min(input, mMax)));
 			}
 		} else if (!e && hourOrMinute === "MERIDIEM") {
-			meridiem.current = meridiem.current === "AM" ? "PM" : "AM";
+			if (hours === 0) setMeridiem("AM");
+			else if (hours === 12) setMeridiem("PM");
 			setHourMin(
-				meridiem.current === "PM"
+				meridiem === "PM"
 					? initialHourMin > 12
 						? initialHourMin % 12 || 12
 						: initialHourMin
@@ -76,12 +76,15 @@ export default function TimePicker({
 			);
 			const am = initialHourLimit > 12 ? 12 : initialHourLimit;
 			const pm = hourLimit % 12 || 12;
-			setHourLimit(meridiem.current === "PM" ? pm : am);
+			setHourLimit(meridiem === "PM" ? pm : am);
 		}
 		const timeBruh = time
-			? time.setHours(meridiem.current === "AM" ? hours : hours + 12, minutes)
+			? time.setHours(
+					meridiem === "PM" ? (hours === 12 ? hours : hours + 12) : hours,
+					minutes
+			  )
 			: defaultTime.setHours(
-					meridiem.current === "AM" ? hours : hours + 12,
+					meridiem === "PM" ? (hours === 12 ? hours : hours + 12) : hours,
 					minutes
 			  );
 		onTimeChange(new Date(timeBruh));
@@ -106,9 +109,10 @@ export default function TimePicker({
 			<Button
 				type="button"
 				variant={"outline"}
-				onClick={() => onTimeChangeHandler("MERIDIEM")}
+				onClick={() => setMeridiem(prev => (prev === "AM" ? "PM" : "AM"))}
+				onBlur={() => onTimeChangeHandler("MERIDIEM")}
 				disabled={initialHourMin > 12}>
-				{meridiem.current}
+				{meridiem}
 			</Button>
 		</div>
 	);
