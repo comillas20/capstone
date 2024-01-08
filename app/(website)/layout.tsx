@@ -4,6 +4,7 @@ import { ThemeModeSwitcher } from "@app/(website)/ThemeModeSwitcher";
 import UserNav from "@app/(website)/UserNav";
 import { getServerSession } from "next-auth";
 import { options } from "../api/auth/[...nextauth]/options";
+import prisma from "@lib/db";
 
 export default async function WebsiteLayout({
 	children,
@@ -12,6 +13,21 @@ export default async function WebsiteLayout({
 }) {
 	const session = await getServerSession(options);
 	const mainNav = session && session.user.role === "ADMIN" ? adminNav : userNav;
+	// session details is static(?), until user log outs
+	const data =
+		session &&
+		(await prisma.account.findUnique({
+			where: {
+				id: session.user.id,
+			},
+			select: {
+				id: true,
+				name: true,
+				phoneNumber: true,
+				role: true,
+				image: true,
+			},
+		}));
 	return (
 		<div className="flex flex-col md:flex">
 			<nav className="border-b">
@@ -20,7 +36,7 @@ export default async function WebsiteLayout({
 					<MainNav className="mx-6" navBtns={mainNav} />
 					<div className="ml-auto flex items-center space-x-4">
 						<ThemeModeSwitcher />
-						<UserNav session={session} />
+						<UserNav session={session} data={data} />
 					</div>
 				</div>
 			</nav>

@@ -29,24 +29,16 @@ import Image from "next/image";
 
 export default async function UserNav({
 	session,
+	data,
 }: {
 	session: Session | null;
+	data: {
+		id: number;
+		name: string;
+		phoneNumber: string;
+		image: string | null;
+	} | null;
 }) {
-	// session details is static(?), until user log outs
-	const data =
-		session &&
-		(await prisma.account.findUnique({
-			where: {
-				id: session.user.id,
-			},
-			select: {
-				id: true,
-				name: true,
-				phoneNumber: true,
-				role: true,
-				image: true,
-			},
-		}));
 	const avatars = [
 		{ name: "male-1", img: male_1 },
 		{ name: "female-1", img: female_1 },
