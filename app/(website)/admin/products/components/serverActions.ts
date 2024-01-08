@@ -1,7 +1,6 @@
 "use server";
-
 import prisma from "@lib/db";
-import cloudinary from "cloudinary";
+
 type Dish = {
 	id: number;
 	name: string;
@@ -25,7 +24,6 @@ export async function createOrUpdateDish(dish: Dish) {
 		}
 
 		const data = await response.json();
-		//return data.secure_url;
 	}
 
 	return await prisma.dish.upsert({
@@ -68,20 +66,6 @@ export async function uploadImage(formData: FormData) {
 	return data.secure_url;
 }
 
-// async function deleteImages(public_ids: string[]) {
-// 	cloudinary.v2.config({
-// 		cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-// 		api_key: process.env.CLOUDINARY_API_KEY,
-// 		api_secret: process.env.CLOUDINARY_API_SECRET,
-// 	});
-// 	try {
-// 		const deleteResult = await cloudinary.v2.api.delete_resources(public_ids);
-// 	} catch (error) {
-// 		console.error(error);
-// 	}
-// }
-
-// type dishAndImages = { id: number; imgHref: string }[];
 export async function deleteDishes(
 	dishes: { id: number; imgHref: string | null }[]
 ) {
@@ -92,12 +76,6 @@ export async function deleteDishes(
 			},
 		},
 	});
-
-	// const noNulls = (
-	// 	dishes.filter(dish => dish.imgHref !== null) as dishAndImages
-	// ).map(dish => dish.imgHref);
-	// const yeetImage = await deleteImages(noNulls);
-
 	return yeetedDishes;
 }
 
@@ -193,11 +171,6 @@ export async function deleteSet(id: number) {
 	});
 }
 
-// await prisma.dish.update({
-// 	where: { id: 55 },
-// 	data: { subSet: { connect: { id: 18 } } },
-// });
-
 type subset = {
 	id: number;
 	name: string;
@@ -238,28 +211,11 @@ export async function createOrUpdateSubset(subset: subset) {
 	});
 }
 
-export async function getAllSubSetsInASet(setID: number) {
-	return await prisma.subSet.findMany({
-		include: {
-			dishes: true,
-		},
-		where: {
-			setID: setID,
-		},
-	});
-}
 export async function deleteSubset(id: number) {
 	return await prisma.subSet.delete({
 		where: { id: id },
 	});
 }
-
-// async function addDishToSubSet() {
-// 	await prisma.dish.update({
-// 		where: { id: 55 },
-// 		data: { subSet: { connect: { id: 18 } } },
-// 	});
-// }
 
 export async function isSubSetAlreadyExistsInASet(setID: number, name: string) {
 	const result = await prisma.set.findUnique({

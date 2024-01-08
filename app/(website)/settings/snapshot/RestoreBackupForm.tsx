@@ -19,18 +19,6 @@ import { DCC, Set, WorksheetNames } from "./types";
 import { Loader2 } from "lucide-react";
 import { restoreDishCatCourse, restoreSets } from "./serverActions";
 import { convertExcelValueToDateString } from "@lib/utils";
-import { toast } from "@components/ui/use-toast";
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-	AlertDialogTrigger,
-} from "@components/ui/alert-dialog";
 
 const uploadFormSchema = z.object({
 	uploadFile: z.custom(file => file instanceof File, {
@@ -55,9 +43,7 @@ export default function RestoreBackUpForm() {
 				setMessage("Opening the file...");
 				const file: File = values.uploadFile as File;
 				const workbook = new ExcelJS.Workbook();
-				// Convert the file to an array buffer
 				const arrayBuffer = await file.arrayBuffer();
-				// Load the workbook from the array buffer
 				await workbook.xlsx.load(arrayBuffer);
 
 				setMessage("Reading the file...");
@@ -79,21 +65,7 @@ export default function RestoreBackUpForm() {
 						}
 					});
 				}
-
 				// Note to self: all code here will be executed first before uploading
-
-				// toast({
-				// 	title: "Successfully restored the following",
-				// 	description: (
-				// 		<ul className="pl-4">
-				// 			{dishes && dishCount === dishes.length && <li>Dishes</li>}
-				// 			{sets && setCount === sets.length && <li>Sets</li>}
-				// 		</ul>
-				// 	),
-				// 	duration: 5000,
-				// });
-
-				// if (!dishes && !sets) setMessage("Invalid File");
 			} catch (err) {
 				// will catch an error if not a single worksheet is detected
 				setMessage("Invalid File");
@@ -134,30 +106,6 @@ export default function RestoreBackUpForm() {
 						{isUploading && <Loader2 className="mr-2 animate-spin" />}
 						Upload
 					</Button>
-					{/* <AlertDialog>
-						<AlertDialogTrigger asChild>
-							<Button type="button" disabled={!form.formState.isDirty}>
-								Upload
-							</Button>
-						</AlertDialogTrigger>
-						<AlertDialogContent>
-							<AlertDialogTitle>Are you sure?</AlertDialogTitle>
-							<AlertDialogDescription className="font-bold text-destructive">
-								This will replace all items with the same name. Continue?
-							</AlertDialogDescription>
-							<AlertDialogFooter>
-								<AlertDialogCancel>Cancel</AlertDialogCancel>
-								<AlertDialogAction asChild>
-									<Button
-										type="submit"
-										disabled={isUploading || !form.formState.isDirty}>
-										{isUploading && <Loader2 className="mr-2 animate-spin" />}
-										Continue
-									</Button>
-								</AlertDialogAction>
-							</AlertDialogFooter>
-						</AlertDialogContent>
-					</AlertDialog> */}
 				</div>
 			</form>
 		</Form>

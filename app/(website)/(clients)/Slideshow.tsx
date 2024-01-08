@@ -13,14 +13,6 @@ const fadeImages = [img1, img2, img3];
 export default function Slideshow() {
 	return (
 		<div className="relative">
-			{/* <div className="absolute left-20 top-[25%] z-50">
-				<h1 className="cursor-default select-none font-['cursive'] text-9xl font-extrabold">
-					Jakelou
-				</h1>
-				<h5 className="cursor-default select-none text-3xl">
-					Online Catering and Reservation
-				</h5>
-			</div> */}
 			<Fade
 				pauseOnHover={false}
 				transitionDuration={1000}

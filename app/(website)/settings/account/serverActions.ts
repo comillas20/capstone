@@ -24,19 +24,6 @@ export async function doesNameExists(name: string) {
 	return !!isNameFound;
 }
 
-// export async function doesEmailExists(email: string) {
-// 	const isEmailFound = await prisma.account.findUnique({
-// 		select: {
-// 			id: true,
-// 		},
-// 		where: {
-// 			email: email,
-// 		},
-// 	});
-
-// 	return !!isEmailFound;
-// }
-
 export async function doesPhoneNumberExists(phoneNumber: string) {
 	const isPhoneNumberFound = await prisma.account.findUnique({
 		select: {

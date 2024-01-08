@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 
 import { cn } from "@lib/utils";
 import { buttonVariants } from "@components/ui/button";
-import { Separator } from "@components/ui/separator";
 
 enum AccessLevel {
 	GUEST = 0,
@@ -48,11 +47,6 @@ export function SidebarNav({ role }: SidebarNavProps) {
 			href: "/settings/snapshot",
 			accessLevel: AccessLevel.ADMIN,
 		},
-		// {
-		// 	title: "Create admin account",
-		// 	href: "/settings/createAccount",
-		// 	accessLevel: AccessLevel.ADMIN,
-		// },
 	];
 	return (
 		<nav className="flex space-x-2 lg:flex-col lg:space-x-0 lg:space-y-1">

@@ -378,13 +378,6 @@ export function MaintainanceDates({
 	);
 }
 
-type FAQProps = {
-	data: {
-		id: number;
-		question: string;
-		answer: string;
-	}[];
-};
 export function FAQ() {
 	const SWRKey = "FAQList";
 	const { data } = useSWR(SWRKey, async () => getFAQs());
