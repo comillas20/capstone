@@ -1,8 +1,14 @@
 "use server";
 import prisma from "@lib/db";
+import { utcToZonedTime } from "date-fns-tz";
 
+// had to do this because prisma auto converts Dates to UTC timezone
+// and I can't do anything to make it use local time zone
+// so Im converting every Dates I get from Prisma to local
+
+const localTimezone = "Asia/Manila";
 export async function getAllSets() {
-	return await prisma.set.findMany({
+	const result = await prisma.set.findMany({
 		select: {
 			id: true,
 			name: true,
@@ -35,6 +41,11 @@ export async function getAllSets() {
 			updatedAt: true,
 		},
 	});
+	return result.map(set => ({
+		...set,
+		createdAt: utcToZonedTime(set.createdAt, localTimezone),
+		updatedAt: utcToZonedTime(set.updatedAt, localTimezone),
+	}));
 }
 
 export async function getAllCategories() {
@@ -61,7 +72,7 @@ export async function getAllCourses() {
 }
 
 export async function getAllDishes() {
-	return await prisma.dish.findMany({
+	const result = await prisma.dish.findMany({
 		select: {
 			id: true,
 			name: true,
@@ -72,6 +83,11 @@ export async function getAllDishes() {
 			imgHref: true,
 		},
 	});
+	return result.map(dish => ({
+		...dish,
+		createdAt: utcToZonedTime(dish.createdAt, localTimezone),
+		updatedAt: utcToZonedTime(dish.updatedAt, localTimezone),
+	}));
 }
 
 export async function getAllServices() {
@@ -79,7 +95,10 @@ export async function getAllServices() {
 }
 
 export async function getMaintainanceDates() {
-	return await prisma.maintainanceDates.findMany();
+	const result = await prisma.maintainanceDates.findMany();
+	return result.map(mD => ({
+		date: utcToZonedTime(mD.date, localTimezone),
+	}));
 }
 
 export async function getFAQs() {
@@ -127,4 +146,8 @@ function convertValue<T extends SettingType>(
 		default:
 			throw new Error(`Unsupported type: ${type}`);
 	}
+}
+
+export async function getReservations() {
+	return await prisma.reservations.findMany();
 }

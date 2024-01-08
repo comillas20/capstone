@@ -94,7 +94,6 @@ model Account {
   role         Role            @default(USER)
   image        String?
   createdAt    DateTime        @default(now())
-  updatedAt    DateTime        @updatedAt
   preference   UserPreference?
   reservations Reservations[]
 }
@@ -125,7 +124,7 @@ enum SettingValueTypes {
 }
 
 model MaintainanceDates {
-  date DateTime @id
+  date DateTime @id 
 }
 
 model FAQ {

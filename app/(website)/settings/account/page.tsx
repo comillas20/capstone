@@ -12,8 +12,14 @@ export default async function SettingsAccountPage() {
 				where: {
 					id: session.user.id,
 				},
+				select: {
+					id: true,
+					name: true,
+					phoneNumber: true,
+					image: true,
+				},
 		  })
-		: undefined;
+		: null;
 	return (
 		<div className="space-y-6">
 			<div>

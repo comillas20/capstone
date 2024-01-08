@@ -32,6 +32,13 @@ export default async function UserNav({
 			where: {
 				id: session.user.id,
 			},
+			select: {
+				id: true,
+				name: true,
+				phoneNumber: true,
+				role: true,
+				image: true,
+			},
 		}));
 	return (
 		<DropdownMenu>

@@ -1,6 +1,13 @@
 "use server";
 
 import prisma from "@lib/db";
+import { utcToZonedTime } from "date-fns-tz";
+
+// had to do this because prisma auto converts Dates to UTC timezone
+// and I can't do anything to make it use local time zone
+// so Im converting every Dates I get from Prisma to local
+
+const localTimezone = "Asia/Manila";
 
 export async function retrieveAllDishCatCoursesForBackUp() {
 	const dishes = await prisma.dish.findMany({
@@ -25,6 +32,7 @@ export async function retrieveAllDishCatCoursesForBackUp() {
 		...dish,
 		category: dish.category.name,
 		course: dish.category.course.name,
+		createdAt: utcToZonedTime(dish.createdAt, localTimezone),
 	}));
 }
 type DCC = {
@@ -96,7 +104,6 @@ export async function retrieveSetsForBackUp() {
 			price: true,
 			minimumPerHead: true,
 			createdAt: true,
-			updatedAt: true,
 			subSets: {
 				select: {
 					name: true,
@@ -125,6 +132,7 @@ export async function retrieveSetsForBackUp() {
 
 	return sets.map(set => ({
 		...set,
+		createdAt: utcToZonedTime(set.createdAt, localTimezone),
 		subSets: set.subSets.map(subSet => ({
 			...subSet,
 			course: subSet.course.name,
@@ -236,7 +244,6 @@ export async function restoreSets(values: Set) {
 										where: { name: dish.category },
 									},
 								},
-								createdAt: dish.createdAt,
 								imgHref: dish.imgHref,
 								isAvailable: dish.isAvailable,
 								subSet: {
