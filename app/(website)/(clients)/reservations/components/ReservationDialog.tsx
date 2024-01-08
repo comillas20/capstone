@@ -201,7 +201,7 @@ export default function ReservationDialog({
 										Minimum of{" "}
 										<strong className="font-bold">{settings.minPerHead} packs</strong>
 									</p>
-									<Separator className="my-2"></Separator>
+									<Separator className="my-2" />
 									<div className="flex items-center gap-4">
 										<Input
 											className="w-24"
@@ -234,7 +234,12 @@ export default function ReservationDialog({
 										<div className="text-sm font-bold">
 											What time do you want to start?
 										</div>
-										<TimePicker time={time} onTimeChange={setTime} />
+										<TimePicker
+											time={time}
+											onTimeChange={setTime}
+											minimumTime={settings.openingTime}
+											maximumTime={settings.closingTime}
+										/>
 										<Separator className="my-2" />
 										<div className="flex justify-end">
 											<PopoverClose asChild>
@@ -242,7 +247,7 @@ export default function ReservationDialog({
 													onClick={() => {
 														const hours = time.getHours();
 														const minutes = time.getMinutes();
-														const meridiem: Meridiem = hours > 12 ? "PM" : "AM";
+														const meridiem: Meridiem = hours >= 12 ? "PM" : "AM";
 														const formattedTime = `${String(hours % 12 || 12).padStart(
 															2,
 															"0"
@@ -265,15 +270,18 @@ export default function ReservationDialog({
 								<PopoverContent className="w-52 drop-shadow">
 									<h5 className="font-bold">Renting Hours</h5>
 									<p className="text-sm text-muted-foreground">
-										Minimum of <strong className="font-bold">4 hours</strong>
+										Minimum of{" "}
+										<strong className="font-bold">
+											{settings.minReservationHours + " hours"}
+										</strong>
 									</p>
-									<Separator className="my-2"></Separator>
+									<Separator className="my-2" />
 									<div className="flex items-center gap-4">
 										<Input
 											className="w-24"
 											type="number"
-											max={10}
-											min={4}
+											max={settings.maxReservationHours}
+											min={settings.minReservationHours}
 											value={timeUse.toString()}
 											onChange={e => {
 												const tu = parseInt(e.target.value, 10);
@@ -281,8 +289,12 @@ export default function ReservationDialog({
 											}}
 											onBlur={e => {
 												const tu = parseInt(e.target.value, 10);
-												if (!isNaN(tu) && (tu < 4 || tu > 10)) {
-													setTimeUse(4);
+												if (
+													!isNaN(tu) &&
+													(tu < settings.minReservationHours ||
+														tu > settings.maxReservationHours)
+												) {
+													setTimeUse(settings.minReservationHours);
 												}
 											}}
 										/>
@@ -399,10 +411,7 @@ export default function ReservationDialog({
 										based of said requests and is subjected to the manager&apos;s review)
 									</AlertDialogDescription>
 								</AlertDialogHeader>
-								<Textarea
-									value={message}
-									onChange={e => setMessage(e.target.value.trim())}
-								/>
+								<Textarea value={message} onChange={e => setMessage(e.target.value)} />
 								<AlertDialogFooter>
 									<AlertDialogCancel>Close</AlertDialogCancel>
 								</AlertDialogFooter>
@@ -520,10 +529,16 @@ export default function ReservationDialog({
 										</TabsList>
 										<TermsOfPayment
 											onClick={() => {
-												if (currentUser.data && allOtherServices.data) {
+												if (currentUser.data && allOtherServices.data && date) {
 													const r: Reservation = {
 														phoneNumber: currentUser.data.phoneNumber,
-														eventDate: time,
+														eventDate: new Date(
+															date.getFullYear(),
+															date.getMonth(),
+															date.getDate(),
+															time.getHours(),
+															time.getMinutes()
+														),
 														eventDuration: timeUse,
 														orders: selectedDishes, //dishes
 														totalPrice:
@@ -531,7 +546,7 @@ export default function ReservationDialog({
 														selectedSet: selectedSet,
 														userID: currentUser.data?.id as number,
 														userName: currentUser.data?.name as string,
-														message: message,
+														message: message.trim(),
 													};
 													startSaving(async () => {
 														const result = await createCheckoutSession(r);
