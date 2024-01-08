@@ -1,4 +1,5 @@
 import prisma from "@lib/db";
+import { subHours } from "date-fns";
 import { NextRequest, NextResponse } from "next/server";
 
 type RequestType = {
@@ -48,8 +49,13 @@ export async function POST(req: NextRequest, res: NextResponse) {
 		const request: RequestType = await req.json(); //this is where I get the event like when user successfully pays
 		const newReservation = await prisma.reservations.create({
 			data: {
-				eventDate: new Date(
-					request.data.attributes.data.attributes.payments[0].attributes.metadata.eventDate
+				// Note to self: This may be run on server (uses UTC timezone),
+				// so I'm subtracting it by 8 to match the other dates
+				eventDate: subHours(
+					new Date(
+						request.data.attributes.data.attributes.payments[0].attributes.metadata.eventDate
+					),
+					8
 				),
 				eventDuration: parseInt(
 					request.data.attributes.data.attributes.payments[0].attributes.metadata
