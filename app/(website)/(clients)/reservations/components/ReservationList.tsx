@@ -45,13 +45,5 @@ export default function ReservationList<TData, TValue>({
 		getFacetedRowModel: getFacetedRowModel(),
 		getFacetedUniqueValues: getFacetedUniqueValues(),
 	});
-	return (
-		<div className="w-full space-y-4">
-			<div className="flex flex-col items-start gap-4 xl:flex-row">
-				<div className="space-y-4 xl:flex-1">
-					<ReservationTable table={table} columns={columns} />
-				</div>
-			</div>
-		</div>
-	);
+	return <ReservationTable table={table} columns={columns} />;
 }
