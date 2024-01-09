@@ -13,6 +13,7 @@ datasource db {
 // customer's reservation table
 model Reservations {
   id            String            @id @default(uuid())
+  payment_id    String            @db.Text
   eventDate     DateTime
   reservedAt    DateTime          @default(now())
   updatedAt     DateTime          @updatedAt 

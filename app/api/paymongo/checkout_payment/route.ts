@@ -78,6 +78,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
 					request.data.attributes.data.attributes.payments[0].attributes.metadata
 						.userID
 				),
+				payment_id: request.data.attributes.data.attributes.payments[0].id,
 				totalCost: parseInt(
 					request.data.attributes.data.attributes.payments[0].attributes.metadata
 						.totalCost
