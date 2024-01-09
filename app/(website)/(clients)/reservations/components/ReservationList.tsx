@@ -9,9 +9,9 @@ type ReservationList = {
 	session: Session | null;
 };
 export default function ReservationList({ session }: ReservationList) {
-	const reservations = session
-		? useSWR("ReservationListData", async () => getReservations(session.user.id))
-		: null;
+	const reservations = useSWR("ReservationListData", async () => {
+		return session ? getReservations(session.user.id) : null;
+	});
 	return (
 		reservations &&
 		reservations.data && (
