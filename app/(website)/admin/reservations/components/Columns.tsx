@@ -10,12 +10,12 @@ import { Separator } from "@components/ui/separator";
 export type Reservations = {
 	id: string;
 	payment_id: string;
-	eventDate: Date;
+	eventDate: string;
 	reservedAt: Date;
 	net_amount: number;
 	fee: number;
 	totalCost: number;
-	status: "ACCEPTED" | "PENDING" | "DENIED" | "IGNORED";
+	status: "ACCEPTED" | "PENDING" | "DENIED" | "IGNORED" | "CANCELED";
 	eventDuration: number;
 	dishes: string[];
 	message: string | null;
@@ -70,6 +70,16 @@ export const columns: ColumnDef<Reservations>[] = [
 		),
 	},
 	{
+		id: "Reserved",
+		accessorKey: "reservedAt",
+		header: ({ column }) => (
+			<DataTableColumnHeader column={column} title="Reserved" />
+		),
+		cell: ({ row }) => {
+			return convertDateToString(new Date(row.original.reservedAt));
+		},
+	},
+	{
 		id: "Fee/Net Amount",
 		accessorKey: "net_amount",
 		header: ({ column }) => (
@@ -94,24 +104,12 @@ export const columns: ColumnDef<Reservations>[] = [
 		},
 	},
 	{
-		id: "Reserved",
-		accessorKey: "reservedAt",
-		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="Reserved" />
-		),
-		cell: ({ row }) => {
-			return convertDateToString(new Date(row.original.reservedAt));
-		},
-	},
-	{
-		id: "Event Time",
+		id: "Event Date",
 		accessorKey: "eventDate",
 		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="Event Time" />
+			<DataTableColumnHeader column={column} title="Event Date" />
 		),
-		cell: ({ row }) => (
-			<div>{convertDateToString(new Date(row.original.eventDate))}</div>
-		),
+		cell: ({ row }) => <div>{row.original.eventDate}</div>,
 	},
 	{
 		id: "Duration",

@@ -80,6 +80,21 @@ function Reservation<TData, TValue>({
 		};
 		setColumnVisibility(hideAsDefault);
 	}, []);
+	const months = [
+		"Jan",
+		"Feb",
+		"Mar",
+		"Apr",
+		"May",
+		"Jun",
+		"Jul",
+		"Aug",
+		"Sep",
+		"Oct",
+		"Nov",
+		"Dec",
+	];
+
 	return (
 		<div className="w-full space-y-4">
 			<DataTableToolbar table={table} />
@@ -91,7 +106,7 @@ function Reservation<TData, TValue>({
 						const converted = date
 							? convertDateToString(date, { year: true, month: true, day: true })
 							: undefined;
-						table.getColumn("Event Time")?.setFilterValue(converted);
+						table.getColumn("Event Date")?.setFilterValue(converted);
 						setDate(date);
 					}}
 					mode="single"

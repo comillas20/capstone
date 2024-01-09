@@ -1,5 +1,6 @@
 "use server";
 import prisma from "@lib/db";
+import { convertDateToString } from "@lib/utils";
 import { utcToZonedTime } from "date-fns-tz";
 
 // had to do this because prisma auto converts Dates to UTC timezone
@@ -35,7 +36,7 @@ export async function getReservations() {
 	const modifiedResult = result.map(
 		({ eventDate, reservedAt, user, ...others }) => ({
 			...others,
-			eventDate: utcToZonedTime(eventDate, localTimezone),
+			eventDate: convertDateToString(utcToZonedTime(eventDate, localTimezone)),
 			reservedAt: utcToZonedTime(reservedAt, localTimezone),
 			user_id: user.id,
 			user_name: user.name,
