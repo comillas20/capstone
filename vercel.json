@@ -1,0 +1,8 @@
+{
+	"functions": {
+		"api/scheduler/reservations/route.js": {
+			"runtime": "nodejs14.x",
+			"cron": ["0 7 * * *"]
+		}
+	}
+}
