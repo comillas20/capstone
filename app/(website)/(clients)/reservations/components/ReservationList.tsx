@@ -45,5 +45,14 @@ export default function ReservationList<TData, TValue>({
 		getFacetedRowModel: getFacetedRowModel(),
 		getFacetedUniqueValues: getFacetedUniqueValues(),
 	});
+
+	React.useEffect(() => {
+		setSorting([
+			{
+				id: "Event Date",
+				desc: true,
+			},
+		]);
+	}, []);
 	return <ReservationTable table={table} columns={columns} />;
 }

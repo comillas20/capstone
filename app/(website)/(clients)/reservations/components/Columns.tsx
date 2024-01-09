@@ -49,7 +49,7 @@ export const columns: ColumnDef<Reservations, any>[] = [
 			return (
 				<div className="flex gap-1">
 					<span>{paid}</span>
-					<Separator orientation="vertical" />
+					<Separator orientation="vertical" className="h-auto" />
 					<span>{needToPay}</span>
 				</div>
 			);
@@ -61,10 +61,12 @@ export const columns: ColumnDef<Reservations, any>[] = [
 			<DataTableColumnHeader column={column} title="Status" />
 		),
 		cell: ({ row }) => (
-			<div>
-				{row.original.status}{" "}
+			<div className="flex items-center gap-1">
+				<span>{row.original.status}</span>
 				{row.original.status === "PENDING" && (
-					<HelpToolTip>The admin is still considering your reservation.</HelpToolTip>
+					<HelpToolTip size={15}>
+						The admin is still considering your reservation.
+					</HelpToolTip>
 				)}
 			</div>
 		),
@@ -75,8 +77,13 @@ export const columns: ColumnDef<Reservations, any>[] = [
 		header: ({ column }) => (
 			<DataTableColumnHeader column={column} title="Event Date" />
 		),
-		cell: ({ row }) => (
-			<div>{convertDateToString(new Date(row.original.eventDate))}</div>
+		cell: ({ row }) => <div>{convertDateToString(row.original.eventDate)}</div>,
+	},
+	{
+		id: "Event Duration",
+		accessorKey: "eventDuration",
+		header: ({ column }) => (
+			<DataTableColumnHeader column={column} title="Event Duration" />
 		),
 	},
 	{
