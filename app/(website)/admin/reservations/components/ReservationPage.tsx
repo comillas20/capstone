@@ -22,18 +22,22 @@ import { Calendar } from "@components/ui/calendar";
 import { DataTableToolbar } from "./DataTableToolbar";
 import ReservationTable from "./ReservationTable";
 import { findNearestNonDisabledDate } from "@lib/date-utils";
+import useSWR from "swr";
+import { getReservations } from "../serverActions";
+import { Loader2 } from "lucide-react";
+import { columns } from "./Columns";
 
-interface ReservationPageProps<TData, TValue> {
+interface ReservationPage<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];
 	data: TData[];
 	maintainanceDates: Date[] | undefined;
 }
 
-export default function ReservationPage<TData, TValue>({
+function Reservation<TData, TValue>({
 	columns,
 	data,
 	maintainanceDates,
-}: ReservationPageProps<TData, TValue>) {
+}: ReservationPage<TData, TValue>) {
 	const currentDate = new Date();
 	const nearestDateAvailable: Date = maintainanceDates
 		? findNearestNonDisabledDate(currentDate, maintainanceDates)
@@ -99,5 +103,22 @@ export default function ReservationPage<TData, TValue>({
 				</div>
 			</div>
 		</div>
+	);
+}
+
+type ReservationPageProps = {
+	maintainanceDates: Date[];
+};
+export default function ReservationPage({
+	maintainanceDates,
+}: ReservationPageProps) {
+	const { data } = useSWR("ReservationPageData", async () => getReservations());
+	if (!data) return <Loader2 className="animate-spin" size={15} />;
+	return (
+		<Reservation
+			data={data}
+			columns={columns}
+			maintainanceDates={maintainanceDates}
+		/>
 	);
 }

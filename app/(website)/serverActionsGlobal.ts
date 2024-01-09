@@ -155,7 +155,7 @@ function convertValue<T extends SettingType>(
  * @returns reservations starting from the startDate up to startDate.month + 1 if provided, otherwise all reservations
  */
 export async function getReservations(userID?: number, startDate?: Date) {
-	return await prisma.reservations.findMany({
+	const result = await prisma.reservations.findMany({
 		where: {
 			userID: userID,
 			AND: [
@@ -172,4 +172,15 @@ export async function getReservations(userID?: number, startDate?: Date) {
 			],
 		},
 	});
+
+	const modifiedResult = result.map(
+		({ eventDate, reservedAt, updatedAt, ...others }) => ({
+			...others,
+			eventDate: utcToZonedTime(eventDate, localTimezone),
+			reservedAt: utcToZonedTime(reservedAt, localTimezone),
+			updatedAt: utcToZonedTime(updatedAt, localTimezone),
+		})
+	);
+
+	return modifiedResult;
 }

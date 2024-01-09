@@ -1,14 +1,7 @@
 import { getMaintainanceDates } from "@app/(website)/serverActionsGlobal";
-import { columns } from "./components/Columns";
 import ReservationPage from "./components/ReservationPage";
-import dummyReservations from "./dummyData";
-import { convertDateToString } from "@lib/utils";
 
 export default async function ReservationsPage() {
-	const mod = dummyReservations.map(dummy => ({
-		...dummy,
-		eventTime: convertDateToString(new Date(dummy.eventTime)),
-	}));
 	const maintainance = await getMaintainanceDates();
 	return (
 		<div className="hidden h-full flex-1 flex-col space-y-8 md:flex">
@@ -21,12 +14,7 @@ export default async function ReservationsPage() {
 				</div>
 			</div>
 			<div className="flex gap-4">
-				{/* <AdminCalendar  /> */}
-				<ReservationPage
-					data={mod}
-					columns={columns}
-					maintainanceDates={maintainance.map(d => d.date)}
-				/>
+				<ReservationPage maintainanceDates={maintainance.map(d => d.date)} />
 			</div>
 		</div>
 	);

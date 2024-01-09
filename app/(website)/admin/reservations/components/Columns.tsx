@@ -6,20 +6,23 @@ import { DataTableColumnHeader } from "../../components/DataTableColumnHeader";
 import { DataTableRowActions } from "./DataTableRowActions";
 import { convertDateToString } from "@lib/utils";
 import Link from "next/link";
-export enum status {
-	true = "Accepted",
-	false = "Pending",
-}
+import { Separator } from "@components/ui/separator";
 export type Reservations = {
 	id: string;
-	customerName: string;
-	mobileNumber: string;
-	totalPaid?: number; // amount paid by user
-	totalPrice: number; // total amount needed to fully pay
-	reservationTime: string;
-	eventTime: string;
+	payment_id: string;
+	eventDate: Date;
+	reservedAt: Date;
+	net_amount: number;
+	fee: number;
+	totalCost: number;
+	status: "ACCEPTED" | "PENDING" | "DENIED" | "IGNORED";
 	eventDuration: number;
-	status: status;
+	dishes: string[];
+	message: string | null;
+	setName: string;
+	user_id: number;
+	user_name: string;
+	user_phoneNumber: string;
 };
 export const columns: ColumnDef<Reservations>[] = [
 	{
@@ -49,59 +52,65 @@ export const columns: ColumnDef<Reservations>[] = [
 	},
 	{
 		id: "Customer",
-		accessorKey: "customerName",
+		accessorKey: "user_name",
 		header: ({ column }) => (
 			<DataTableColumnHeader column={column} title="Customer" />
 		),
 		cell: ({ row }) => (
-			<Link href={"/admin/customers?customer=".concat(row.original.customerName)}>
-				{row.original.customerName}
+			<Link href={"/admin/customers?customer=".concat(row.original.user_name)}>
+				{row.original.user_name}
 			</Link>
 		),
 	},
 	{
 		id: "Mobile Number",
-		accessorKey: "mobileNumber",
+		accessorKey: "user_phoneNumber",
 		header: ({ column }) => (
 			<DataTableColumnHeader column={column} title="Mobile Number" />
 		),
 	},
 	{
-		id: "Paid/Total",
-		accessorKey: "totalPaid",
+		id: "Fee/Net Amount",
+		accessorKey: "net_amount",
 		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="Paid/Total" />
+			<DataTableColumnHeader column={column} title="Fee/Net Amount" />
 		),
 		cell: ({ row }) => {
-			const paid = new Intl.NumberFormat("en-US", {
+			const fee = new Intl.NumberFormat("en-US", {
 				style: "currency",
 				currency: "PHP",
-			}).format(row.original.totalPaid ?? 0);
-			const needToPay = new Intl.NumberFormat("en-US", {
+			}).format(row.original.fee);
+			const netAmount = new Intl.NumberFormat("en-US", {
 				style: "currency",
 				currency: "PHP",
-			}).format(row.original.totalPrice);
-			return `${paid}/${needToPay}`;
+			}).format(row.original.net_amount);
+			return (
+				<div className="flex gap-2">
+					<span>{fee}</span>
+					<Separator orientation="vertical" className="h-auto" />
+					<span>{netAmount}</span>
+				</div>
+			);
 		},
 	},
 	{
 		id: "Reserved",
-		accessorKey: "reservationTime",
+		accessorKey: "reservedAt",
 		header: ({ column }) => (
 			<DataTableColumnHeader column={column} title="Reserved" />
 		),
 		cell: ({ row }) => {
-			return convertDateToString(new Date(row.original.reservationTime));
+			return convertDateToString(new Date(row.original.reservedAt));
 		},
 	},
 	{
 		id: "Event Time",
-		accessorKey: "eventTime",
+		accessorKey: "eventDate",
 		header: ({ column }) => (
 			<DataTableColumnHeader column={column} title="Event Time" />
 		),
 		cell: ({ row }) => (
-			<div>{convertDateToString(new Date(row.original.eventTime))}</div>
+			<div>{convertDateToString(new Date(row.original.eventDate))}</div>
 		),
 	},
 	{
@@ -124,7 +133,7 @@ export const columns: ColumnDef<Reservations>[] = [
 		id: "actions",
 		cell: ({ row }) => {
 			return (
-				row.original.status == status.false && <DataTableRowActions row={row} />
+				row.original.status === "PENDING" && <DataTableRowActions row={row} />
 			);
 		},
 	},
