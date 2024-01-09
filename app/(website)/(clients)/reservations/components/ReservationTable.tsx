@@ -1,3 +1,18 @@
+"use client";
+import * as React from "react";
+import {
+	ColumnDef,
+	ColumnFiltersState,
+	SortingState,
+	getCoreRowModel,
+	getFacetedRowModel,
+	getFacetedUniqueValues,
+	getFilteredRowModel,
+	getPaginationRowModel,
+	getSortedRowModel,
+	useReactTable,
+	flexRender,
+} from "@tanstack/react-table";
 import {
 	Table,
 	TableBody,
@@ -6,15 +21,47 @@ import {
 	TableHeader,
 	TableRow,
 } from "@components/ui/table";
-import { ColumnDef, flexRender, Table as t } from "@tanstack/react-table";
+
 type ReservationTableProps<TData, TValue> = {
-	table: t<TData>;
 	columns: ColumnDef<TData, TValue>[];
+	data: TData[];
 };
+
 export default function ReservationTable<TData, TValue>({
-	table,
 	columns,
+	data,
 }: ReservationTableProps<TData, TValue>) {
+	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+		[]
+	);
+	const [sorting, setSorting] = React.useState<SortingState>([]);
+
+	const table = useReactTable({
+		data,
+		columns,
+		state: {
+			sorting,
+			columnFilters,
+		},
+		enableRowSelection: true,
+		onSortingChange: setSorting,
+		onColumnFiltersChange: setColumnFilters,
+		getCoreRowModel: getCoreRowModel(),
+		getFilteredRowModel: getFilteredRowModel(),
+		getPaginationRowModel: getPaginationRowModel(),
+		getSortedRowModel: getSortedRowModel(),
+		getFacetedRowModel: getFacetedRowModel(),
+		getFacetedUniqueValues: getFacetedUniqueValues(),
+	});
+
+	React.useEffect(() => {
+		setSorting([
+			{
+				id: "Event Date",
+				desc: true,
+			},
+		]);
+	}, []);
 	return (
 		<Table className="rounded-md border">
 			<TableHeader>

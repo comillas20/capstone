@@ -118,3 +118,18 @@ export async function getALlDishesWithCourses() {
 		},
 	});
 }
+
+type Reschedule = {
+	id: string;
+	eventDate: Date;
+};
+export async function rescheduleReservation({ id, eventDate }: Reschedule) {
+	return await prisma.reservations.update({
+		where: {
+			id: id,
+		},
+		data: {
+			eventDate: eventDate,
+		},
+	});
+}

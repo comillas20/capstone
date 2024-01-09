@@ -4,10 +4,8 @@ import { ColumnDef } from "@tanstack/react-table";
 import { DataTableColumnHeader } from "@admin/components/DataTableColumnHeader";
 import { convertDateToString } from "@lib/utils";
 import { DataTableRowActions } from "./DataTableRowActions";
-import { DropdownMenuItem } from "@components/ui/dropdown-menu";
 import { addDays, isAfter, isSameDay } from "date-fns";
 import { Button } from "@components/ui/button";
-import { Separator } from "@components/ui/separator";
 import HelpToolTip from "@components/HelpTooltip";
 
 export type Reservations = {
@@ -32,10 +30,10 @@ export const columns: ColumnDef<Reservations, any>[] = [
 		header: ({ column }) => <DataTableColumnHeader column={column} title="ID" />,
 	},
 	{
-		id: "Paid/Total",
+		id: "Amount Paid",
 		accessorKey: "totalCost",
 		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="Paid/Total" />
+			<DataTableColumnHeader column={column} title="Amount Paid" />
 		),
 		cell: ({ row }) => {
 			const paid = new Intl.NumberFormat("en-US", {
@@ -49,8 +47,8 @@ export const columns: ColumnDef<Reservations, any>[] = [
 			return (
 				<div className="flex gap-1">
 					<span>{paid}</span>
-					<Separator orientation="vertical" className="h-auto" />
-					<span>{needToPay}</span>
+					{/* <Separator orientation="vertical" className="h-auto" /> */}
+					{/* <span>{needToPay}</span> */}
 				</div>
 			);
 		},
@@ -64,7 +62,7 @@ export const columns: ColumnDef<Reservations, any>[] = [
 			<div className="flex items-center gap-1">
 				<span>{row.original.status}</span>
 				{row.original.status === "PENDING" && (
-					<HelpToolTip size={15}>
+					<HelpToolTip size={15} className="text-primary">
 						The admin is still considering your reservation.
 					</HelpToolTip>
 				)}
@@ -88,15 +86,11 @@ export const columns: ColumnDef<Reservations, any>[] = [
 	},
 	{
 		id: "actions",
-		cell: ({ row }) => {
+		cell: ({ row, table }) => {
 			const currentDate = new Date();
 			const active = isAfter(row.original.eventDate, addDays(currentDate, 7));
 			return active ? (
-				<DataTableRowActions>
-					<DropdownMenuItem>Edit</DropdownMenuItem>
-					<DropdownMenuItem>Cancel</DropdownMenuItem>
-					<DropdownMenuItem>Details</DropdownMenuItem>
-				</DataTableRowActions>
+				<DataTableRowActions row={row} table={table} />
 			) : (
 				<Button variant="link" size="sm">
 					Details

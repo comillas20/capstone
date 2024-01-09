@@ -1,58 +1,21 @@
 "use client";
-import * as React from "react";
-import {
-	ColumnDef,
-	ColumnFiltersState,
-	SortingState,
-	getCoreRowModel,
-	getFacetedRowModel,
-	getFacetedUniqueValues,
-	getFilteredRowModel,
-	getPaginationRowModel,
-	getSortedRowModel,
-	useReactTable,
-} from "@tanstack/react-table";
+import { Session } from "next-auth";
 import ReservationTable from "./ReservationTable";
+import useSWR from "swr";
+import { getReservations } from "@app/(website)/serverActionsGlobal";
+import { columns } from "./Columns";
 
-type ReservationPageProps<TData, TValue> = {
-	columns: ColumnDef<TData, TValue>[];
-	data: TData[];
+type ReservationList = {
+	session: Session | null;
 };
-
-export default function ReservationList<TData, TValue>({
-	columns,
-	data,
-}: ReservationPageProps<TData, TValue>) {
-	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-		[]
+export default function ReservationList({ session }: ReservationList) {
+	const reservations = session
+		? useSWR("ReservationListData", async () => getReservations(session.user.id))
+		: null;
+	return (
+		reservations &&
+		reservations.data && (
+			<ReservationTable data={reservations.data} columns={columns} />
+		)
 	);
-	const [sorting, setSorting] = React.useState<SortingState>([]);
-
-	const table = useReactTable({
-		data,
-		columns,
-		state: {
-			sorting,
-			columnFilters,
-		},
-		enableRowSelection: true,
-		onSortingChange: setSorting,
-		onColumnFiltersChange: setColumnFilters,
-		getCoreRowModel: getCoreRowModel(),
-		getFilteredRowModel: getFilteredRowModel(),
-		getPaginationRowModel: getPaginationRowModel(),
-		getSortedRowModel: getSortedRowModel(),
-		getFacetedRowModel: getFacetedRowModel(),
-		getFacetedUniqueValues: getFacetedUniqueValues(),
-	});
-
-	React.useEffect(() => {
-		setSorting([
-			{
-				id: "Event Date",
-				desc: true,
-			},
-		]);
-	}, []);
-	return <ReservationTable table={table} columns={columns} />;
 }
