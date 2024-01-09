@@ -260,6 +260,7 @@ type CancelDialogProps = {
 };
 
 function CancelDialog({ data, open, onOpenChange }: CancelDialogProps) {
+	const { mutate } = useSWRConfig();
 	return (
 		<AlertDialog open={open} onOpenChange={onOpenChange}>
 			<AlertDialogContent>
@@ -272,7 +273,10 @@ function CancelDialog({ data, open, onOpenChange }: CancelDialogProps) {
 				<AlertDialogFooter>
 					<AlertDialogCancel>Cancel</AlertDialogCancel>
 					<AlertDialogAction
-						onClick={async () => await cancelReservation(data.original.id)}>
+						onClick={async () => {
+							const result = await cancelReservation(data.original.id);
+							if (result) mutate("ReservationListData");
+						}}>
 						Continue
 					</AlertDialogAction>
 				</AlertDialogFooter>
