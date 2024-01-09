@@ -34,6 +34,7 @@ enum ReservationStatus {
   PENDING
   DENIED
   IGNORED
+  CANCELED
 }
 
 model Dish {

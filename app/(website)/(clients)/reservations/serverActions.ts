@@ -133,3 +133,14 @@ export async function rescheduleReservation({ id, eventDate }: Reschedule) {
 		},
 	});
 }
+
+export async function cancelReservation(id: string) {
+	return await prisma.reservations.update({
+		where: {
+			id: id,
+		},
+		data: {
+			status: "CANCELED",
+		},
+	});
+}

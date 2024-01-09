@@ -38,9 +38,19 @@ import { Loader2 } from "lucide-react";
 import { Settings } from "@app/(website)/settings/general/page";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@components/ui/tabs";
 import { Input } from "@components/ui/input";
-import { rescheduleReservation } from "../serverActions";
+import { cancelReservation, rescheduleReservation } from "../serverActions";
 import { Reservations } from "./Columns";
 import { toast } from "@components/ui/use-toast";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from "@components/ui/alert-dialog";
 
 interface DataTableRowActionsProps {
 	row: Row<Reservations>;
@@ -50,6 +60,7 @@ export function DataTableRowActions({ row, table }: DataTableRowActionsProps) {
 	const maintainanceDates = useSWR("EditReservationMD", getMaintainanceDates);
 	const settings = useSWR("EditReservationSettings", getSystemSettings);
 	const [isEditDialogOpen, setIsEditDialogOpen] = useState<boolean>(false);
+	const [isCancelDialogOpen, setIsCancelDialogOpen] = useState<boolean>(false);
 	const [isDetailDialogOpen, setIsDetailDialogOpen] = useState<boolean>(false);
 	if (!settings.data && !maintainanceDates.data)
 		return <Loader2 className="animate-spin" size={15} />;
@@ -83,7 +94,9 @@ export function DataTableRowActions({ row, table }: DataTableRowActionsProps) {
 							Reschedule
 						</DropdownMenuItem>
 					)}
-					<DropdownMenuItem>Cancel</DropdownMenuItem>
+					<DropdownMenuItem onSelect={() => setIsCancelDialogOpen(true)}>
+						Cancel
+					</DropdownMenuItem>
 					<DropdownMenuItem onSelect={() => setIsDetailDialogOpen(true)}>
 						Details
 					</DropdownMenuItem>
@@ -102,6 +115,11 @@ export function DataTableRowActions({ row, table }: DataTableRowActionsProps) {
 				/>
 			)}
 			<Details open={isDetailDialogOpen} onOpenChange={setIsDetailDialogOpen} />
+			<CancelDialog
+				data={row}
+				open={isCancelDialogOpen}
+				onOpenChange={setIsCancelDialogOpen}
+			/>
 		</>
 	);
 }
@@ -232,6 +250,34 @@ function EditReservation({
 				</Tabs>
 			</DialogContent>
 		</Dialog>
+	);
+}
+
+type CancelDialogProps = {
+	data: Row<Reservations>;
+	open: boolean;
+	onOpenChange: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
+function CancelDialog({ data, open, onOpenChange }: CancelDialogProps) {
+	return (
+		<AlertDialog open={open} onOpenChange={onOpenChange}>
+			<AlertDialogContent>
+				<AlertDialogHeader>
+					<AlertDialogTitle>Cancel Reservation</AlertDialogTitle>
+					<AlertDialogDescription className="text-destructive">
+						This action cannot be undo. Continue?
+					</AlertDialogDescription>
+				</AlertDialogHeader>
+				<AlertDialogFooter>
+					<AlertDialogCancel>Cancel</AlertDialogCancel>
+					<AlertDialogAction
+						onClick={async () => await cancelReservation(data.original.id)}>
+						Continue
+					</AlertDialogAction>
+				</AlertDialogFooter>
+			</AlertDialogContent>
+		</AlertDialog>
 	);
 }
 

@@ -17,7 +17,7 @@ export type Reservations = {
 	fee: number;
 	totalCost: number;
 
-	status: "ACCEPTED" | "PENDING" | "DENIED" | "IGNORED";
+	status: "ACCEPTED" | "PENDING" | "DENIED" | "IGNORED" | "CANCELED";
 	eventDuration: number;
 	message: string | null;
 
@@ -87,9 +87,7 @@ export const columns: ColumnDef<Reservations, any>[] = [
 	{
 		id: "actions",
 		cell: ({ row, table }) => {
-			const currentDate = new Date();
-			const active = isAfter(row.original.eventDate, addDays(currentDate, 7));
-			return active ? (
+			return row.original.status === "PENDING" ? (
 				<DataTableRowActions row={row} table={table} />
 			) : (
 				<Button variant="link" size="sm">
