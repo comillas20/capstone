@@ -2,7 +2,7 @@
 	"crons": [
 		{
 			"path": "/api/scheduler/reservations",
-			"schedule": "15 7 * * *"
+			"schedule": "0 16 * * *"
 		}
 	]
 }
