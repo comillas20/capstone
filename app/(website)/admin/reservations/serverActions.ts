@@ -46,3 +46,55 @@ export async function getReservations() {
 
 	return modifiedResult;
 }
+
+export async function acceptReservation(id: string) {
+	return await prisma.reservations.update({
+		where: {
+			id: id,
+		},
+		data: {
+			status: "ACCEPTED",
+		},
+	});
+}
+
+export async function denyReservation(
+	id: string,
+	amount: number,
+	payment_id: string
+) {
+	const data = {
+		data: {
+			attributes: {
+				amount: amount * 100,
+				notes: "denied",
+				payment_id: payment_id,
+				reason: "others",
+			},
+		},
+	};
+	const optionsIntent = {
+		method: "POST",
+		headers: {
+			Accept: "application/json",
+			"Content-Type": "application/json",
+			Authorization: `Basic ${Buffer.from(
+				process.env.PAYMONGO_SECRET as string
+			).toString("base64")}`, // HTTP Basic Auth and Encoding
+		},
+		body: JSON.stringify(data),
+	};
+	const response = await fetch(
+		"https://api.paymongo.com/refunds",
+		optionsIntent
+	);
+	const result = await response.json();
+	return await prisma.reservations.update({
+		where: {
+			id: id,
+		},
+		data: {
+			status: "DENIED",
+		},
+	});
+}

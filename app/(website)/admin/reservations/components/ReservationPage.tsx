@@ -80,20 +80,6 @@ function Reservation<TData, TValue>({
 		};
 		setColumnVisibility(hideAsDefault);
 	}, []);
-	const months = [
-		"Jan",
-		"Feb",
-		"Mar",
-		"Apr",
-		"May",
-		"Jun",
-		"Jul",
-		"Aug",
-		"Sep",
-		"Oct",
-		"Nov",
-		"Dec",
-	];
 
 	return (
 		<div className="w-full space-y-4">

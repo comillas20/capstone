@@ -76,7 +76,7 @@ export const columns: ColumnDef<Reservations>[] = [
 			<DataTableColumnHeader column={column} title="Reserved" />
 		),
 		cell: ({ row }) => {
-			return convertDateToString(new Date(row.original.reservedAt));
+			return convertDateToString(row.original.reservedAt);
 		},
 	},
 	{
@@ -130,9 +130,8 @@ export const columns: ColumnDef<Reservations>[] = [
 	{
 		id: "actions",
 		cell: ({ row }) => {
-			return (
-				row.original.status === "PENDING" && <DataTableRowActions row={row} />
-			);
+			if (row.original.status === "PENDING")
+				return <DataTableRowActions row={row} />;
 		},
 	},
 ];
