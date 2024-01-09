@@ -19,7 +19,7 @@ export type Reservations = {
 	fee: number;
 	totalCost: number;
 
-	status: "ACCEPTED" | "PENDING" | "DENIED";
+	status: "ACCEPTED" | "PENDING" | "DENIED" | "IGNORED";
 	eventDuration: number;
 	message: string | null;
 
