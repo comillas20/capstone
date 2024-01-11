@@ -7,6 +7,14 @@ import {
 } from "@components/ui/accordion";
 import { Button } from "@components/ui/button";
 import {
+	Command,
+	CommandEmpty,
+	CommandGroup,
+	CommandInput,
+	CommandItem,
+	CommandList,
+} from "@components/ui/command";
+import {
 	Popover,
 	PopoverContent,
 	PopoverTrigger,
@@ -32,14 +40,24 @@ export default function FAQ({ data }: FAQProps) {
 			</PopoverTrigger>
 			<PopoverContent className="relative right-24" side="top">
 				<h4 className="text-lg font-medium">FAQs</h4>
-				<Accordion type="single" collapsible className="w-full">
-					{data.map(faq => (
-						<AccordionItem key={faq.id} value={String(faq.id)}>
-							<AccordionTrigger>{faq.question}</AccordionTrigger>
-							<AccordionContent>{faq.answer}</AccordionContent>
-						</AccordionItem>
-					))}
-				</Accordion>
+				<Command className="space-y-4">
+					<CommandList>
+						<CommandEmpty>No results found.</CommandEmpty>
+						<CommandGroup>
+							<Accordion type="single" collapsible className="w-full">
+								{data.map(faq => (
+									<AccordionItem key={faq.id} value={String(faq.id)}>
+										<CommandItem>
+											<AccordionTrigger>{faq.question}</AccordionTrigger>
+										</CommandItem>
+										<AccordionContent>{faq.answer}</AccordionContent>
+									</AccordionItem>
+								))}
+							</Accordion>
+						</CommandGroup>
+					</CommandList>
+					<CommandInput placeholder="Search for a question..." />
+				</Command>
 			</PopoverContent>
 		</Popover>
 	);
