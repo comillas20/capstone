@@ -14,7 +14,6 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@components/ui/dropdown-menu";
-import prisma from "@lib/db";
 import { UserCircle } from "lucide-react";
 import { Session } from "next-auth";
 import Link from "next/link";

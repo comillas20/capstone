@@ -1,63 +1,54 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@components/ui/avatar";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "@components/ui/card";
 
-export function RecentClients() {
+type RecentClientsProps = {
+	className?: string;
+	data: {
+		id: number;
+		name: string;
+		phoneNumber: string;
+		revenue: number;
+	}[];
+};
+export function RecentClients({ className, data }: RecentClientsProps) {
 	return (
-		<div className="max-h-[300] space-y-8">
-			<div className="flex items-center">
-				<Avatar className="h-9 w-9">
-					{/* <AvatarImage src="/avatars/01.png" alt="Avatar" /> */}
-					<AvatarFallback>OM</AvatarFallback>
-				</Avatar>
-				<div className="ml-4 space-y-1">
-					<p className="text-sm font-medium leading-none">Olivia Martin</p>
-					<p className="text-sm text-muted-foreground">olivia.martin@email.com</p>
+		<Card className={className}>
+			<CardHeader>
+				<CardTitle>Recent Clients</CardTitle>
+				<CardDescription>{`You had ${data.length} clients this month.`}</CardDescription>
+			</CardHeader>
+			<CardContent>
+				<div className="max-h-[300] space-y-8">
+					{data.map(d => (
+						<div key={d.id} className="flex items-center">
+							<Avatar className="h-9 w-9">
+								{/* <AvatarImage src="/avatars/01.png" alt="Avatar" /> */}
+								<AvatarFallback>
+									{d.name ? d.name.charAt(0).toUpperCase() : "?"}
+								</AvatarFallback>
+							</Avatar>
+							<div className="ml-4 space-y-1">
+								<p className="text-sm font-medium leading-none">
+									{d.name ?? "Anonymous"}
+								</p>
+								<p className="text-sm text-muted-foreground">{d.phoneNumber}</p>
+							</div>
+							<div className="ml-auto font-medium">
+								{new Intl.NumberFormat("en-US", {
+									style: "currency",
+									currency: "PHP",
+								}).format(d.revenue)}
+							</div>
+						</div>
+					))}
 				</div>
-				<div className="ml-auto font-medium">+$1,999.00</div>
-			</div>
-			<div className="flex items-center">
-				<Avatar className="flex h-9 w-9 items-center justify-center space-y-0 border">
-					{/* <AvatarImage src="/avatars/02.png" alt="Avatar" /> */}
-					<AvatarFallback>JL</AvatarFallback>
-				</Avatar>
-				<div className="ml-4 space-y-1">
-					<p className="text-sm font-medium leading-none">Jackson Lee</p>
-					<p className="text-sm text-muted-foreground">jackson.lee@email.com</p>
-				</div>
-				<div className="ml-auto font-medium">+$39.00</div>
-			</div>
-			<div className="flex items-center">
-				<Avatar className="h-9 w-9">
-					{/* <AvatarImage src="/avatars/03.png" alt="Avatar" /> */}
-					<AvatarFallback>IN</AvatarFallback>
-				</Avatar>
-				<div className="ml-4 space-y-1">
-					<p className="text-sm font-medium leading-none">Isabella Nguyen</p>
-					<p className="text-sm text-muted-foreground">isabella.nguyen@email.com</p>
-				</div>
-				<div className="ml-auto font-medium">+$299.00</div>
-			</div>
-			<div className="flex items-center">
-				<Avatar className="h-9 w-9">
-					{/* <AvatarImage src="/avatars/04.png" alt="Avatar" /> */}
-					<AvatarFallback>WK</AvatarFallback>
-				</Avatar>
-				<div className="ml-4 space-y-1">
-					<p className="text-sm font-medium leading-none">William Kim</p>
-					<p className="text-sm text-muted-foreground">will@email.com</p>
-				</div>
-				<div className="ml-auto font-medium">+$99.00</div>
-			</div>
-			{/* <div className="flex items-center">
-				<Avatar className="h-9 w-9">
-					/* <AvatarImage src="/avatars/05.png" alt="Avatar" />
-					<AvatarFallback>SD</AvatarFallback>
-				</Avatar>
-				<div className="ml-4 space-y-1">
-					<p className="text-sm font-medium leading-none">Sofia Davis</p>
-					<p className="text-sm text-muted-foreground">sofia.davis@email.com</p>
-				</div>
-				<div className="ml-auto font-medium">+$39.00</div>
-			</div> */}
-		</div>
+			</CardContent>
+		</Card>
 	);
 }
