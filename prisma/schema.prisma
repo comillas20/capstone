@@ -24,7 +24,7 @@ model Reservations {
   totalCost     Float
   status        ReservationStatus @default(PENDING)
   eventDuration Int
-  dishes        String[]            
+  dishes        String[]
   message       String?
   setName String
 }
