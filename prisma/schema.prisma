@@ -29,6 +29,21 @@ model Reservations {
   setName String
 }
 
+model Itemlist {
+  id         String  @id @default(uuid())
+  setid      Int
+  reserveid  String
+  packageName String // Add the package details field
+  amount     Float   // Add the amount field
+}
+
+model VenueList{
+  id                Int           @id @default(autoincrement())
+  name              String
+  location          String
+  MaxCapacity       Int
+}
+
 enum ReservationStatus {
   ACCEPTED
   PENDING
