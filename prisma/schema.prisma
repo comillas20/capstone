@@ -16,7 +16,7 @@ model Reservations {
   payment_id    String            @db.Text
   eventDate     DateTime
   reservedAt    DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt 
+  updatedAt     DateTime          @updatedAt
   userID        Int
   user          Account           @relation(fields: [userID], references: [id])
   net_amount    Float
@@ -26,22 +26,22 @@ model Reservations {
   eventDuration Int
   dishes        String[]
   message       String?
-  setName String
+  setName       String
 }
 
 model Itemlist {
-  id         String  @id @default(uuid())
-  setid      Int
-  reserveid  String
+  id          String @id @default(uuid())
+  setid       Int
+  reserveid   String
   packageName String // Add the package details field
-  amount     Float   // Add the amount field
+  amount      Float // Add the amount field
 }
 
-model VenueList{
-  id                Int           @id @default(autoincrement())
-  name              String
-  location          String
-  MaxCapacity       Int
+model VenueList {
+  id          Int    @id @default(autoincrement())
+  name        String
+  location    String
+  MaxCapacity Int
 }
 
 enum ReservationStatus {
@@ -53,14 +53,14 @@ enum ReservationStatus {
 }
 
 model Dish {
-  id          Int            @id @default(autoincrement())
-  name        String         @unique @db.VarChar(50)
+  id          Int      @id @default(autoincrement())
+  name        String   @unique @db.VarChar(50)
   categoryID  Int
-  category    Category       @relation(fields: [categoryID], references: [id], onDelete: Cascade)
-  subSet      SubSet[]       @relation("DishSubSets")
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-  isAvailable Boolean        @default(false)
+  category    Category @relation(fields: [categoryID], references: [id], onDelete: Cascade)
+  subSet      SubSet[] @relation("DishSubSets")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  isAvailable Boolean  @default(false)
   imgHref     String?
 }
 
@@ -80,26 +80,26 @@ model Course {
 }
 
 model Set {
-  id             Int      @id @default(autoincrement())
-  name           String   @unique @db.VarChar(50)
-  description    String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  subSets        SubSet[]
-  minimumPerHead Int
-  price          Float
-  selectionQuantity Int    @default(1) //0 means all dishes are compulsory
+  id                Int      @id @default(autoincrement())
+  name              String   @unique @db.VarChar(50)
+  description       String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  subSets           SubSet[]
+  minimumPerHead    Int
+  price             Float
+  selectionQuantity Int
 }
 
 //to allow merging of categories like "Fish/Canton/Vegetable" in the menu/set
 model SubSet {
-  id                Int    @id @default(autoincrement())
-  name              String @db.VarChar(50)
-  setID             Int
-  set               Set    @relation(fields: [setID], references: [id], onDelete: Cascade)
-  dishes            Dish[] @relation("DishSubSets")
-  courseID          Int
-  course            Course @relation(fields: [courseID], references: [id], onDelete: Cascade)
+  id       Int    @id @default(autoincrement())
+  name     String @db.VarChar(50)
+  setID    Int
+  set      Set    @relation(fields: [setID], references: [id], onDelete: Cascade)
+  dishes   Dish[] @relation("DishSubSets")
+  courseID Int
+  course   Course @relation(fields: [courseID], references: [id], onDelete: Cascade)
 
   @@unique([name, setID])
   @@map("SubSets")
@@ -143,7 +143,7 @@ enum SettingValueTypes {
 }
 
 model MaintainanceDates {
-  date DateTime @id 
+  date DateTime @id
 }
 
 model FAQ {
