@@ -1,5 +1,5 @@
 "use client";
-import { Button } from "@components/ui/button";
+import { Button, buttonVariants } from "@components/ui/button";
 import {
 	DialogContent,
 	DialogFooter,
@@ -19,13 +19,15 @@ import * as z from "zod";
 import { CheckboxWithText } from "@components/CheckboxWithText";
 import {
 	retrieveAllDishCatCoursesForBackUp,
+	retrieveServicesForBackUp,
 	retrieveSetsForBackUp,
 } from "./serverActions";
-import { DCC, WorksheetNames } from "./types";
+import { DCC, Service, WorksheetNames } from "./types";
 
 const optionsSchema = z.object({
 	dishCatCourses: z.boolean(),
 	sets: z.boolean(),
+	otherServices: z.boolean(),
 	transactions: z.boolean(),
 	reports: z.boolean(),
 });
@@ -36,6 +38,7 @@ export default function DownloadBackUp() {
 		defaultValues: {
 			dishCatCourses: true,
 			sets: true,
+			otherServices: true,
 			transactions: true,
 			reports: true,
 		},
@@ -43,19 +46,23 @@ export default function DownloadBackUp() {
 	const [isDownloading, startDownload] = useTransition();
 	const [message, setMessage] = useState<string>();
 	function onSubmit(options: Options) {
-		const { dishCatCourses, sets, reports, transactions } = options;
 		startDownload(async () => {
 			// Create workbook and worksheet
 			const workbook = new ExcelJS.Workbook();
-			if (dishCatCourses) {
+			if (options.dishCatCourses) {
 				setMessage("Downloading all dishes...");
 				const dcc = await retrieveAllDishCatCoursesForBackUp();
 				createDCCWorksheet(dcc, workbook);
 			}
-			if (sets) {
+			if (options.sets) {
 				setMessage("Downloading all sets...");
 				const sets = await retrieveSetsForBackUp();
 				createSetWorksheet(sets, workbook);
+			}
+			if (options.otherServices) {
+				setMessage("Downloading all other services...");
+				const services = await retrieveServicesForBackUp();
+				createServicesWorksheet(services, workbook);
 			}
 
 			setMessage("Writing all data in excel...");
@@ -71,12 +78,7 @@ export default function DownloadBackUp() {
 	}
 	return (
 		<Dialog>
-			<DialogTrigger asChild>
-				<div className="space-y-2">
-					<p className="text-sm font-medium">Back up files</p>
-					<Button>Back up files</Button>
-				</div>
-			</DialogTrigger>
+			<DialogTrigger className={buttonVariants()}>Back up files</DialogTrigger>
 			<DialogContent>
 				<DialogHeader className="space-y-2">
 					<h4 className="font-medium leading-none">Back up files</h4>
@@ -109,6 +111,21 @@ export default function DownloadBackUp() {
 											onCheckedChange={field.onChange}
 											checked={field.value}>
 											Sets
+										</CheckboxWithText>
+									</FormControl>
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
+							name="otherServices"
+							render={({ field }) => (
+								<FormItem>
+									<FormControl>
+										<CheckboxWithText
+											onCheckedChange={field.onChange}
+											checked={field.value}>
+											Services
 										</CheckboxWithText>
 									</FormControl>
 								</FormItem>
@@ -236,4 +253,21 @@ async function createSetWorksheet(data: Set, workbook: ExcelJS.Workbook) {
 			}
 		}
 	});
+}
+
+async function createServicesWorksheet(
+	data: Service[],
+	workbook: ExcelJS.Workbook
+) {
+	const servicesSheet = workbook.addWorksheet(WorksheetNames.Service);
+	servicesSheet.columns = [
+		{ header: "Name", key: "name", width: 20 },
+		{ header: "Price", key: "price", width: 20 },
+		{ header: "Unit", key: "unit", width: 10 },
+		{ header: "UnitName", key: "unitName", width: 20 },
+		{ header: "Required", key: "isRequired", width: 20 },
+		{ header: "Available", key: "isAvailable", width: 20 },
+	];
+
+	servicesSheet.addRows(data);
 }

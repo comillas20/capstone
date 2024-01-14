@@ -1,6 +1,7 @@
 export enum WorksheetNames {
 	DCC = "Products-Dishes",
 	Set = "Sets",
+	Service = "Services",
 }
 
 export type DCC = {
@@ -31,4 +32,13 @@ export type Set = {
 			imgHref: string | null;
 		}[];
 	}[];
+};
+
+export type Service = {
+	name: string;
+	price: number;
+	unit: number | null;
+	unitName: string | null;
+	isRequired: boolean;
+	isAvailable: boolean;
 };

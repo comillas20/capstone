@@ -172,6 +172,7 @@ export async function restoreSets(values: Set) {
 			createdAt: values.createdAt,
 			minimumPerHead: values.minimumPerHead,
 			price: values.price,
+			selectionQuantity: values.selectionQuantity,
 		},
 		where: {
 			name: values.name,
@@ -182,6 +183,7 @@ export async function restoreSets(values: Set) {
 			createdAt: values.createdAt,
 			minimumPerHead: values.minimumPerHead,
 			price: values.price,
+			selectionQuantity: values.selectionQuantity,
 		},
 	});
 	const newSubSets = await Promise.all(
@@ -262,4 +264,26 @@ export async function restoreSets(values: Set) {
 	);
 
 	return { ...newSet, subSets: newSubSets };
+}
+
+export async function retrieveServicesForBackUp() {
+	return await prisma.otherServices.findMany();
+}
+
+type Service = {
+	name: string;
+	price: number;
+	unit: number | null;
+	unitName: string | null;
+	isRequired: boolean;
+	isAvailable: boolean;
+};
+export async function restoreServices(service: Service) {
+	return await prisma.otherServices.upsert({
+		create: service,
+		where: {
+			name: service.name,
+		},
+		update: service,
+	});
 }

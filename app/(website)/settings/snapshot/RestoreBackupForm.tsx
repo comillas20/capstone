@@ -15,9 +15,13 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import ExcelJS from "exceljs";
 import { useState, useTransition } from "react";
-import { DCC, Set, WorksheetNames } from "./types";
+import { DCC, Service, Set, WorksheetNames } from "./types";
 import { Loader2 } from "lucide-react";
-import { restoreDishCatCourse, restoreSets } from "./serverActions";
+import {
+	restoreDishCatCourse,
+	restoreServices,
+	restoreSets,
+} from "./serverActions";
 import { convertExcelValueToDateString } from "@lib/utils";
 
 const uploadFormSchema = z.object({
@@ -49,6 +53,9 @@ export default function RestoreBackUpForm() {
 				setMessage("Reading the file...");
 				const dishes = getDishesFromExcel(workbook);
 				const sets = getSetsFromExcel(workbook);
+				const services = getServicesFromExcel(workbook);
+				// insert other worksheets here
+
 				if (dishes) {
 					dishes.forEach(async (dish, index) => {
 						const dishUpload = await restoreDishCatCourse(dish);
@@ -65,9 +72,19 @@ export default function RestoreBackUpForm() {
 						}
 					});
 				}
+				if (services) {
+					services.forEach(async (service, index) => {
+						const serviceUpload = await restoreServices(service);
+						if (serviceUpload) {
+							setMessage(
+								"Uploading other services (" + index + "/" + services.length + ")"
+							);
+						}
+					});
+				}
 				// Note to self: all code here will be executed first before uploading
 			} catch (err) {
-				// will catch an error if not a single worksheet is detected
+				// will catch an error if file is invalid
 				setMessage("Invalid File");
 			}
 		});
@@ -257,4 +274,32 @@ function getSetsFromExcel(workbook: ExcelJS.Workbook) {
 	});
 	if (currentSet) sets.push(currentSet);
 	return sets.length > 0 ? sets : null;
+}
+
+function getServicesFromExcel(workbook: ExcelJS.Workbook) {
+	const worksheet = workbook.getWorksheet(WorksheetNames.Service);
+	if (!worksheet) return null;
+	let services: Service[] = [];
+	worksheet.eachRow({ includeEmpty: false }, function (row, rowNumber) {
+		if (rowNumber > 1) {
+			const name = row.getCell(1).value?.toString();
+			const price = row.getCell(2).value?.toString();
+			const unit = row.getCell(3).value?.toString();
+			const unitName = row.getCell(4).value?.toString();
+			const isRequired = row.getCell(5).value?.toString().toLowerCase() === "true";
+			const isAvailable =
+				row.getCell(6).value?.toString().toLowerCase() === "true";
+			if (!name && !price) return;
+			const service: Service = {
+				name: name as string,
+				price: parseFloat(price as string),
+				unit: unit ? parseInt(unit) : null,
+				unitName: unitName ?? null,
+				isRequired: isRequired,
+				isAvailable: isAvailable,
+			};
+			services.push(service);
+		}
+	});
+	return services.length !== 0 ? services : null;
 }

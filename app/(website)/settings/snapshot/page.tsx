@@ -11,7 +11,10 @@ export default async function BackUpRestorePage() {
 			</div>
 			<Separator />
 			<RestoreBackUpForm />
-			<DownloadBackUp />
+			<div className="space-y-2">
+				<p className="text-sm font-medium">Back up files</p>
+				<DownloadBackUp />
+			</div>
 		</div>
 	);
 }
