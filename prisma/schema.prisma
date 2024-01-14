@@ -154,7 +154,7 @@ model FAQ {
 
 model OtherServices {
   id          Int     @id @default(autoincrement())
-  name        String  @db.VarChar(50)
+  name        String  @db.VarChar(50) @unique
   price       Float
   unit        Int?
   unitName    String?
