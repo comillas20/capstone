@@ -88,6 +88,7 @@ model Set {
   subSets        SubSet[]
   minimumPerHead Int
   price          Float
+  selectionQuantity Int    @default(1) //0 means all dishes are compulsory
 }
 
 //to allow merging of categories like "Fish/Canton/Vegetable" in the menu/set
@@ -99,7 +100,6 @@ model SubSet {
   dishes            Dish[] @relation("DishSubSets")
   courseID          Int
   course            Course @relation(fields: [courseID], references: [id], onDelete: Cascade)
-  selectionQuantity Int    @default(1) //0 means all dishes are compulsory
 
   @@unique([name, setID])
   @@map("SubSets")
