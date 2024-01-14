@@ -46,6 +46,7 @@ export default function SetPicker() {
 			{/* Sets to chose from */}
 			{allSets.data && allSets.data.length !== 0 && (
 				<SetCards
+					key={allSets.data[selectedSet].id}
 					set={allSets.data[selectedSet]}
 					selectedDishIDs={selectedDishIDs}
 					setSelectedDishIDs={setSelectedDishIDs}

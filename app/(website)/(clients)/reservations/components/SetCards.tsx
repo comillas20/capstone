@@ -20,6 +20,7 @@ import {
 } from "./ReservationForm";
 import { getALlDishesWithCourses } from "../serverActions";
 import { Separator } from "@components/ui/separator";
+import { ToggleGroup, ToggleGroupItem } from "@components/ui/toggle-group";
 
 type SetCardsProps = {
 	set: {
@@ -47,8 +48,8 @@ type SetCardsProps = {
 				id: number;
 				name: string;
 			};
-			selectionQuantity: number;
 		}[];
+		selectionQuantity: number;
 	};
 	isThisSelected?: boolean;
 	selectedDishIDs: {
@@ -79,7 +80,7 @@ export default function SetCards({
 		getALlDishesWithCourses
 	);
 	const [selectedDishIDsViaCB, setSelectedDishIDsViaCB] = useState<string[]>([]);
-	const [prerequisiteToDialog, setPrerequisiteToDialog] = useState<number>(1);
+	const prerequisiteToDialog = set.selectionQuantity;
 	const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
 	//a dictionary where subsets are sorted by courses
 	const subsetsByCourses: { [key: string]: typeof set.subSets } = {};
@@ -92,16 +93,6 @@ export default function SetCards({
 		}
 		subsetsByCourses[key].push(subSet);
 	});
-	useEffect(() => {
-		let counter = 0;
-		set.subSets.forEach(subset => {
-			//Note to self: selectionQuantity == 0 means all dishes are required
-			//so I count them and include them in counter
-			if (subset.selectionQuantity == 0) counter += subset.dishes.length;
-			counter += subset.selectionQuantity;
-		});
-		setPrerequisiteToDialog(counter);
-	}, [set]);
 
 	return (
 		<Card className="w-full border-none">
@@ -118,7 +109,7 @@ export default function SetCards({
 					return (
 						<div key={courseID} className="flex flex-col gap-y-2">
 							<h3 className="text-xs font-medium">{courseName}</h3>
-							<div className="grid grid-cols-2 gap-x-8 gap-y-4">
+							<div className="flex flex-col gap-y-4">
 								{subSets
 									.filter(subset => subset.dishes.length !== 0)
 									.map(subSet => (
@@ -126,53 +117,29 @@ export default function SetCards({
 											<h2 className="mb-2 h-[26px] text-lg font-semibold">
 												{subSet.name}
 											</h2>
-											{subSet.selectionQuantity === 1 ? (
-												<RadioGroup
-													disabled={!isThisSelected}
-													onValueChange={e => {
-														const [ssName, dID] = e.split("_jin_");
-														setSelectedDishIDs(selectedDishes => {
-															const doesExistAlready = selectedDishes
-																.map(dish => dish.subSetName)
-																.includes(ssName);
-															return !doesExistAlready
-																? [
-																		...selectedDishes,
-																		{ subSetName: ssName, dishID: parseInt(dID) },
-																  ]
-																: selectedDishes.map(dish =>
-																		dish.subSetName === ssName
-																			? { ...dish, dishID: parseInt(dID) }
-																			: dish
-																  );
-														});
-													}}>
-													{subSet.dishes.map(dish => (
-														<Label
-															key={dish.id.toString()}
-															className="flex items-center space-x-2">
-															<RadioGroupItem
-																value={subSet.name + "_jin_" + dish.id.toString()}
-															/>
-															<span>{dish.name}</span>
-														</Label>
-													))}
-												</RadioGroup>
-											) : (
-												<CheckboxGroup
-													maxChecks={subSet.selectionQuantity}
-													disabled={!isThisSelected}
-													checkedValues={selectedDishIDsViaCB}
-													setCheckedValues={setSelectedDishIDsViaCB}>
-													{subSet.dishes.map(dish => (
-														<CheckboxItem
-															key={dish.id.toString()}
-															value={subSet.name + "_jin_" + dish.id.toString()}>
+											<ToggleGroup
+												className="flex flex-wrap justify-start"
+												type="multiple"
+												key={subSet.id}
+												disabled={!isThisSelected}
+												value={selectedDishIDsViaCB}
+												onValueChange={setSelectedDishIDsViaCB}>
+												{subSet.dishes.map(dish => {
+													const value = subSet.name + "_jin_" + String(dish.id);
+													return (
+														<ToggleGroupItem
+															className="block py-0 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+															key={dish.id}
+															value={value}
+															disabled={
+																selectedDishIDsViaCB.length === prerequisiteToDialog &&
+																!selectedDishIDsViaCB.includes(value)
+															}>
 															{dish.name}
-														</CheckboxItem>
-													))}
-												</CheckboxGroup>
-											)}
+														</ToggleGroupItem>
+													);
+												})}
+											</ToggleGroup>
 										</div>
 									))}
 							</div>
