@@ -139,6 +139,7 @@ type Set = {
 	description: string | null;
 	minimumPerHead: number;
 	price: number;
+	selectionQuantity: number;
 };
 export async function createOrUpdateSet(values: Set) {
 	return await prisma.set.upsert({
@@ -147,6 +148,7 @@ export async function createOrUpdateSet(values: Set) {
 			description: values.description,
 			minimumPerHead: values.minimumPerHead,
 			price: values.price,
+			selectionQuantity: values.selectionQuantity,
 		},
 		where: {
 			id: values.id,
@@ -156,6 +158,7 @@ export async function createOrUpdateSet(values: Set) {
 			description: values.description,
 			minimumPerHead: values.minimumPerHead,
 			price: values.price,
+			selectionQuantity: values.selectionQuantity,
 		},
 	});
 }
@@ -188,7 +191,6 @@ export async function createOrUpdateSubset(subset: subset) {
 			dishes: {
 				connect: subset.dishes.map(dishID => ({ id: dishID })),
 			},
-			selectionQuantity: subset.selectionQuantity,
 		},
 		where: {
 			id: subset.id,
@@ -201,7 +203,6 @@ export async function createOrUpdateSubset(subset: subset) {
 				disconnect: [],
 				connect: subset.dishes.map(dishID => ({ id: dishID })),
 			},
-			selectionQuantity: subset.selectionQuantity,
 		},
 		include: {
 			dishes: true,

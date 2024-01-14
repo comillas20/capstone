@@ -175,6 +175,7 @@ type Set = {
 	createdAt: Date;
 	minimumPerHead: number;
 	price: number;
+	selectionQuantity: number;
 	subSets: {
 		name: string | null;
 		course: string;
@@ -184,7 +185,6 @@ type Set = {
 			imgHref: string | null;
 			category: string;
 		}[];
-		selectionQuantity: number;
 	}[];
 }[];
 async function createSetWorksheet(data: Set, workbook: ExcelJS.Workbook) {
@@ -195,9 +195,9 @@ async function createSetWorksheet(data: Set, workbook: ExcelJS.Workbook) {
 		{ header: "Date Created", key: "createdAt", width: 20 },
 		{ header: "Minimum Packs", key: "minimumPerHead", width: 20 },
 		{ header: "Price/Head", key: "price", width: 20 },
+		{ header: "selectionQuantity", key: "selectionQuantity", width: 20 },
 		{ header: "Subsets", key: "subsetName", width: 20 },
 		{ header: "Course", key: "course", width: 20 },
-		{ header: "selectionQuantity", key: "selectionQuantity", width: 20 },
 		{ header: "Dishes", key: "dishes", width: 20 },
 		{ header: "Availability", key: "isAvailable", width: 10 },
 		{ header: "Category", key: "category", width: 20 },
@@ -211,6 +211,7 @@ async function createSetWorksheet(data: Set, workbook: ExcelJS.Workbook) {
 			createdAt: set.createdAt,
 			minimumPerHead: set.minimumPerHead,
 			price: set.price,
+			selectionQuantity: set.selectionQuantity,
 		};
 
 		for (let ssIndex = 0; ssIndex < set.subSets.length; ssIndex++) {
@@ -220,7 +221,6 @@ async function createSetWorksheet(data: Set, workbook: ExcelJS.Workbook) {
 				...(ssIndex === 0 ? setData : {}),
 				subsetName: set.subSets[ssIndex].name,
 				course: set.subSets[ssIndex].course,
-				selectionQuantity: set.subSets[ssIndex].selectionQuantity,
 			};
 			for (let dIndex = 0; dIndex < set.subSets[ssIndex].dishes.length; dIndex++) {
 				const dishData = {

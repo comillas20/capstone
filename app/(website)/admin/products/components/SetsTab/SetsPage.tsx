@@ -47,7 +47,6 @@ export default function SetsPage() {
 	useEffect(() => {
 		if (sets) setSelectedSet(sets[selectedSetIndex.current]);
 	}, [sets]);
-	const hideOnDefault = { Created: false, "Last Updated": false };
 	return (
 		<div>
 			{sets && (

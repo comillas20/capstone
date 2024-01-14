@@ -104,6 +104,7 @@ export async function retrieveSetsForBackUp() {
 			price: true,
 			minimumPerHead: true,
 			createdAt: true,
+			selectionQuantity: true,
 			subSets: {
 				select: {
 					name: true,
@@ -124,7 +125,6 @@ export async function retrieveSetsForBackUp() {
 							},
 						},
 					},
-					selectionQuantity: true,
 				},
 			},
 		},
@@ -150,6 +150,7 @@ type Set = {
 	createdAt: Date;
 	minimumPerHead: number;
 	price: number;
+	selectionQuantity: number;
 	subSets: {
 		course: string;
 		dishes: {
@@ -161,7 +162,6 @@ type Set = {
 			imgHref: string | null;
 		}[];
 		name: string;
-		selectionQuantity: number;
 	}[];
 };
 export async function restoreSets(values: Set) {

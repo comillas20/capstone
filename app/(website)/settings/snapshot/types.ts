@@ -18,6 +18,7 @@ export type Set = {
 	createdAt: Date;
 	minimumPerHead: number;
 	price: number;
+	selectionQuantity: number;
 	subSets: {
 		name: string;
 		course: string;
@@ -29,6 +30,5 @@ export type Set = {
 			course: string;
 			imgHref: string | null;
 		}[];
-		selectionQuantity: number;
 	}[];
 };

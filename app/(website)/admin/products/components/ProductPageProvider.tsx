@@ -42,6 +42,7 @@ export type ProductPageContextProps = {
 		updatedAt: Date;
 		minimumPerHead: number;
 		price: number;
+		selectionQuantity: number;
 		subSets: {
 			id: number;
 			name: string;
@@ -49,7 +50,6 @@ export type ProductPageContextProps = {
 				id: number;
 				name: string;
 			};
-			selectionQuantity: number;
 			dishes: {
 				id: number;
 				name: string;

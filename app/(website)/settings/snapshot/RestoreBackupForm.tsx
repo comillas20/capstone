@@ -154,9 +154,9 @@ function getSetsFromExcel(workbook: ExcelJS.Workbook) {
 		createdAt: string | null,
 		minimumPerHead: string | undefined,
 		price: string | undefined,
+		selectionQuantity: string | undefined,
 		subset: string | undefined,
 		course: string | undefined,
-		selectionQuantity: string | undefined,
 		dish: string | undefined,
 		isAvailable: boolean,
 		category: string | undefined,
@@ -171,14 +171,14 @@ function getSetsFromExcel(workbook: ExcelJS.Workbook) {
 				: null;
 			minimumPerHead = row.getCell(4).value?.toString();
 			price = row.getCell(5).value?.toString();
-			subset = row.getCell(6).value?.toString();
-			course = row.getCell(7).value?.toString();
-			selectionQuantity = row.getCell(8).value?.toString();
+			selectionQuantity = row.getCell(6).value?.toString();
+			subset = row.getCell(7).value?.toString();
+			course = row.getCell(8).value?.toString();
 			dish = row.getCell(9).value?.toString();
 			isAvailable = row.getCell(10).value?.toString().toLowerCase() === "true";
 			category = row.getCell(11).value?.toString();
 			imgHref = row.getCell(12).value?.toString();
-			if (name && price && minimumPerHead) {
+			if (name && price && minimumPerHead && selectionQuantity) {
 				// Push previous set, before it gets replaced by the new set below
 				if (currentSet) sets.push(currentSet);
 				currentSet = {
@@ -187,13 +187,11 @@ function getSetsFromExcel(workbook: ExcelJS.Workbook) {
 					createdAt: createdAt ? new Date(createdAt) : new Date(),
 					minimumPerHead: parseInt(minimumPerHead as string),
 					price: parseFloat(price as string),
+					selectionQuantity: parseInt(selectionQuantity as string),
 					subSets: [
 						{
 							name: subset as string,
 							course: course as string,
-							selectionQuantity: selectionQuantity
-								? parseInt(selectionQuantity as string)
-								: 1,
 							dishes: [
 								{
 									name: dish as string,
@@ -210,14 +208,12 @@ function getSetsFromExcel(workbook: ExcelJS.Workbook) {
 			} else if (!name && !price && !minimumPerHead && subset && course) {
 				// NOTE: currentSet CANNOT BE undefined,
 				// unless someone modified the excel and deleted all columns other than dishes
-				// this else if block SHOULD RUN AFTER the if block setting the currentSet's set
+				// this else if block SHOULD RUN AFTER the if block is executed in the previous loop,
+				// setting the currentSet's set
 				if (!currentSet) return;
 				currentSet.subSets.push({
 					name: subset as string,
 					course: course as string,
-					selectionQuantity: selectionQuantity
-						? parseInt(selectionQuantity as string)
-						: 1,
 					dishes: [
 						{
 							name: dish as string,
@@ -239,7 +235,8 @@ function getSetsFromExcel(workbook: ExcelJS.Workbook) {
 			) {
 				// NOTE: currentSet CANNOT BE undefined,
 				// unless someone modified the excel and deleted all columns other than dishes
-				// this else if block SHOULD RUN AFTER the else if block above setting the currentSet's subSet
+				// this else if block SHOULD RUN AFTER the else if block above is executed in the previous loop,
+				// setting the currentSet's subSet
 				if (!currentSet) return;
 				const thisSubset = currentSet.subSets[currentSet.subSets.length - 1].dishes;
 				currentSet.subSets[currentSet.subSets.length - 1].dishes.push({

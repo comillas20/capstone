@@ -26,6 +26,13 @@ import { Input } from "@components/ui/input";
 import { toast } from "@components/ui/use-toast";
 import { PRODUCTS_SETS_KEY } from "../ProductPageProvider";
 import { Textarea } from "@components/ui/textarea";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
+} from "@components/ui/tooltip";
+import { HelpCircle } from "lucide-react";
 
 type SetAddEditDialogProps = {
 	editSetData?: {
@@ -34,6 +41,7 @@ type SetAddEditDialogProps = {
 		description: string | null;
 		minimumPerHead: number;
 		price: number;
+		selectionQuantity: number;
 	};
 } & React.ComponentProps<typeof Dialog>;
 export default function SetAddEditDialog({
@@ -59,6 +67,7 @@ export default function SetAddEditDialog({
 		description: z.string().nullable(),
 		minimumPerHead: z.number(),
 		price: z.number().gte(1),
+		selectionQuantity: z.number(),
 	});
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
@@ -69,6 +78,7 @@ export default function SetAddEditDialog({
 					description: editSetData.description ?? "",
 					minimumPerHead: editSetData.minimumPerHead,
 					price: editSetData.price,
+					selectionQuantity: editSetData.selectionQuantity,
 			  }
 			: {
 					id: -1,
@@ -76,6 +86,7 @@ export default function SetAddEditDialog({
 					description: "",
 					minimumPerHead: 50,
 					price: undefined,
+					selectionQuantity: undefined,
 			  },
 	});
 	function onSubmit(values: z.infer<typeof formSchema>) {
@@ -137,7 +148,7 @@ export default function SetAddEditDialog({
 								</FormItem>
 							)}
 						/>
-						<div className="grid grid-cols-2 gap-4">
+						<div className="grid grid-cols-3 items-end gap-4">
 							<FormField
 								control={form.control}
 								name="minimumPerHead"
@@ -166,6 +177,40 @@ export default function SetAddEditDialog({
 												type="number"
 												{...field}
 												onChange={value => field.onChange(parseFloat(value.target.value))}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name="selectionQuantity"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>
+											<TooltipProvider>
+												<Tooltip>
+													<TooltipTrigger asChild>
+														<div className="flex items-center gap-2">
+															<span>Select quantity of selection:</span>
+															<HelpCircle size={15} className="h-5 w-5 text-primary" />
+														</div>
+													</TooltipTrigger>
+													<TooltipContent>
+														<p>
+															The required number of dishes the customer can pick in this set
+														</p>
+													</TooltipContent>
+												</Tooltip>
+											</TooltipProvider>
+										</FormLabel>
+										<FormControl>
+											<Input
+												type="number"
+												min={0}
+												{...field}
+												onChange={e => field.onChange(parseInt(e.target.value))}
 											/>
 										</FormControl>
 										<FormMessage />

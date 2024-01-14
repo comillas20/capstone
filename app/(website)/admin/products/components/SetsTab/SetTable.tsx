@@ -72,6 +72,12 @@ export function SetTable<TData, TValue>({
 		getFacetedUniqueValues: getFacetedUniqueValues(),
 	});
 	React.useEffect(() => {
+		setSorting([
+			{
+				id: "name",
+				desc: false,
+			},
+		]);
 		setRowSelection({ "0": true });
 		setColumnVisibility({ Created: false, "Last Updated": false });
 	}, []);

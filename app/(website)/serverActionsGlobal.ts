@@ -35,11 +35,17 @@ export async function getAllSets() {
 							name: true,
 						},
 					},
-					selectionQuantity: true,
+				},
+				orderBy: {
+					name: "asc",
 				},
 			},
+			selectionQuantity: true,
 			createdAt: true,
 			updatedAt: true,
+		},
+		orderBy: {
+			name: "asc",
 		},
 	});
 	return result.map(set => ({

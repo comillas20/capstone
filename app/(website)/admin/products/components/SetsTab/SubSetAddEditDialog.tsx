@@ -65,7 +65,6 @@ type SubSetAddEditDialogProps = {
 			id: number;
 			name: string;
 		};
-		selectionQuantity: number;
 	};
 	setID: number;
 	children: React.ReactElement<typeof Button>;
@@ -109,7 +108,6 @@ export default function SubSetAddEditDialog({
 					setID: setID,
 					dishes: editSubSetData.dishes.map(dish => dish.id),
 					courseID: editSubSetData.course.id.toString(),
-					selectionQuantity: editSubSetData.selectionQuantity,
 			  }
 			: {
 					id: -1,
@@ -117,22 +115,8 @@ export default function SubSetAddEditDialog({
 					setID: setID,
 					dishes: [],
 					courseID: "",
-					selectionQuantity: 1,
 			  },
 	});
-	// useEffect(() => {
-	// 	form.reset({
-	// 		id: editSubSetData ? editSubSetData.id : -1,
-	// 		name: editSubSetData ? editSubSetData.name : "",
-	// 		setID: setID,
-	// 		dishes: editSubSetData ? editSubSetData.dishes.map(dish => dish.id) : [],
-	// 		courseID: editSubSetData ? editSubSetData.course.id.toString() : "",
-	// 		selectionQuantity: editSubSetData ? editSubSetData.selectionQuantity : 1,
-	// 	});
-	// }, [editSubSetData, form.reset]);
-	// useEffect(() => {
-	// 	form.reset();
-	// }, [props.open]);
 	function onSubmit(values: z.infer<typeof formSchema>) {
 		const modSelectionQuantity =
 			values.selectionQuantity > values.dishes.length
@@ -256,89 +240,51 @@ export default function SubSetAddEditDialog({
 								)}
 							/>
 						)}
-						<div className="grid grid-cols-2 items-center gap-x-2">
-							{courses && (
-								<FormField
-									control={form.control}
-									name="courseID"
-									render={({ field }) => (
-										<FormItem className="space-x-4">
-											<FormLabel>Course:</FormLabel>
-											<FormControl>
-												<DropdownMenu>
-													<DropdownMenuTrigger asChild>
-														<Button variant="outline">
-															{
-																courses?.find(value => value.id === parseInt(field.value, 10))
-																	?.name
-																	? courses?.find(
-																			value => value.id === parseInt(field.value, 10)
-																	  )?.name
-																	: "--select--"
-																//default name for creating
-															}
-															<TriangleDownIcon className="ml-2" />
-														</Button>
-													</DropdownMenuTrigger>
-													<DropdownMenuContent className="w-56">
-														<DropdownMenuRadioGroup
-															value={field.value}
-															onValueChange={e => {
-																field.onChange(e);
-																setCourseFilterDishes(e);
-															}}>
-															{courses?.map(course => (
-																<DropdownMenuRadioItem
-																	key={course.id}
-																	value={course.id.toString()}>
-																	{course.name}
-																</DropdownMenuRadioItem>
-															))}
-														</DropdownMenuRadioGroup>
-													</DropdownMenuContent>
-												</DropdownMenu>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-							)}
+						{courses && (
 							<FormField
 								control={form.control}
-								name="selectionQuantity"
+								name="courseID"
 								render={({ field }) => (
-									<FormItem>
-										<div className="grid grid-cols-3 items-center gap-x-4">
-											<FormLabel className="col-span-2 flex items-center gap-2">
-												<span>Select quantity of selection:</span>
-												<TooltipProvider>
-													<Tooltip>
-														<TooltipTrigger asChild>
-															<HelpCircle size={15} className="h-5 w-5 text-primary" />
-														</TooltipTrigger>
-														<TooltipContent>
-															<p>
-																The required number of dishes the customer can pick in this
-																subset
-															</p>
-														</TooltipContent>
-													</Tooltip>
-												</TooltipProvider>
-											</FormLabel>
-											<FormControl className="col-span-1">
-												<Input
-													type="number"
-													min={0}
-													{...field}
-													onChange={e => field.onChange(parseInt(e.target.value))}
-												/>
-											</FormControl>
-										</div>
+									<FormItem className="space-x-4">
+										<FormLabel>Course:</FormLabel>
+										<FormControl>
+											<DropdownMenu>
+												<DropdownMenuTrigger asChild>
+													<Button variant="outline">
+														{
+															courses?.find(value => value.id === parseInt(field.value, 10))
+																?.name
+																? courses?.find(value => value.id === parseInt(field.value, 10))
+																		?.name
+																: "--select--"
+															//default name for creating
+														}
+														<TriangleDownIcon className="ml-2" />
+													</Button>
+												</DropdownMenuTrigger>
+												<DropdownMenuContent className="w-56">
+													<DropdownMenuRadioGroup
+														value={field.value}
+														onValueChange={e => {
+															field.onChange(e);
+															setCourseFilterDishes(e);
+														}}>
+														{courses?.map(course => (
+															<DropdownMenuRadioItem
+																key={course.id}
+																value={course.id.toString()}>
+																{course.name}
+															</DropdownMenuRadioItem>
+														))}
+													</DropdownMenuRadioGroup>
+												</DropdownMenuContent>
+											</DropdownMenu>
+										</FormControl>
 										<FormMessage />
 									</FormItem>
 								)}
 							/>
-						</div>
+						)}
 
 						<div className="flex justify-between gap-4">
 							{editSubSetData && (
