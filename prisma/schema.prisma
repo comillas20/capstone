@@ -106,15 +106,17 @@ model SubSet {
 }
 
 model Account {
-  id           Int             @id @default(autoincrement())
-  name         String          @unique
-  phoneNumber  String          @unique @db.VarChar(13) // +639xxxxxxxx
-  password     String          @db.Text
-  role         Role            @default(USER)
-  image        String?
-  createdAt    DateTime        @default(now())
-  preference   UserPreference?
-  reservations Reservations[]
+  id            Int             @id @default(autoincrement())
+  name          String          @unique
+  phoneNumber   String          @unique @db.VarChar(13) // +639xxxxxxxx
+  password      String          @db.Text
+  role          Role            @default(USER)
+  image         String?
+  createdAt     DateTime        @default(now())
+  code          String?
+  codeTimeStamp DateTime?
+  preference    UserPreference?
+  reservations  Reservations[]
 }
 
 enum Role {
@@ -154,7 +156,7 @@ model FAQ {
 
 model OtherServices {
   id          Int     @id @default(autoincrement())
-  name        String  @db.VarChar(50) @unique
+  name        String  @unique @db.VarChar(50)
   price       Float
   unit        Int?
   unitName    String?
