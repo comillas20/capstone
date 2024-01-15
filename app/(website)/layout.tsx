@@ -66,6 +66,11 @@ const adminNav = [
 		name: "Products",
 		href: "/admin/products",
 	},
+	{
+		// includes venue delete, maintenance, and sht
+		name: "Venue",
+		href: "/admin/venue",
+	},
 ];
 
 const userNav = [
