@@ -19,26 +19,15 @@ import {
 	FormLabel,
 	FormMessage,
 } from "@components/ui/form";
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogFooter,
-	AlertDialogTrigger,
-} from "@components/ui/alert-dialog";
-import { sendSMS } from "@app/(website)/serverActionsGlobal";
-import { validateCredentials } from "../serverActions";
+import { sendSMSCode, validateCredentials } from "../serverActions";
 
 type UserData = {
-	id: number;
+	result: string;
 	phoneNumber: string;
-	code: string;
-	codeTimeStamp: Date;
 };
 export default function SignInForm() {
 	const [time, setTime] = useState(120);
@@ -91,21 +80,32 @@ export default function SignInForm() {
 
 	const [isSubmitting, startSubmitting] = useTransition();
 	const searchParams = useSearchParams();
+	const [message, setMessage] = useState(searchParams.get("error"));
 	const onSubmit = (values: z.infer<typeof signInSchema>) => {
 		startSubmitting(async () => {
-			if (initialData && values.code === initialData.code) {
+			const data = await validateCredentials({
+				phoneNumber: convertPhoneNumber(values.phoneNumber),
+				password: values.password,
+			});
+			if (data?.result === "code_verified") {
 				const signInData = await signIn("credentials", {
 					phoneNumber: convertPhoneNumber(values.phoneNumber),
 					password: values.password,
 					redirect: true,
 					callbackUrl: searchParams.get("callbackUrl") ?? "/",
 				});
-			} else if (!initialData) {
-				const data = await validateCredentials({
-					phoneNumber: convertPhoneNumber(values.phoneNumber),
-					password: values.password,
-				});
+			} else if (data?.result === "code_expired") {
 				setInitialData(data);
+				setMessage(
+					"Code expired, we sent a new one in the provided mobile number. Please check messages"
+				);
+			} else if (data?.result === "new_code") {
+				setInitialData(data);
+				setMessage(
+					"We sent a code in the provided mobile number. Please check messages"
+				);
+			} else {
+				setMessage("Incorrect mobile number and/or password");
 			}
 			// if initialData exists but code is not provided again, do nothing
 		});
@@ -165,7 +165,7 @@ export default function SignInForm() {
 									</FormItem>
 								)}
 							/>
-							{initialData && (
+							{initialData && initialData.phoneNumber && (
 								<FormField
 									control={form.control}
 									name="code"
@@ -175,29 +175,28 @@ export default function SignInForm() {
 											<FormControl>
 												<Input type="text" {...field} />
 											</FormControl>
-											<div className="flex justify-end gap-2">
+											<div className="flex items-center justify-end gap-2">
 												<Button
 													type="button"
 													variant="link"
 													disabled={isTimerStarted}
 													onClick={async () => {
-														const code = generateRandomString(6).toUpperCase();
-														const send_data = {
-															recipient: initialData.phoneNumber,
-															message:
-																"Your code is " +
-																code +
-																". This code only lasts for 30 mins. Be careful of sharing codes",
-														};
-														await sendSMS(send_data);
-														setIsTimerStarted(true);
+														const result = await sendSMSCode(
+															initialData.phoneNumber as string
+														);
+														if (result) {
+															// because result is in milliseconds
+															setTime(result / 1000);
+															setIsTimerStarted(true);
+														}
 													}}>
 													Resend
 												</Button>
 												{isTimerStarted && (
 													<p>
-														`${minutes.toString().padStart(2, "0")}:$
-														{seconds.toString().padStart(2, "0")}`
+														{`${minutes.toString().padStart(2, "0")}:${seconds
+															.toString()
+															.padStart(2, "0")}`}
 													</p>
 												)}
 											</div>
@@ -214,7 +213,7 @@ export default function SignInForm() {
 									Sign in
 								</Button>
 								<p className="text-center text-sm font-medium text-destructive">
-									{searchParams.get("error")}
+									{message}
 								</p>
 							</div>
 

@@ -198,7 +198,7 @@ type SMS = {
 export async function sendSMS(content: SMS) {
 	const token = "65|xAiPDApkGu8EWdZ4yCPHQciE6hFgHtqEbCD1id2p ";
 	const parameters = JSON.stringify({
-		sender_id: "PhilSMS",
+		sender_id: "PhilSMS", // not allowed to change
 		recipient: content.recipient,
 		message: content.message,
 	});
@@ -212,5 +212,6 @@ export async function sendSMS(content: SMS) {
 		},
 	};
 
-	await fetch("https://app.philsms.com/api/v3/sms/send", options);
+	const result = await fetch("https://app.philsms.com/api/v3/sms/send", options);
+	console.log("serverActionsGlobal", result.json());
 }
