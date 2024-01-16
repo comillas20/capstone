@@ -3,7 +3,12 @@ import { Button, buttonVariants } from "@components/ui/button";
 import { Input } from "@components/ui/input";
 import { Loader2, MoveLeftIcon } from "lucide-react";
 import * as z from "zod";
-import { cn, convertPhoneNumber, isPhoneNumberValid } from "@lib/utils";
+import {
+	cn,
+	convertPhoneNumber,
+	generateRandomString,
+	isPhoneNumberValid,
+} from "@lib/utils";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -14,12 +19,54 @@ import {
 	FormLabel,
 	FormMessage,
 } from "@components/ui/form";
-import { useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogFooter,
+	AlertDialogTrigger,
+} from "@components/ui/alert-dialog";
+import { sendSMS } from "@app/(website)/serverActionsGlobal";
+import { validateCredentials } from "../serverActions";
 
+type UserData = {
+	id: number;
+	phoneNumber: string;
+	code: string;
+	codeTimeStamp: Date;
+};
 export default function SignInForm() {
+	const [time, setTime] = useState(120);
+	const [isTimerStarted, setIsTimerStarted] = useState(false);
+	const [initialData, setInitialData] = useState<UserData | null>(null);
+	useEffect(() => {
+		if (isTimerStarted) {
+			// Update the time every second
+			const timerID = setInterval(() => {
+				setTime(prevTime => {
+					if (prevTime <= 1) {
+						// Stop the timer
+						setIsTimerStarted(false);
+						return 0;
+					} else {
+						return prevTime - 1;
+					}
+				});
+			}, 1000);
+
+			// Clear interval on re-render to avoid memory leaks
+			return () => clearInterval(timerID);
+		}
+	}, [isTimerStarted]);
+
+	// Convert time to mm:ss format
+	const minutes = Math.floor(time / 60);
+	const seconds = time % 60;
 	const signInSchema = z.object({
 		phoneNumber: z.string().refine(value => isPhoneNumberValid(value), {
 			message: "Please input a valid mobile number",
@@ -27,6 +74,10 @@ export default function SignInForm() {
 		password: z.string().min(8, {
 			message: "Password must have atleast 8 characters",
 		}),
+		code: z
+			.string()
+			.optional()
+			.refine(value => !value || value.length === 6), // value must be either empty or has 6 char
 	});
 
 	const form = useForm<z.infer<typeof signInSchema>>({
@@ -34,19 +85,29 @@ export default function SignInForm() {
 		defaultValues: {
 			phoneNumber: "",
 			password: "",
+			code: "",
 		},
 	});
 
 	const [isSubmitting, startSubmitting] = useTransition();
 	const searchParams = useSearchParams();
-	const onSubmit = (data: z.infer<typeof signInSchema>) => {
+	const onSubmit = (values: z.infer<typeof signInSchema>) => {
 		startSubmitting(async () => {
-			const signInData = await signIn("credentials", {
-				phoneNumber: convertPhoneNumber(data.phoneNumber),
-				password: data.password,
-				redirect: true,
-				callbackUrl: searchParams.get("callbackUrl") ?? "/",
-			});
+			if (initialData && values.code === initialData.code) {
+				const signInData = await signIn("credentials", {
+					phoneNumber: convertPhoneNumber(values.phoneNumber),
+					password: values.password,
+					redirect: true,
+					callbackUrl: searchParams.get("callbackUrl") ?? "/",
+				});
+			} else if (!initialData) {
+				const data = await validateCredentials({
+					phoneNumber: convertPhoneNumber(values.phoneNumber),
+					password: values.password,
+				});
+				setInitialData(data);
+			}
+			// if initialData exists but code is not provided again, do nothing
 		});
 	};
 	const router = useRouter();
@@ -104,10 +165,51 @@ export default function SignInForm() {
 									</FormItem>
 								)}
 							/>
+							{initialData && (
+								<FormField
+									control={form.control}
+									name="code"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Code</FormLabel>
+											<FormControl>
+												<Input type="text" {...field} />
+											</FormControl>
+											<div className="flex justify-end gap-2">
+												<Button
+													type="button"
+													variant="link"
+													disabled={isTimerStarted}
+													onClick={async () => {
+														const code = generateRandomString(6).toUpperCase();
+														const send_data = {
+															recipient: initialData.phoneNumber,
+															message:
+																"Your code is " +
+																code +
+																". This code only lasts for 30 mins. Be careful of sharing codes",
+														};
+														await sendSMS(send_data);
+														setIsTimerStarted(true);
+													}}>
+													Resend
+												</Button>
+												{isTimerStarted && (
+													<p>
+														`${minutes.toString().padStart(2, "0")}:$
+														{seconds.toString().padStart(2, "0")}`
+													</p>
+												)}
+											</div>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+							)}
 						</div>
 						<div className="flex flex-col gap-4">
 							<div className="w-full space-y-2">
-								<Button className="w-full" disabled={isSubmitting}>
+								<Button type="submit" className="w-full" disabled={isSubmitting}>
 									{isSubmitting && <Loader2 className="animate-spin" />}
 									Sign in
 								</Button>
@@ -117,11 +219,11 @@ export default function SignInForm() {
 							</div>
 
 							<div className="flex w-full justify-between">
-								<Button
+								{/* <Button
 									variant={"link"}
 									className="flex items-end justify-start p-0 text-xs text-accent-foreground">
 									Forgot Password?
-								</Button>
+								</Button> */}
 								<Link
 									href="/authentication/register"
 									className="flex items-end text-xs text-primary">

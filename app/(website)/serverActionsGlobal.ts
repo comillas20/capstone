@@ -190,3 +190,27 @@ export async function getReservations(userID?: number, startDate?: Date) {
 
 	return modifiedResult;
 }
+
+type SMS = {
+	recipient: string;
+	message: string;
+};
+export async function sendSMS(content: SMS) {
+	const token = "65|xAiPDApkGu8EWdZ4yCPHQciE6hFgHtqEbCD1id2p ";
+	const parameters = JSON.stringify({
+		sender_id: "PhilSMS",
+		recipient: content.recipient,
+		message: content.message,
+	});
+
+	const options = {
+		method: "POST",
+		body: parameters,
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${token}`,
+		},
+	};
+
+	await fetch("https://app.philsms.com/api/v3/sms/send", options);
+}
