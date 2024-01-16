@@ -115,6 +115,7 @@ model Account {
   createdAt     DateTime        @default(now())
   code          String?
   codeTimeStamp DateTime?
+  resendTimeStamp DateTime?
   preference    UserPreference?
   reservations  Reservations[]
 }
