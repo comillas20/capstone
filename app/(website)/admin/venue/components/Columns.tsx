@@ -25,7 +25,6 @@ export type Reservations = {
 	user_name: string;
 	user_phoneNumber: string;
 };
-<Button variant="outline">Button</Button>
 
 export const columns: ColumnDef<Reservations>[] = [
 	{
