@@ -56,8 +56,8 @@ export function isPhoneNumberValid(phoneNumber: string): boolean {
 	return phoneNumberRegex.test(phoneNumber);
 }
 export function convertPhoneNumber(phoneNumber: string): string {
-	if (phoneNumber.startsWith("+639") && phoneNumber.length === 13) {
-		return "0" + phoneNumber.slice(3);
+	if (phoneNumber.startsWith("09") && phoneNumber.length === 11) {
+		return "+63" + phoneNumber.slice(1);
 	} else {
 		return phoneNumber;
 	}
