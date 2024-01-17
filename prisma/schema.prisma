@@ -24,6 +24,7 @@ model Transactions {
 
 enum ReservationStatus {
   ONGOING
+  COMPLETED
   CANCELED
 }
 
