@@ -47,10 +47,10 @@ model Venues {
   name        String
   location    String
   freeHours   Int
-  venueCost   Float
+  venueCost   Float //per hour
   maxCapacity Int
-  isAvailable Boolean
   sets        Set[]
+  maintainanceDates MaintainanceDates[]
 }
 
 model Dish {
@@ -141,6 +141,8 @@ enum SettingValueTypes {
 
 model MaintainanceDates {
   date DateTime @id
+  venueID Int
+  venue Venues @relation(fields: [venueID], references: [id], onDelete: Cascade)
 }
 
 model FAQ {

@@ -49,7 +49,7 @@ export function DataTableToolbar<TData>({
 			{categories?.length == 0 && (
 				<p className="mr-4 flex items-center text-sm text-primary">
 					<Info className="mr-2" />
-					Please add a category first before adding a dish
+					Please add a course and then a category first before adding a dish
 				</p>
 			)}
 			<AddEditDialog>

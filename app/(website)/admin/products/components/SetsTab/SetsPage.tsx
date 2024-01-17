@@ -51,8 +51,10 @@ export default function SetsPage() {
 		<div>
 			{sets && (
 				<div className="grid gap-6 pt-4 xl:grid-cols-12">
-					{sets && selectedSet && (
+					{sets && selectedSet ? (
 						<SetCard data={selectedSet} className="xl:col-span-5" />
+					) : (
+						<div className="xl:col-span-5"></div>
 					)}
 					<div className="xl:col-span-7">
 						<SetTable

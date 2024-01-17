@@ -7,7 +7,7 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@components/ui/dialog";
-import { useEffect, useTransition } from "react";
+import { useContext, useEffect, useTransition } from "react";
 import { mutate } from "swr";
 import { createOrUpdateSet, doesSetExists } from "../serverActions";
 import { z } from "zod";
@@ -24,7 +24,11 @@ import {
 import { DialogClose } from "@radix-ui/react-dialog";
 import { Input } from "@components/ui/input";
 import { toast } from "@components/ui/use-toast";
-import { PRODUCTS_SETS_KEY } from "../ProductPageProvider";
+import {
+	PRODUCTS_SETS_KEY,
+	ProductPageContext,
+	ProductPageContextProps,
+} from "../ProductPageProvider";
 import { Textarea } from "@components/ui/textarea";
 import {
 	Tooltip,
@@ -33,6 +37,13 @@ import {
 	TooltipTrigger,
 } from "@components/ui/tooltip";
 import { HelpCircle } from "lucide-react";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@components/ui/select";
 
 type SetAddEditDialogProps = {
 	editSetData?: {
@@ -42,12 +53,14 @@ type SetAddEditDialogProps = {
 		minimumPerHead: number;
 		price: number;
 		selectionQuantity: number;
+		venueID: number;
 	};
 } & React.ComponentProps<typeof Dialog>;
 export default function SetAddEditDialog({
 	editSetData,
 	...props
 }: SetAddEditDialogProps) {
+	const { venues } = useContext(ProductPageContext) as ProductPageContextProps;
 	const [isSaving, startSaving] = useTransition();
 	const formSchema = z.object({
 		id: z.number(),
@@ -68,6 +81,9 @@ export default function SetAddEditDialog({
 		minimumPerHead: z.number(),
 		price: z.number().gte(1),
 		selectionQuantity: z.number(),
+		venueID: z
+			.number()
+			.gte(1, { message: "Please select a venue this set will be under" }),
 	});
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
@@ -79,6 +95,7 @@ export default function SetAddEditDialog({
 					minimumPerHead: editSetData.minimumPerHead,
 					price: editSetData.price,
 					selectionQuantity: editSetData.selectionQuantity,
+					venueID: editSetData.venueID,
 			  }
 			: {
 					id: -1,
@@ -87,6 +104,7 @@ export default function SetAddEditDialog({
 					minimumPerHead: 50,
 					price: undefined,
 					selectionQuantity: undefined,
+					venueID: -1,
 			  },
 	});
 	function onSubmit(values: z.infer<typeof formSchema>) {
@@ -148,7 +166,7 @@ export default function SetAddEditDialog({
 								</FormItem>
 							)}
 						/>
-						<div className="grid grid-cols-3 items-end gap-4">
+						<div className="grid grid-cols-2 items-end gap-4">
 							<FormField
 								control={form.control}
 								name="minimumPerHead"
@@ -159,7 +177,7 @@ export default function SetAddEditDialog({
 											<Input
 												type="number"
 												{...field}
-												onChange={value => field.onChange(parseInt(value.target.value))}
+												onChange={value => field.onChange(parseInt(value.target.value, 10))}
 											/>
 										</FormControl>
 										<FormMessage />
@@ -178,6 +196,34 @@ export default function SetAddEditDialog({
 												{...field}
 												onChange={value => field.onChange(parseFloat(value.target.value))}
 											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						</div>
+						<div className="grid grid-cols-2 items-end gap-4">
+							<FormField
+								control={form.control}
+								name="venueID"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Venue</FormLabel>
+										<FormControl>
+											<Select
+												onValueChange={value => field.onChange(parseInt(value))}
+												defaultValue={field.value > -1 ? String(field.value) : undefined}>
+												<SelectTrigger>
+													<SelectValue placeholder="--Select category--" />
+												</SelectTrigger>
+												<SelectContent>
+													{venues.map(venue => (
+														<SelectItem key={venue.id} value={String(venue.id)}>
+															{venue.name}
+														</SelectItem>
+													))}
+												</SelectContent>
+											</Select>
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -210,7 +256,7 @@ export default function SetAddEditDialog({
 												type="number"
 												min={0}
 												{...field}
-												onChange={e => field.onChange(parseInt(e.target.value))}
+												onChange={e => field.onChange(parseInt(e.target.value, 10))}
 											/>
 										</FormControl>
 										<FormMessage />

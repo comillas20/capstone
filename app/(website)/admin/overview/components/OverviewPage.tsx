@@ -72,12 +72,9 @@ export default function Overview() {
 							{(() => {
 								const thisMonthRevenue = thisMonthData
 									.filter(data => isBefore(data.eventDate, now))
-									.reduce(
-										(acc, reservation) => acc + reservation.net_amount + reservation.fee,
-										0
-									);
+									.reduce((acc, reservation) => acc + reservation.totalCost, 0);
 								const lastMonthRevenue = lastMonthData?.reduce(
-									(acc, reservation) => acc + reservation.net_amount + reservation.fee,
+									(acc, reservation) => acc + reservation.totalCost,
 									0
 								);
 								const percentage = lastMonthRevenue
@@ -141,7 +138,7 @@ export default function Overview() {
 
 							{(() => {
 								const currentSales = thisMonthData.filter(
-									r => !(r.status === "PENDING") && !isAfter(r.eventDate, now)
+									r => !(r.status === "CANCELED") && !isAfter(r.eventDate, now)
 								).length;
 								const lastMonthSales = lastMonthData ? lastMonthData.length : undefined;
 								const percentage = lastMonthSales
@@ -169,11 +166,11 @@ export default function Overview() {
 							})()}
 
 							{(() => {
-								const accepted = reservations.data.filter(
-									r => r.status === "ACCEPTED"
+								const completed = reservations.data.filter(
+									r => r.status === "COMPLETED"
 								).length;
-								const pending = reservations.data.filter(
-									r => r.status === "PENDING"
+								const ongoing = reservations.data.filter(
+									r => r.status === "ONGOING"
 								).length;
 								return (
 									<OverviewCard
@@ -186,8 +183,8 @@ export default function Overview() {
 												className="text-muted-foreground"
 											/>
 										}
-										content={String(accepted + pending)}
-										description={accepted + " accepted; " + pending + " pending"}
+										content={String(completed + ongoing)}
+										description={completed + " completed; " + ongoing + " ongoing"}
 									/>
 								);
 							})()}
@@ -219,7 +216,7 @@ export default function Overview() {
 										id: client.userID,
 										name: account.name,
 										phoneNumber: account.phoneNumber,
-										revenue: client.fee + client.net_amount,
+										revenue: client.totalCost,
 									};
 								});
 								return <RecentClients className="lg:col-span-3" data={data} />;

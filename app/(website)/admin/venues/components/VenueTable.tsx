@@ -7,14 +7,14 @@ import {
 	TableRow,
 } from "@components/ui/table";
 import { ColumnDef, flexRender, Table as t } from "@tanstack/react-table";
-type ReservationTableProps<TData, TValue> = {
+type VenueTableProps<TData, TValue> = {
 	table: t<TData>;
 	columns: ColumnDef<TData, TValue>[];
 };
-export default function ReservationTable<TData, TValue>({
+export default function VenueTable<TData, TValue>({
 	table,
 	columns,
-}: ReservationTableProps<TData, TValue>) {
+}: VenueTableProps<TData, TValue>) {
 	return (
 		<Table className="rounded-md border">
 			<TableHeader>

@@ -3,10 +3,14 @@
 import { Table } from "@tanstack/react-table";
 import { Input } from "@components/ui/input";
 import { DataTableViewOptions } from "@app/(website)/admin/components/DataTableViewOptions";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import SetAddEditDialog from "./SetAddEditDialog";
-import { Plus } from "lucide-react";
+import { Info, Plus } from "lucide-react";
 import { Button } from "@components/ui/button";
+import {
+	ProductPageContext,
+	ProductPageContextProps,
+} from "../ProductPageProvider";
 
 interface DataTableToolbarProps<TData> {
 	table: Table<TData>;
@@ -15,6 +19,7 @@ interface DataTableToolbarProps<TData> {
 export function DataTableToolbar<TData>({
 	table,
 }: DataTableToolbarProps<TData>) {
+	const { venues } = useContext(ProductPageContext) as ProductPageContextProps;
 	const [isOpen, setIsOpen] = useState(false);
 	return (
 		<div className="flex items-center justify-between">
@@ -29,7 +34,17 @@ export function DataTableToolbar<TData>({
 				/>
 				<DataTableViewOptions table={table} />
 			</div>
-			<Button size="sm" className="flex" onClick={() => setIsOpen(true)}>
+			{venues?.length === 0 && (
+				<p className="mr-4 flex items-center text-sm text-primary">
+					<Info className="mr-2" />
+					Please add a venue first before adding a set
+				</p>
+			)}
+			<Button
+				size="sm"
+				className="flex"
+				onClick={() => setIsOpen(true)}
+				disabled={venues?.length === 0}>
 				<Plus className="mr-2" />
 				Set
 			</Button>

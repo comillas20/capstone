@@ -220,7 +220,7 @@ export function AddEditDialog({ data, children }: AddEditDialogProps) {
 											<FormControl>
 												<Select
 													onValueChange={value => field.onChange(parseInt(value))}
-													defaultValue={String(field.value)}>
+													defaultValue={field.value > -1 ? String(field.value) : undefined}>
 													<SelectTrigger>
 														<SelectValue placeholder="--Select category--" />
 													</SelectTrigger>

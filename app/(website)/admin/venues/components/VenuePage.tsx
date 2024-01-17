@@ -17,18 +17,14 @@ import {
 } from "@tanstack/react-table";
 
 import { DataTablePagination } from "@admin/components/DataTablePagination";
-import { convertDateToString } from "@lib/utils";
-import { Calendar } from "@components/ui/calendar";
 import { DataTableToolbar } from "./DataTableToolbar";
-import ReservationTable from "./ReservationTable";
+import VenueTable from "./VenueTable";
 import { findNearestNonDisabledDate } from "@lib/date-utils";
 import useSWR from "swr";
-import { getReservations } from "../serverActions";
 import { Loader2 } from "lucide-react";
 import { columns } from "./Columns";
 import { Button } from "@components/ui/button";
-
-
+import { getAllVenues } from "@app/(website)/serverActionsGlobal";
 
 interface ReservationPage<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];
@@ -86,28 +82,22 @@ function Reservation<TData, TValue>({
 
 	return (
 		<div className="w-full space-y-4">
-		<div className="flex justify-between items-center">
 			<DataTableToolbar table={table} />
-			<Button variant="outline">ADD</Button>
-		</div>
-		<div className="flex flex-col items-start gap-4 xl:flex-row">
-			<div className="space-y-4 xl:flex-1">
-			<ReservationTable table={table} columns={columns} />
-			<DataTablePagination table={table} />
+			<div className="flex flex-col items-start gap-4 xl:flex-row">
+				<div className="space-y-4 xl:flex-1">
+					<VenueTable table={table} columns={columns} />
+					<DataTablePagination table={table} />
+				</div>
 			</div>
 		</div>
-		</div>
-
 	);
 }
 
-type ReservationPageProps = {
+type VenuePageProps = {
 	maintainanceDates: Date[];
 };
-export default function ReservationPage({
-	maintainanceDates,
-}: ReservationPageProps) {
-	const { data } = useSWR("ReservationPageData", async () => getReservations());
+export default function VenuePage({ maintainanceDates }: VenuePageProps) {
+	const { data } = useSWR("VenuePage", getAllVenues);
 	if (!data) return <Loader2 className="animate-spin" size={15} />;
 	return (
 		<Reservation

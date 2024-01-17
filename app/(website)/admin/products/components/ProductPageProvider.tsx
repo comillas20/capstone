@@ -7,6 +7,7 @@ import {
 	getAllDishes,
 	getAllServices,
 	getAllSets,
+	getAllVenues,
 } from "@app/(website)/serverActionsGlobal";
 
 export type ProductPageContextProps = {
@@ -60,6 +61,14 @@ export type ProductPageContextProps = {
 				};
 			}[];
 		}[];
+		venue: {
+			id: number;
+			name: string;
+			freeHours: number;
+			location: string;
+			maxCapacity: number;
+			venueCost: number;
+		};
 	}[];
 	services: {
 		id: number;
@@ -69,6 +78,14 @@ export type ProductPageContextProps = {
 		unitName: string | null;
 		isRequired: boolean;
 		isAvailable: boolean;
+	}[];
+	venues: {
+		id: number;
+		name: string;
+		freeHours: number;
+		location: string;
+		maxCapacity: number;
+		venueCost: number;
 	}[];
 };
 
@@ -80,6 +97,7 @@ export const PRODUCTS_CATEGORIES_KEY = "products_categories";
 export const PRODUCTS_COURSES_KEY = "products_courses";
 export const PRODUCTS_SETS_KEY = "products_sets";
 export const PRODUCTS_SERVICES_KEY = "products_services";
+export const PRODUCTS_VENUES_KEY = "products_venues";
 
 export default function ProductPageProvider({
 	children,
@@ -91,6 +109,7 @@ export default function ProductPageProvider({
 	const courses = useSWR(PRODUCTS_COURSES_KEY, getAllCourses);
 	const sets = useSWR(PRODUCTS_SETS_KEY, getAllSets);
 	const services = useSWR(PRODUCTS_SERVICES_KEY, getAllServices);
+	const venues = useSWR(PRODUCTS_VENUES_KEY, getAllVenues);
 	return (
 		<ProductPageContext.Provider
 			value={{
@@ -99,6 +118,7 @@ export default function ProductPageProvider({
 				courses: courses.data ?? [],
 				sets: sets.data ?? [],
 				services: services.data ?? [],
+				venues: venues.data ?? [],
 			}}>
 			{children}
 		</ProductPageContext.Provider>

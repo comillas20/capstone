@@ -8,6 +8,20 @@ import { utcToZonedTime } from "date-fns-tz";
 // so Im converting every Dates I get from Prisma to local
 
 const localTimezone = "Asia/Manila";
+export async function getAllVenues() {
+	const result = await prisma.venues.findMany({
+		include: {
+			maintainanceDates: true,
+		},
+	});
+	return result.map(venue => ({
+		...venue,
+		maintainanceDates: venue.maintainanceDates.map(md =>
+			utcToZonedTime(md.date, localTimezone)
+		),
+	}));
+}
+
 export async function getAllSets() {
 	const result = await prisma.set.findMany({
 		select: {
@@ -38,6 +52,16 @@ export async function getAllSets() {
 				},
 				orderBy: {
 					name: "asc",
+				},
+			},
+			venue: {
+				select: {
+					id: true,
+					name: true,
+					freeHours: true,
+					location: true,
+					maxCapacity: true,
+					venueCost: true,
 				},
 			},
 			selectionQuantity: true,
@@ -179,14 +203,10 @@ export async function getReservations(userID?: number, startDate?: Date) {
 		},
 	});
 
-	const modifiedResult = result.map(
-		({ eventDate, reservedAt, updatedAt, ...others }) => ({
-			...others,
-			eventDate: utcToZonedTime(eventDate, localTimezone),
-			reservedAt: utcToZonedTime(reservedAt, localTimezone),
-			updatedAt: utcToZonedTime(updatedAt, localTimezone),
-		})
-	);
+	const modifiedResult = result.map(({ eventDate, ...others }) => ({
+		...others,
+		eventDate: utcToZonedTime(eventDate, localTimezone),
+	}));
 
 	return modifiedResult;
 }

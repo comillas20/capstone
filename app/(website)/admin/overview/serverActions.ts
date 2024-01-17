@@ -26,23 +26,19 @@ export async function getReservations(date: Date) {
 			],
 			OR: [
 				{
-					status: "ACCEPTED",
+					status: "COMPLETED",
 				},
 				{
-					status: "PENDING",
+					status: "ONGOING",
 				},
 			],
 		},
 	});
 
-	const modifiedResult = result.map(
-		({ eventDate, reservedAt, updatedAt, ...others }) => ({
-			...others,
-			eventDate: utcToZonedTime(eventDate, localTimezone),
-			reservedAt: utcToZonedTime(reservedAt, localTimezone),
-			updatedAt: utcToZonedTime(updatedAt, localTimezone),
-		})
-	);
+	const modifiedResult = result.map(({ eventDate, ...others }) => ({
+		...others,
+		eventDate: utcToZonedTime(eventDate, localTimezone),
+	}));
 
 	return modifiedResult;
 }

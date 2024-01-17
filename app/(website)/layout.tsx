@@ -68,8 +68,8 @@ const adminNav = [
 	},
 	{
 		// includes venue delete, maintenance, and sht
-		name: "Venue",
-		href: "/admin/venue",
+		name: "Venues",
+		href: "/admin/venues",
 	},
 ];
 

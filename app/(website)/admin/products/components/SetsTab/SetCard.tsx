@@ -16,6 +16,14 @@ type SetCardProps = {
 		createdAt: Date;
 		updatedAt: Date;
 		selectionQuantity: number;
+		venue: {
+			id: number;
+			name: string;
+			freeHours: number;
+			location: string;
+			maxCapacity: number;
+			venueCost: number;
+		};
 		subSets: {
 			id: number;
 			name: string;
@@ -45,6 +53,7 @@ export default function SetCard({ data, className }: SetCardProps) {
 		minimumPerHead: data.minimumPerHead,
 		price: data.price,
 		selectionQuantity: data.selectionQuantity,
+		venueID: data.venue.id,
 	};
 
 	const subsetsByCourses: { [key: string]: typeof data.subSets } = {};
