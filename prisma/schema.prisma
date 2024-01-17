@@ -49,6 +49,7 @@ model Venues {
   freeHours   Int
   venueCost   Float
   maxCapacity Int
+  isAvailable Boolean
   sets        Set[]
 }
 
