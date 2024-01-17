@@ -11,56 +11,55 @@ datasource db {
 }
 
 // customer's reservation table
-model Reservations {
-  id            String            @id @default(uuid())
-  payment_id    String            @db.Text
-  eventDate     DateTime
-  reservedAt    DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
-  userID        Int
-  user          Account           @relation(fields: [userID], references: [id])
-  net_amount    Float
+model Transactions {
+  id            String       @id @default(uuid())
+  paymentID     String       @db.Text
+  createdAt     DateTime     @default(now())
+  netAmount     Float
   fee           Float
-  totalCost     Float
-  status        ReservationStatus @default(PENDING)
-  eventDuration Int
-  dishes        String[]
   message       String?
-  setName       String
-}
-
-model Itemlist {
-  id          String @id @default(uuid())
-  setid       Int
-  reserveid   String
-  packageName String // Add the package details field
-  amount      Float // Add the amount field
-}
-
-model VenueList {
-  id          Int    @id @default(autoincrement())
-  name        String
-  location    String
-  MaxCapacity Int
+  reservationID String
+  reservation   Reservations @relation(fields: [reservationID], references: [id], onDelete: Cascade)
 }
 
 enum ReservationStatus {
-  ACCEPTED
-  PENDING
-  DENIED
-  IGNORED
+  ONGOING
   CANCELED
 }
 
+model Reservations {
+  id            String            @id @default(uuid())
+  userID        Int
+  user          Account           @relation(fields: [userID], references: [id])
+  transactions  Transactions[]
+  status        ReservationStatus @default(ONGOING)
+  setName       String
+  totalCost     Float
+  dishes        String[]
+  eventDuration Int
+  eventDate     DateTime
+  eventType     String
+}
+
+model Venues {
+  id          Int    @id @default(autoincrement())
+  name        String
+  location    String
+  freeHours   Int
+  venueCost   Float
+  maxCapacity Int
+  sets        Set[]
+}
+
 model Dish {
-  id          Int      @id @default(autoincrement())
-  name        String   @unique @db.VarChar(50)
+  id          Int       @id @default(autoincrement())
+  name        String    @unique @db.VarChar(50)
   categoryID  Int
-  category    Category @relation(fields: [categoryID], references: [id], onDelete: Cascade)
-  subSet      SubSet[] @relation("DishSubSets")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  isAvailable Boolean  @default(false)
+  category    Category  @relation(fields: [categoryID], references: [id], onDelete: Cascade)
+  subSet      SubSets[] @relation("DishSubSets")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  isAvailable Boolean   @default(false)
   imgHref     String?
 }
 
@@ -75,24 +74,26 @@ model Category {
 model Course {
   id         Int        @id @default(autoincrement())
   name       String     @unique @db.VarChar(50)
-  subSets    SubSet[]
+  subSets    SubSets[]
   categories Category[]
 }
 
 model Set {
-  id                Int      @id @default(autoincrement())
-  name              String   @unique @db.VarChar(50)
+  id                Int       @id @default(autoincrement())
+  name              String    @unique @db.VarChar(50)
   description       String?
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  subSets           SubSet[]
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  subSets           SubSets[]
+  venueID           Int
+  venue             Venues    @relation(fields: [venueID], references: [id], onDelete: Cascade)
   minimumPerHead    Int
   price             Float
   selectionQuantity Int
 }
 
 //to allow merging of categories like "Fish/Canton/Vegetable" in the menu/set
-model SubSet {
+model SubSets {
   id       Int    @id @default(autoincrement())
   name     String @db.VarChar(50)
   setID    Int
@@ -102,34 +103,25 @@ model SubSet {
   course   Course @relation(fields: [courseID], references: [id], onDelete: Cascade)
 
   @@unique([name, setID])
-  @@map("SubSets")
 }
 
 model Account {
-  id            Int             @id @default(autoincrement())
-  name          String          @unique
-  phoneNumber   String          @unique @db.VarChar(13) // +639xxxxxxxx
-  password      String          @db.Text
-  role          Role            @default(USER)
-  image         String?
-  createdAt     DateTime        @default(now())
-  code          String?
-  codeTimeStamp DateTime?
+  id              Int            @id @default(autoincrement())
+  name            String         @unique
+  phoneNumber     String         @unique @db.VarChar(13) // +639xxxxxxxx
+  password        String         @db.Text
+  role            Role           @default(USER)
+  image           String?
+  createdAt       DateTime       @default(now())
+  code            String?
+  codeTimeStamp   DateTime?
   resendTimeStamp DateTime?
-  preference    UserPreference?
-  reservations  Reservations[]
+  reservations    Reservations[]
 }
 
 enum Role {
   USER
   ADMIN
-}
-
-model UserPreference {
-  id        Int     @id @default(autoincrement())
-  account   Account @relation(fields: [accountID], references: [id])
-  accountID Int     @unique
-  darkMode  Boolean
 }
 
 model SystemSettings {
