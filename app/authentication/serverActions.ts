@@ -23,8 +23,6 @@ export async function validateCredentials(
 			phoneNumber: credentials.phoneNumber,
 		},
 	});
-	console.log("codeTimeStamp on server", userFound?.codeTimeStamp);
-	console.log("resendTimeStamp on server", userFound?.resendTimeStamp);
 	if (!userFound) return null;
 	const password = await bcrypt.compare(
 		credentials.password,
@@ -32,14 +30,12 @@ export async function validateCredentials(
 	);
 	if (!password) return null;
 
-	if (credentials.code && userFound.codeTimeStamp) {
+	if (userFound.codeTimeStamp) {
 		const currentTime = new Date();
 
 		// Calculate the time difference in milliseconds
 		const timeDifference =
 			currentTime.getTime() - userFound.codeTimeStamp.getTime();
-		console.log("currentTime", currentTime);
-		console.log("userFound.codeTimeStamp", userFound.codeTimeStamp);
 
 		// Convert 30 minutes to milliseconds
 		const thirtyMinutesInMillis = 30 * 60 * 1000;
@@ -49,6 +45,16 @@ export async function validateCredentials(
 			await sendSMSCode(userFound.phoneNumber);
 			return { result: "code_expired", phoneNumber: userFound.phoneNumber };
 		} else if (credentials.code === userFound.code) {
+			await prisma.account.update({
+				where: {
+					id: userFound.id,
+				},
+				data: {
+					code: null,
+					codeTimeStamp: null,
+					resendTimeStamp: null,
+				},
+			});
 			return { result: "code_verified", phoneNumber: userFound.phoneNumber };
 		}
 	} else {
@@ -78,16 +84,26 @@ export async function sendSMSCode(phoneNumber: string) {
 		// Calculate the time difference in milliseconds
 		const timeDifference =
 			codeTimeStamp.getTime() - timeStamp.resendTimeStamp.getTime();
-		console.log("codeTimeStamp_sendSMSCOde", codeTimeStamp);
-		console.log("timeStamp.resendTimeStamp", timeStamp.resendTimeStamp);
+		console.log("sendSMSCode.codeTimeStamp", codeTimeStamp);
+		console.log(
+			"sendSMSCode.timeStamp.resendTimeStamp",
+			timeStamp.resendTimeStamp
+		);
 
 		// returns the remaining time if true in milliseconds
 		if (timeDifference < twoMinutesInMillis) {
-			return timeDifference;
+			return Math.ceil(timeDifference);
 		}
 	}
 
 	try {
+		const send_data = {
+			recipient: phoneNumber,
+			message:
+				"Your code is " +
+				code +
+				". This code only lasts for 30 mins. Be mindful when sharing codes",
+		};
 		const result = await Promise.all([
 			prisma.account.update({
 				data: {
@@ -99,17 +115,9 @@ export async function sendSMSCode(phoneNumber: string) {
 					phoneNumber: phoneNumber,
 				},
 			}),
-			async function () {
-				const send_data = {
-					recipient: phoneNumber,
-					message:
-						"Your code is " +
-						code +
-						". This code only lasts for 30 mins. Be mindful when sharing codes",
-				};
-				await sendSMS(send_data);
-			},
+			sendSMS(send_data),
 		]);
+		console.log("result", !!result);
 
 		if (!!result) return twoMinutesInMillis;
 	} catch (error) {

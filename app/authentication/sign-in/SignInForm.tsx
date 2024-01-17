@@ -86,6 +86,7 @@ export default function SignInForm() {
 			const data = await validateCredentials({
 				phoneNumber: convertPhoneNumber(values.phoneNumber),
 				password: values.password,
+				code: values.code,
 			});
 			if (data?.result === "code_verified") {
 				const signInData = await signIn("credentials", {

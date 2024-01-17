@@ -196,6 +196,7 @@ type SMS = {
 	message: string;
 };
 export async function sendSMS(content: SMS) {
+	console.log("sendSMS_entrance");
 	const token = "65|xAiPDApkGu8EWdZ4yCPHQciE6hFgHtqEbCD1id2p ";
 	const parameters = JSON.stringify({
 		sender_id: "PhilSMS", // not allowed to change
@@ -212,6 +213,14 @@ export async function sendSMS(content: SMS) {
 		},
 	};
 
-	const result = await fetch("https://app.philsms.com/api/v3/sms/send", options);
-	console.log("serverActionsGlobal", result.json());
+	try {
+		const result = await fetch(
+			"https://app.philsms.com/api/v3/sms/send",
+			options
+		);
+		return !!result ? "success" : "failed";
+	} catch (error) {
+		console.error(error);
+		return "failed";
+	}
 }
