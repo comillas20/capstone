@@ -3,12 +3,7 @@ import { Button, buttonVariants } from "@components/ui/button";
 import { Input } from "@components/ui/input";
 import { Loader2, MoveLeftIcon } from "lucide-react";
 import * as z from "zod";
-import {
-	cn,
-	convertPhoneNumber,
-	generateRandomString,
-	isPhoneNumberValid,
-} from "@lib/utils";
+import { cn, convertPhoneNumber, isPhoneNumberValid } from "@lib/utils";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -23,7 +18,7 @@ import { useEffect, useState, useTransition } from "react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { sendSMSCode, validateCredentials } from "../serverActions";
+import { sendSMSCode, validateCredentials } from "./serverActions";
 
 type UserData = {
 	result: string;
@@ -80,7 +75,7 @@ export default function SignInForm() {
 
 	const [isSubmitting, startSubmitting] = useTransition();
 	const searchParams = useSearchParams();
-	const [message, setMessage] = useState(searchParams.get("error"));
+	const [message, setMessage] = useState<string>();
 	const onSubmit = (values: z.infer<typeof signInSchema>) => {
 		startSubmitting(async () => {
 			const data = await validateCredentials({
@@ -213,9 +208,14 @@ export default function SignInForm() {
 									{isSubmitting && <Loader2 className="animate-spin" />}
 									Sign in
 								</Button>
-								<p className="text-center text-sm font-medium text-destructive">
-									{message}
-								</p>
+								{!message && (
+									<p className="text-center text-sm font-medium text-destructive">
+										{searchParams.get("error")}
+									</p>
+								)}
+								{message && (
+									<p className="text-center text-sm font-medium">{message}</p>
+								)}
 							</div>
 
 							<div className="flex w-full justify-between">

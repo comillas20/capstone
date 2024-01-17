@@ -1,9 +1,8 @@
 "use server";
-
-import { sendSMS } from "@app/(website)/serverActionsGlobal";
 import prisma from "@lib/db";
-import { generateRandomString } from "@lib/utils";
 import bcrypt from "bcrypt";
+import { sendSMS } from "@app/(website)/serverActionsGlobal";
+import { generateRandomString } from "@lib/utils";
 
 type Credentials = {
 	phoneNumber: string;

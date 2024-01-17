@@ -1,5 +1,7 @@
 "use server";
+import { sendSMS } from "@app/(website)/serverActionsGlobal";
 import prisma from "@lib/db";
+import { generateRandomString } from "@lib/utils";
 import bcrypt from "bcrypt";
 export async function doesNameExists(name: string) {
 	const isNameFound = await prisma.account.findUnique({
@@ -12,19 +14,6 @@ export async function doesNameExists(name: string) {
 	});
 	return !!isNameFound;
 }
-
-// export async function doesEmailExists(email: string) {
-// 	const isEmailFound = await prisma.account.findUnique({
-// 		select: {
-// 			id: true,
-// 		},
-// 		where: {
-// 			email: email,
-// 		},
-// 	});
-
-// 	return !!isEmailFound;
-// }
 
 export async function doesPhoneNumberExists(phoneNumber: string) {
 	const isPhoneNumberFound = await prisma.account.findUnique({
@@ -44,6 +33,7 @@ type UserData = {
 	phoneNumber: string;
 	password: string;
 	role: "ADMIN" | "USER";
+	code?: string;
 };
 
 export async function createNewAccount(data: UserData) {
@@ -55,4 +45,17 @@ export async function createNewAccount(data: UserData) {
 	return await prisma.account.create({
 		data: { ...data, password: hashedPassword },
 	});
+}
+
+export async function getCode(data: UserData) {
+	const code = generateRandomString(6).toUpperCase();
+	const message = `You're almost done with your registration. Your code is ${code}.`;
+	const result = await sendSMS({
+		recipient: data.phoneNumber,
+		message: message,
+	});
+
+	return result === "success"
+		? { phoneNumber: data.phoneNumber, code: code }
+		: null;
 }

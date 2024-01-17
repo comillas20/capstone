@@ -15,20 +15,26 @@ import {
 	FormMessage,
 } from "@components/ui/form";
 import { Input } from "@components/ui/input";
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import {
 	createNewAccount,
 	doesNameExists,
 	doesPhoneNumberExists,
+	getCode,
 } from "./serverActions";
 import { Loader2, MoveLeftIcon } from "lucide-react";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 
+type UserInitialData = {
+	code: string;
+	phoneNumber: string;
+};
 export function RegistrationForm() {
 	const [isCreating, startCreating] = useTransition();
-
+	const [initialData, setInitialData] = useState<UserInitialData | null>(null);
+	const [message, setMessage] = useState<string>();
 	const accountFormSchema = z
 		.object({
 			name: z
@@ -62,6 +68,10 @@ export function RegistrationForm() {
 				message: "Password must have atleast 8 characters",
 			}),
 			confirmPassword: z.string(),
+			code: z
+				.string()
+				.optional()
+				.refine(value => !value || value.length === 6), // value must be either empty or has 6 char
 		})
 		.refine(data => data.password === data.confirmPassword, {
 			message: "Passwords don't match",
@@ -77,6 +87,7 @@ export function RegistrationForm() {
 			phone: "",
 			password: "",
 			confirmPassword: "",
+			code: "",
 		},
 	});
 
@@ -88,22 +99,40 @@ export function RegistrationForm() {
 				phoneNumber: string;
 				password: string;
 				role: "ADMIN" | "USER";
+				code?: string;
 			};
 			const newData: UserData = {
 				name: data.name,
 				phoneNumber: convertPhoneNumber(data.phone),
 				password: data.password,
 				role: "USER",
+				code: data.code,
 			};
-			const newUser = await createNewAccount(newData);
-			if (newUser) {
-				const signInData = await signIn("credentials", {
-					phoneNumber: newUser.phoneNumber,
-					password: data.password,
-					redirect: true,
-					callbackUrl: searchParams.get("callbackUrl") ?? "/",
-				});
-				form.reset(); // in case the user isnt redirected to home yet
+
+			if (
+				initialData &&
+				newData.code === initialData.code &&
+				newData.phoneNumber === initialData.phoneNumber
+			) {
+				const newUser = await createNewAccount(newData);
+				if (newUser) {
+					const signInData = await signIn("credentials", {
+						phoneNumber: newUser.phoneNumber,
+						password: data.password,
+						redirect: true,
+						callbackUrl: searchParams.get("callbackUrl") ?? "/",
+					});
+					form.reset();
+				}
+			} else if (!initialData || newData.phoneNumber !== initialData.phoneNumber) {
+				// if initialData doesnt exist or if user changed the phoneNumber
+				const code = await getCode(newData);
+				setInitialData(code);
+				setMessage(
+					"We sent a code in the provided mobile number. Please check messages"
+				);
+			} else if (newData.code !== initialData.code) {
+				setMessage("Invalid code");
 			}
 		});
 	}
@@ -188,12 +217,28 @@ export function RegistrationForm() {
 									</FormItem>
 								)}
 							/>
+							{initialData && (
+								<FormField
+									control={form.control}
+									name="code"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Code</FormLabel>
+											<FormControl>
+												<Input type="text" {...field} />
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+							)}
 						</div>
 						<div className="flex flex-col gap-4">
 							<Button type="submit" disabled={isCreating}>
 								{isCreating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
 								Create account
 							</Button>
+							{message && <p className="text-center text-sm font-medium">{message}</p>}
 							<Link
 								href="/authentication/sign-in"
 								className="flex items-end self-center text-xs text-primary hover:underline">
