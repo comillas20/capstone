@@ -100,6 +100,8 @@ export default function SignInForm() {
 				setMessage(
 					"We sent a code in the provided mobile number. Please check messages"
 				);
+			} else if (data?.result === "wrong_code") {
+				setMessage("Invalid code");
 			} else {
 				setMessage("Incorrect mobile number and/or password");
 			}

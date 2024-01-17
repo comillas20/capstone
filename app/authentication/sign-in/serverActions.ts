@@ -10,7 +10,7 @@ type Credentials = {
 	code?: string;
 };
 type UserData = {
-	result: string;
+	result: "code_expired" | "code_verified" | "wrong_code" | "new_code";
 	phoneNumber: string;
 };
 // creation of Date obj here apparently gets converted to UTC automatically
@@ -55,6 +55,8 @@ export async function validateCredentials(
 				},
 			});
 			return { result: "code_verified", phoneNumber: userFound.phoneNumber };
+		} else if (credentials.code !== userFound.code) {
+			return { result: "wrong_code", phoneNumber: userFound.phoneNumber };
 		}
 	} else {
 		await sendSMSCode(userFound.phoneNumber);
