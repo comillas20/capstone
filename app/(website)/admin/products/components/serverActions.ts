@@ -165,9 +165,6 @@ export async function createOrUpdateSet(values: Set) {
 		},
 	});
 }
-export async function doesSetExists(name: string) {
-	return !!(await prisma.set.findUnique({ where: { name: name } }));
-}
 
 export async function deleteSet(id: number) {
 	return await prisma.set.delete({
@@ -183,7 +180,6 @@ type subset = {
 	setID: number;
 	dishes: number[];
 	courseID: number;
-	selectionQuantity: number;
 };
 export async function createOrUpdateSubset(subset: subset) {
 	return await prisma.subSets.upsert({
@@ -221,22 +217,22 @@ export async function deleteSubset(id: number) {
 	});
 }
 
-export async function isSubSetAlreadyExistsInASet(setID: number, name: string) {
-	const result = await prisma.set.findUnique({
-		select: {
-			subSets: {
-				select: {
-					name: true,
-				},
-			},
-		},
-		where: {
-			id: setID,
-		},
-	});
-
-	return !!result?.subSets.find(subSet => subSet.name === name);
-}
+// export async function isSubSetAlreadyExistsInASet(setID: number, name: string) {
+// 	const result = await prisma.set.findUnique({
+// 		select: {
+// 			subSets: {
+// 				select: {
+// 					name: true,
+// 				},
+// 			},
+// 		},
+// 		where: {
+// 			id: setID,
+// 		},
+// 	});
+// 	console.log(!!result);
+// 	return !!result?.subSets.find(subSet => subSet.name === name);
+// }
 
 export type Service = {
 	id: number;

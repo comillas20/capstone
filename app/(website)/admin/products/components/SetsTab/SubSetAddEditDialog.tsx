@@ -7,12 +7,9 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@components/ui/dialog";
-import { useContext, useEffect, useState, useTransition } from "react";
+import { useContext, useState, useTransition } from "react";
 import { mutate } from "swr";
-import {
-	createOrUpdateSubset,
-	isSubSetAlreadyExistsInASet,
-} from "../serverActions";
+import { createOrUpdateSubset } from "../serverActions";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -30,7 +27,7 @@ import { Input } from "@components/ui/input";
 import { TriangleDownIcon } from "@radix-ui/react-icons";
 import { ScrollArea } from "@components/ui/scroll-area";
 import { Badge } from "@components/ui/badge";
-import { HelpCircle, Loader2Icon, Plus, X } from "lucide-react";
+import { Loader2Icon, Plus, X } from "lucide-react";
 import SubSetAddDishesByCategory from "./SubSetAddDishesByCategory";
 import {
 	DropdownMenu,
@@ -46,12 +43,6 @@ import {
 	ProductPageContext,
 	ProductPageContextProps,
 } from "../ProductPageProvider";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipProvider,
-	TooltipTrigger,
-} from "@components/ui/tooltip";
 
 type SubSetAddEditDialogProps = {
 	editSubSetData?: {
@@ -73,21 +64,26 @@ export default function SubSetAddEditDialog({
 	editSubSetData,
 	setID,
 	children,
-	...props
-}: SubSetAddEditDialogProps & React.ComponentProps<typeof Dialog>) {
+}: SubSetAddEditDialogProps) {
 	const [isSaving, startSaving] = useTransition();
-	const { dishes, courses } = useContext(
+	const { sets, dishes, courses } = useContext(
 		ProductPageContext
 	) as ProductPageContextProps;
+	function isSubSetAlreadyExistsInASet(setID: number, value: string) {
+		const thisSet = sets.find(set => set.id === setID);
+		if (!thisSet) return false;
+		const doesExist = thisSet.subSets.find(subSet => subSet.name === value);
+		return !!doesExist;
+	}
 	const formSchema = z.object({
 		id: z.number(),
 		name: z.string().refine(
-			async value =>
+			value =>
 				// Ignore own name when editing
 				editSubSetData
 					? value === editSubSetData.name ||
-					  !(await isSubSetAlreadyExistsInASet(setID, value))
-					: !(await isSubSetAlreadyExistsInASet(setID, value)),
+					  !isSubSetAlreadyExistsInASet(setID, value)
+					: !isSubSetAlreadyExistsInASet(setID, value),
 			{
 				message: "This subset name already exists!",
 			}
@@ -97,7 +93,6 @@ export default function SubSetAddEditDialog({
 			message: "Dishes must contain at least 1 elements",
 		}),
 		courseID: z.string().min(1),
-		selectionQuantity: z.number(),
 	});
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
@@ -118,15 +113,10 @@ export default function SubSetAddEditDialog({
 			  },
 	});
 	function onSubmit(values: z.infer<typeof formSchema>) {
-		const modSelectionQuantity =
-			values.selectionQuantity > values.dishes.length
-				? values.dishes.length
-				: values.selectionQuantity;
 		startSaving(async () => {
 			const modValues = {
 				...values,
 				courseID: parseInt(values.courseID),
-				selectionQuantity: modSelectionQuantity,
 			};
 			const submitSubSet = await createOrUpdateSubset(modValues);
 

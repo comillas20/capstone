@@ -79,7 +79,7 @@ export default function SetCard({ data, className }: SetCardProps) {
 					/>
 					{editSetData && (
 						<SetAddEditDialog
-							key={editSetData.id}
+							key={editSetData.id + " " + editSetData.venueID}
 							editSetData={editSetData}
 							open={isEditSetOpen}
 							onOpenChange={setIsEditSetOpen}

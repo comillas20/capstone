@@ -45,7 +45,7 @@ export default function SubSetAddDishesByCommand({
 	) as ProductPageContextProps;
 	return (
 		<CommandDialog open={open} onOpenChange={onOpenChange}>
-			<CommandInput placeholder="Search dishes..." />
+			<CommandInput placeholder="Search dishes..." className="w-1/2" />
 			<CommandList>
 				<CommandEmpty>No results found.</CommandEmpty>
 				<CommandGroup>

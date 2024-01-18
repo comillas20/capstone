@@ -11,13 +11,18 @@ export type Sets = {
 	updatedAt: string;
 	minimumPerHead: number;
 	price: number;
+	venue: string;
 };
 
 export const columns: ColumnDef<Sets>[] = [
 	{
 		accessorKey: "name",
+		header: ({ column }) => <DataTableColumnHeader column={column} title="Set" />,
+	},
+	{
+		accessorKey: "venue",
 		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="Set name" />
+			<DataTableColumnHeader column={column} title="Venue" />
 		),
 	},
 	{

@@ -9,7 +9,7 @@ import {
 } from "@components/ui/dialog";
 import { useContext, useEffect, useTransition } from "react";
 import { mutate } from "swr";
-import { createOrUpdateSet, doesSetExists } from "../serverActions";
+import { createOrUpdateSet } from "../serverActions";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -60,31 +60,41 @@ export default function SetAddEditDialog({
 	editSetData,
 	...props
 }: SetAddEditDialogProps) {
-	const { venues } = useContext(ProductPageContext) as ProductPageContextProps;
+	const { sets, venues } = useContext(
+		ProductPageContext
+	) as ProductPageContextProps;
 	const [isSaving, startSaving] = useTransition();
-	const formSchema = z.object({
-		id: z.number(),
-		name: z
-			.string()
-			.min(1)
-			.refine(
-				// ignore own name in checking duplicate name when editing
-				async value =>
-					editSetData
-						? value === editSetData.name || !(await doesSetExists(value))
-						: !(await doesSetExists(value)),
-				{
-					message: "This set name already exists!",
-				}
-			),
-		description: z.string().nullable(),
-		minimumPerHead: z.number(),
-		price: z.number().gte(1),
-		selectionQuantity: z.number(),
-		venueID: z
-			.number()
-			.gte(1, { message: "Please select a venue this set will be under" }),
-	});
+	function doesSetExists(name: string, venueID: number) {
+		const setInQuestion = sets.find(
+			set => set.name === name && set.venue.id === venueID
+		);
+		return !!setInQuestion;
+	}
+	const formSchema = z
+		.object({
+			id: z.number(),
+			name: z.string().min(1),
+			description: z.string().nullable(),
+			minimumPerHead: z.number(),
+			price: z.number().gte(1),
+			selectionQuantity: z.number(),
+			venueID: z
+				.number()
+				.gte(1, { message: "Please select a venue this set will belong" }),
+		})
+		.refine(
+			// ignore own name in checking duplicate name when editing
+			data => {
+				const isOwnName = editSetData
+					? data.name === editSetData.name && data.venueID === editSetData.venueID
+					: false;
+				return isOwnName || !doesSetExists(data.name, data.venueID);
+			},
+			{
+				message: "This set name in this venue already exists!",
+				path: ["name"], // path of error
+			}
+		);
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: editSetData
@@ -102,8 +112,8 @@ export default function SetAddEditDialog({
 					name: "",
 					description: "",
 					minimumPerHead: 50,
-					price: undefined,
-					selectionQuantity: undefined,
+					price: 0,
+					selectionQuantity: 3,
 					venueID: -1,
 			  },
 	});

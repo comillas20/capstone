@@ -19,10 +19,10 @@ export default function SetsPage() {
 	function changeSet(rowData: Sets) {
 		const isSetNotEmpty = sets && sets.length > 0;
 		if (isSetNotEmpty) {
-			const set = sets.find(set => set.name === rowData.name) ?? "N/A";
+			const set = sets.find(set => set.id === rowData.id) ?? "N/A";
 			const setIndex =
 				sets && sets.length != 0
-					? sets.findIndex(set => set.name === rowData.name)
+					? sets.findIndex(set => set.id === rowData.id)
 					: -1;
 			if (set !== "N/A") {
 				selectedSetIndex.current =
@@ -39,6 +39,7 @@ export default function SetsPage() {
 				updatedAt: convertDateToString(set.updatedAt),
 				minimumPerHead: set.minimumPerHead,
 				price: set.price,
+				venue: set.venue.name,
 		  }))
 		: [];
 
@@ -52,7 +53,11 @@ export default function SetsPage() {
 			{sets && (
 				<div className="grid gap-6 pt-4 xl:grid-cols-12">
 					{sets && selectedSet ? (
-						<SetCard data={selectedSet} className="xl:col-span-5" />
+						<SetCard
+							key={selectedSet.id}
+							data={selectedSet}
+							className="xl:col-span-5"
+						/>
 					) : (
 						<div className="xl:col-span-5"></div>
 					)}
