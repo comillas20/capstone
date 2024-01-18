@@ -127,6 +127,15 @@ export async function retrieveSetsForBackUp() {
 					},
 				},
 			},
+			venue: {
+				select: {
+					name: true,
+					location: true,
+					freeHours: true,
+					venueCost: true,
+					maxCapacity: true,
+				},
+			},
 		},
 	});
 
@@ -163,8 +172,34 @@ type Set = {
 		}[];
 		name: string;
 	}[];
+	venue: {
+		name: string;
+		location: string;
+		freeHours: number;
+		maxCapacity: number;
+		venueCost: number;
+	};
 };
 export async function restoreSets(values: Set) {
+	const newVenue = await prisma.venues.upsert({
+		create: {
+			name: values.venue.name,
+			location: values.venue.location,
+			freeHours: values.venue.freeHours,
+			maxCapacity: values.venue.maxCapacity,
+			venueCost: values.venue.venueCost,
+		},
+		where: {
+			name: values.venue.name,
+		},
+		update: {
+			name: values.venue.name,
+			location: values.venue.location,
+			freeHours: values.venue.freeHours,
+			maxCapacity: values.venue.maxCapacity,
+			venueCost: values.venue.venueCost,
+		},
+	});
 	const newSet = await prisma.set.upsert({
 		create: {
 			name: values.name,
@@ -173,9 +208,17 @@ export async function restoreSets(values: Set) {
 			minimumPerHead: values.minimumPerHead,
 			price: values.price,
 			selectionQuantity: values.selectionQuantity,
+			venue: {
+				connect: {
+					id: newVenue.id,
+				},
+			},
 		},
 		where: {
-			name: values.name,
+			name_venueID: {
+				name: values.name,
+				venueID: newVenue.id,
+			},
 		},
 		update: {
 			name: values.name,
@@ -184,6 +227,11 @@ export async function restoreSets(values: Set) {
 			minimumPerHead: values.minimumPerHead,
 			price: values.price,
 			selectionQuantity: values.selectionQuantity,
+			venue: {
+				connect: {
+					id: newVenue.id,
+				},
+			},
 		},
 	});
 	const newSubSets = await Promise.all(
@@ -199,7 +247,7 @@ export async function restoreSets(values: Set) {
 					name: subSet.course,
 				},
 			});
-			const newSubSet = await prisma.subSet.upsert({
+			const newSubSet = await prisma.subSets.upsert({
 				create: {
 					name: subSet.name,
 					setID: newSet.id,

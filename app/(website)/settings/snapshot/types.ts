@@ -32,6 +32,13 @@ export type Set = {
 			imgHref: string | null;
 		}[];
 	}[];
+	venue: {
+		name: string;
+		location: string;
+		freeHours: number;
+		venueCost: number;
+		maxCapacity: number;
+	};
 };
 
 export type Service = {

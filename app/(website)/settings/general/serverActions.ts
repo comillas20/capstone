@@ -22,16 +22,6 @@ export async function createOrUpdateSystemSetting(setting: Setting) {
 	});
 }
 
-export async function updateMaintainanceDates(dates: Date[]) {
-	// const [d, c] = await prisma.$transaction([
-	// 	prisma.maintainanceDates.deleteMany(),
-	// 	prisma.maintainanceDates.createMany({
-	// 		data: dates.map(d => ({ date: d })),
-	// 	}),
-	// ]);
-	// return c;
-}
-
 type FAQ = {
 	id: number;
 	question: string;

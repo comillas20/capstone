@@ -2,22 +2,17 @@
 
 import TimePicker from "@components/TimePicker";
 import { Button, buttonVariants } from "@components/ui/button";
-import { Calendar } from "@components/ui/calendar";
 import { Input } from "@components/ui/input";
 import {
 	Popover,
 	PopoverContent,
 	PopoverTrigger,
 } from "@components/ui/popover";
-import { cn } from "@lib/utils";
 import { useEffect, useState, useTransition } from "react";
 import useSWR, { useSWRConfig } from "swr";
 import { Settings } from "./page";
 import { getFAQs, getSystemSetting } from "@app/(website)/serverActionsGlobal";
-import {
-	createOrUpdateSystemSetting,
-	updateMaintainanceDates,
-} from "./serverActions";
+import { createOrUpdateSystemSetting } from "./serverActions";
 import { toast } from "@components/ui/use-toast";
 import { Loader2, Plus } from "lucide-react";
 import { Separator } from "@components/ui/separator";
@@ -267,116 +262,116 @@ export function ReservationHours() {
 		);
 }
 
-export function ReservationCostPerHour() {
-	// data being undefined means its still loading
-	// but data being null means its not in the db yet
-	const { data, error } = useSWR(
-		Settings.reservationCostPerHour,
-		async () => await getSystemSetting(Settings.reservationCostPerHour)
-	);
-	const [cost, setCost] = useState<number>(500);
-	useEffect(() => {
-		if (data) {
-			setCost(data as number);
-		}
-	}, [data]);
-	const [isSaving, startSaving] = useSettingSaver();
-	if (error) return <div>Failed to load</div>;
-	else if (data || data === null)
-		return (
-			<Popover>
-				<PopoverTrigger className="text-primary">
-					{new Intl.NumberFormat("en-US", {
-						style: "currency",
-						currency: "PHP",
-					}).format(data === null ? 500 : (data as number))}
-				</PopoverTrigger>
-				<PopoverContent className="space-y-4">
-					<div>
-						<h4>Reservation cost/hour</h4>
-						<p className="text-xs text-muted-foreground">
-							Reservation cost per hour of usage
-						</p>
-					</div>
-					<Input
-						type="number"
-						value={cost}
-						onChange={e => setCost(parseInt(e.target.value))}
-					/>
-					<div className="flex justify-end">
-						<Button
-							onClick={() => {
-								startSaving(
-									{
-										name: Settings.reservationCostPerHour,
-										type: "float",
-										value: String(cost),
-									},
-									Settings.reservationCostPerHour
-								);
-							}}
-							disabled={isSaving}>
-							{isSaving && <Loader2 className="mr-2 animate-spin" />}
-							Save
-						</Button>
-					</div>
-				</PopoverContent>
-			</Popover>
-		);
-}
+// export function ReservationCostPerHour() {
+// 	// data being undefined means its still loading
+// 	// but data being null means its not in the db yet
+// 	const { data, error } = useSWR(
+// 		Settings.reservationCostPerHour,
+// 		async () => await getSystemSetting(Settings.reservationCostPerHour)
+// 	);
+// 	const [cost, setCost] = useState<number>(500);
+// 	useEffect(() => {
+// 		if (data) {
+// 			setCost(data as number);
+// 		}
+// 	}, [data]);
+// 	const [isSaving, startSaving] = useSettingSaver();
+// 	if (error) return <div>Failed to load</div>;
+// 	else if (data || data === null)
+// 		return (
+// 			<Popover>
+// 				<PopoverTrigger className="text-primary">
+// 					{new Intl.NumberFormat("en-US", {
+// 						style: "currency",
+// 						currency: "PHP",
+// 					}).format(data === null ? 500 : (data as number))}
+// 				</PopoverTrigger>
+// 				<PopoverContent className="space-y-4">
+// 					<div>
+// 						<h4>Reservation cost/hour</h4>
+// 						<p className="text-xs text-muted-foreground">
+// 							Reservation cost per hour of usage
+// 						</p>
+// 					</div>
+// 					<Input
+// 						type="number"
+// 						value={cost}
+// 						onChange={e => setCost(parseInt(e.target.value))}
+// 					/>
+// 					<div className="flex justify-end">
+// 						<Button
+// 							onClick={() => {
+// 								startSaving(
+// 									{
+// 										name: Settings.reservationCostPerHour,
+// 										type: "float",
+// 										value: String(cost),
+// 									},
+// 									Settings.reservationCostPerHour
+// 								);
+// 							}}
+// 							disabled={isSaving}>
+// 							{isSaving && <Loader2 className="mr-2 animate-spin" />}
+// 							Save
+// 						</Button>
+// 					</div>
+// 				</PopoverContent>
+// 			</Popover>
+// 		);
+// }
 
-export function MaintainanceDates({
-	maintainanceDates,
-}: {
-	maintainanceDates?: Date[];
-}) {
-	const [isSaving, startSaving] = useTransition();
-	const [dates, setDates] = useState<Date[] | undefined>(maintainanceDates);
-	return (
-		<Popover>
-			<PopoverTrigger className="text-primary">View</PopoverTrigger>
-			<PopoverContent className="w-fit space-y-4" side="left">
-				<Calendar
-					className="p-0"
-					mode="multiple"
-					onSelect={setDates}
-					selected={dates}
-					classNames={{
-						head_cell:
-							"text-muted-foreground rounded-md w-9 font-normal text-[0.8rem]",
-						cell: cn(
-							buttonVariants({ variant: "ghost" }),
-							"h-9 w-9 p-0 font-normal aria-selected:opacity-100"
-						),
-						day: cn(
-							buttonVariants({ variant: "ghost" }),
-							"h-8 w-8 p-0 font-normal aria-selected:opacity-100"
-						),
-					}}
-					fixedWeeks
-				/>
-				<Separator />
-				<div className="flex justify-end">
-					<Button
-						onClick={() =>
-							startSaving(async () => {
-								const result = dates ? await updateMaintainanceDates(dates) : null;
-								toast({
-									title: "Success",
-									description: result ? "Saved!" : "Failed to save",
-									duration: 5000,
-								});
-							})
-						}
-						disabled={isSaving}>
-						{isSaving && <Loader2 className="mr-2 animate-spin" />}
-						Save
-					</Button>
-				</div>
-			</PopoverContent>
-		</Popover>
-	);
-}
+// export function MaintainanceDates({
+// 	maintainanceDates,
+// }: {
+// 	maintainanceDates?: Date[];
+// }) {
+// 	const [isSaving, startSaving] = useTransition();
+// 	const [dates, setDates] = useState<Date[] | undefined>(maintainanceDates);
+// 	return (
+// 		<Popover>
+// 			<PopoverTrigger className="text-primary">View</PopoverTrigger>
+// 			<PopoverContent className="w-fit space-y-4" side="left">
+// 				<Calendar
+// 					className="p-0"
+// 					mode="multiple"
+// 					onSelect={setDates}
+// 					selected={dates}
+// 					classNames={{
+// 						head_cell:
+// 							"text-muted-foreground rounded-md w-9 font-normal text-[0.8rem]",
+// 						cell: cn(
+// 							buttonVariants({ variant: "ghost" }),
+// 							"h-9 w-9 p-0 font-normal aria-selected:opacity-100"
+// 						),
+// 						day: cn(
+// 							buttonVariants({ variant: "ghost" }),
+// 							"h-8 w-8 p-0 font-normal aria-selected:opacity-100"
+// 						),
+// 					}}
+// 					fixedWeeks
+// 				/>
+// 				<Separator />
+// 				<div className="flex justify-end">
+// 					<Button
+// 						onClick={() =>
+// 							startSaving(async () => {
+// 								const result = dates ? await updateMaintainanceDates(dates) : null;
+// 								toast({
+// 									title: "Success",
+// 									description: result ? "Saved!" : "Failed to save",
+// 									duration: 5000,
+// 								});
+// 							})
+// 						}
+// 						disabled={isSaving}>
+// 						{isSaving && <Loader2 className="mr-2 animate-spin" />}
+// 						Save
+// 					</Button>
+// 				</div>
+// 			</PopoverContent>
+// 		</Popover>
+// 	);
+// }
 
 export function FAQ() {
 	const SWRKey = "FAQList";

@@ -172,6 +172,11 @@ function getSetsFromExcel(workbook: ExcelJS.Workbook) {
 		minimumPerHead: string | undefined,
 		price: string | undefined,
 		selectionQuantity: string | undefined,
+		venue: string | undefined,
+		location: string | undefined,
+		freeHours: string | undefined,
+		venueCost: string | undefined,
+		maxCapacity: string | undefined,
 		subset: string | undefined,
 		course: string | undefined,
 		dish: string | undefined,
@@ -189,12 +194,17 @@ function getSetsFromExcel(workbook: ExcelJS.Workbook) {
 			minimumPerHead = row.getCell(4).value?.toString();
 			price = row.getCell(5).value?.toString();
 			selectionQuantity = row.getCell(6).value?.toString();
-			subset = row.getCell(7).value?.toString();
-			course = row.getCell(8).value?.toString();
-			dish = row.getCell(9).value?.toString();
-			isAvailable = row.getCell(10).value?.toString().toLowerCase() === "true";
-			category = row.getCell(11).value?.toString();
-			imgHref = row.getCell(12).value?.toString();
+			venue = row.getCell(7).value?.toString();
+			location = row.getCell(8).value?.toString();
+			freeHours = row.getCell(9).value?.toString();
+			venueCost = row.getCell(10).value?.toString();
+			maxCapacity = row.getCell(11).value?.toString();
+			subset = row.getCell(12).value?.toString();
+			course = row.getCell(13).value?.toString();
+			dish = row.getCell(14).value?.toString();
+			isAvailable = row.getCell(15).value?.toString().toLowerCase() === "true";
+			category = row.getCell(16).value?.toString();
+			imgHref = row.getCell(17).value?.toString();
 			if (name && price && minimumPerHead && selectionQuantity) {
 				// Push previous set, before it gets replaced by the new set below
 				if (currentSet) sets.push(currentSet);
@@ -221,6 +231,13 @@ function getSetsFromExcel(workbook: ExcelJS.Workbook) {
 							],
 						},
 					],
+					venue: {
+						name: venue as string,
+						location: location as string,
+						freeHours: parseInt(freeHours as string),
+						venueCost: parseFloat(venueCost as string),
+						maxCapacity: parseInt(maxCapacity as string),
+					},
 				};
 			} else if (!name && !price && !minimumPerHead && subset && course) {
 				// NOTE: currentSet CANNOT BE undefined,

@@ -203,6 +203,13 @@ type Set = {
 			category: string;
 		}[];
 	}[];
+	venue: {
+		name: string;
+		location: string;
+		freeHours: number;
+		venueCost: number;
+		maxCapacity: number;
+	};
 }[];
 async function createSetWorksheet(data: Set, workbook: ExcelJS.Workbook) {
 	const setsSheet = workbook.addWorksheet(WorksheetNames.Set);
@@ -213,6 +220,11 @@ async function createSetWorksheet(data: Set, workbook: ExcelJS.Workbook) {
 		{ header: "Minimum Packs", key: "minimumPerHead", width: 20 },
 		{ header: "Price/Head", key: "price", width: 20 },
 		{ header: "selectionQuantity", key: "selectionQuantity", width: 20 },
+		{ header: "Venue", key: "venueName", width: 20 },
+		{ header: "Location", key: "location", width: 20 },
+		{ header: "Free Hours", key: "freeHours", width: 20 },
+		{ header: "Venue Cost", key: "venueCost", width: 20 },
+		{ header: "Max Capacity", key: "maxCapacity", width: 20 },
 		{ header: "Subsets", key: "subsetName", width: 20 },
 		{ header: "Course", key: "course", width: 20 },
 		{ header: "Dishes", key: "dishes", width: 20 },
@@ -229,6 +241,11 @@ async function createSetWorksheet(data: Set, workbook: ExcelJS.Workbook) {
 			minimumPerHead: set.minimumPerHead,
 			price: set.price,
 			selectionQuantity: set.selectionQuantity,
+			venueName: set.venue.name,
+			location: set.venue.location,
+			freeHours: set.venue.freeHours,
+			venueCost: set.venue.venueCost,
+			maxCapacity: set.venue.maxCapacity,
 		};
 
 		for (let ssIndex = 0; ssIndex < set.subSets.length; ssIndex++) {
