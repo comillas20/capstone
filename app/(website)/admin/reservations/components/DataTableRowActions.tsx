@@ -20,7 +20,6 @@ import {
 } from "@components/ui/alert-dialog";
 import { Row } from "@tanstack/react-table";
 import { useState } from "react";
-import { acceptReservation, denyReservation } from "../serverActions";
 import { Reservations } from "./Columns";
 import { useSWRConfig } from "swr";
 import {
@@ -41,6 +40,7 @@ import {
 	TableHeader,
 	TableRow,
 } from "@components/ui/table";
+import { cancelReservation } from "../serverActions";
 
 interface DataTableRowActionsProps {
 	row: Row<Reservations>;
@@ -94,13 +94,7 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
 								Cancel
 							</Button>
 						</AlertDialogCancel>
-						<AlertDialogAction
-							onClick={async () => {
-								const result = await acceptReservation(row.original.id);
-								if (result) mutate("ReservationPageData");
-							}}>
-							Accept
-						</AlertDialogAction>
+						<AlertDialogAction>Accept</AlertDialogAction>
 					</div>
 				</AlertDialogContent>
 			</AlertDialog>
@@ -123,18 +117,7 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
 								Cancel
 							</Button>
 						</AlertDialogCancel>
-						<AlertDialogAction
-							onClick={async () => {
-								const data = row.original;
-								const result = await denyReservation(
-									data.id,
-									data.fee + data.net_amount,
-									data.payment_id
-								);
-								if (result) mutate("ReservationPageData");
-							}}>
-							Deny
-						</AlertDialogAction>
+						<AlertDialogAction>Deny</AlertDialogAction>
 					</div>
 				</AlertDialogContent>
 			</AlertDialog>

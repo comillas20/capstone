@@ -43,6 +43,13 @@ import {
 } from "@components/ui/alert-dialog";
 import { Textarea } from "@components/ui/textarea";
 import { DialogClose } from "@radix-ui/react-dialog";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@components/ui/select";
 type ReservationDialogProps = {
 	selectedDishes: {
 		id: number;
@@ -67,7 +74,7 @@ export default function ReservationDialog({
 	selectedSet,
 	...props
 }: ReservationDialogProps) {
-	const { currentDate, month, date, settings } = useContext(
+	const { date, settings, selectedVenue } = useContext(
 		ReservationFormContext
 	) as ReservationFormContextProps;
 	const defaultTimeLinkName = "Set time";
@@ -77,8 +84,11 @@ export default function ReservationDialog({
 	const [numberOfPacks, setNumberOfPacks] = useState<number>(
 		settings.minPerHead
 	);
-	const [timeUse, setTimeUse] = useState<number>(settings.minReservationHours);
+	const [timeUse, setTimeUse] = useState<number>(
+		Math.max(settings.minReservationHours, selectedVenue.freeHours)
+	);
 	const [time, setTime] = useState<Date>(settings.openingTime); //24 hour, to store in database
+	const [eventType, setEventType] = useState<string>();
 	const [message, setMessage] = useState<string>("");
 	const allOtherServices = useSWR("getAllServices", getAllServices);
 	const currentUser = useSWR(
@@ -388,10 +398,36 @@ export default function ReservationDialog({
 								</CheckboxGroup>
 							)}
 						</div>
-						<div className="space-y-2">
-							<h3 className="text-sm font-bold">Venue</h3>
-							<p>Brgy. Taft, Narciso St., Surigao City</p>
+						<div className="grid grid-cols-2 items-start gap-2">
+							<div className="space-y-2">
+								<h3 className="text-sm font-bold">Venue</h3>
+								<p>{`${selectedVenue.name} @ ${selectedVenue.location}`}</p>
+							</div>
+							<div className="space-y-2">
+								<h3 className="flex items-center gap-2 text-sm font-bold">
+									Event type
+									{!eventType && (
+										<AlertTriangle
+											className="text-yellow-500 dark:text-yellow-300"
+											size={15}
+										/>
+									)}
+								</h3>
+								<Select value={eventType} onValueChange={setEventType}>
+									<SelectTrigger>
+										<SelectValue placeholder="What kind of event is this?" />
+									</SelectTrigger>
+									<SelectContent>
+										<SelectItem value="birthday">Birthday</SelectItem>
+										<SelectItem value="marriage">Marriage</SelectItem>
+										<SelectItem value="baptism">Baptism</SelectItem>
+										<SelectItem value="seminar">Seminar</SelectItem>
+										<SelectItem value="others">Others</SelectItem>
+									</SelectContent>
+								</Select>
+							</div>
 						</div>
+
 						<AlertDialog>
 							<AlertDialogTrigger className="text-left">
 								<div className="group space-y-2">
@@ -421,7 +457,9 @@ export default function ReservationDialog({
 						<DialogFooter className="mt-4">
 							<TabsList className="bg-inherit">
 								<TabsTrigger asChild value="payment" type="button">
-									<Button disabled={timeLinkName === defaultTimeLinkName}>Next</Button>
+									<Button disabled={timeLinkName === defaultTimeLinkName || !eventType}>
+										Next
+									</Button>
 								</TabsTrigger>
 							</TabsList>
 						</DialogFooter>
@@ -437,8 +475,11 @@ export default function ReservationDialog({
 											selectedServices,
 											inputValues
 									  )
-									: null;
-							const totalRentingPrice = timeUse * 500;
+									: 0;
+							const totalRentingPrice =
+								timeUse > selectedVenue.freeHours
+									? (timeUse - selectedVenue.freeHours) * selectedVenue.venueCost
+									: 0;
 							return (
 								<TabsContent
 									value="payment"
@@ -485,7 +526,7 @@ export default function ReservationDialog({
 											}).format(totalSetPrice)}
 										</div>
 									</div>
-									{totalServicesPrice && (
+									{totalServicesPrice > 0 && (
 										<div className="grid grid-cols-6 items-center gap-4">
 											<div className="col-span-5">Additional Services</div>
 											<div className="text-right">
@@ -496,17 +537,19 @@ export default function ReservationDialog({
 											</div>
 										</div>
 									)}
-									<div className="grid grid-cols-6 items-center gap-4">
-										<div className="col-span-5 flex items-center space-x-2">
-											Rent hours of the venue
+									{totalRentingPrice > 0 && (
+										<div className="grid grid-cols-6 items-center gap-4">
+											<div className="col-span-5 flex items-center space-x-2">
+												Rent hours of the venue
+											</div>
+											<div className="text-right">
+												{new Intl.NumberFormat("en-US", {
+													style: "currency",
+													currency: "PHP",
+												}).format(totalRentingPrice)}
+											</div>
 										</div>
-										<div className="text-right">
-											{new Intl.NumberFormat("en-US", {
-												style: "currency",
-												currency: "PHP",
-											}).format(totalRentingPrice)}
-										</div>
-									</div>
+									)}
 									<Separator />
 									<div className="grid grid-cols-6 items-center gap-4">
 										<div className="col-span-5 flex items-center space-x-2 font-bold">
@@ -516,9 +559,7 @@ export default function ReservationDialog({
 											{new Intl.NumberFormat("en-US", {
 												style: "currency",
 												currency: "PHP",
-											}).format(
-												totalSetPrice + (totalServicesPrice ?? 0) + totalRentingPrice
-											)}
+											}).format(totalSetPrice + totalServicesPrice + totalRentingPrice)}
 										</div>
 									</div>
 									<DialogFooter className="mt-4 flex gap-4">
@@ -529,7 +570,12 @@ export default function ReservationDialog({
 										</TabsList>
 										<TermsOfPayment
 											onClick={() => {
-												if (currentUser.data && allOtherServices.data && date) {
+												if (
+													currentUser.data &&
+													allOtherServices.data &&
+													date &&
+													eventType
+												) {
 													const r: Reservation = {
 														phoneNumber: currentUser.data.phoneNumber,
 														eventDate: new Date(
@@ -540,12 +586,13 @@ export default function ReservationDialog({
 															time.getMinutes()
 														),
 														eventDuration: timeUse,
+														eventType: eventType,
 														orders: selectedDishes, //dishes
 														totalPrice:
-															totalSetPrice + (totalServicesPrice ?? 0) + totalRentingPrice,
+															totalSetPrice + totalServicesPrice + totalRentingPrice,
 														selectedSet: selectedSet,
-														userID: currentUser.data?.id as number,
-														userName: currentUser.data?.name as string,
+														userID: currentUser.data.id,
+														userName: currentUser.data.name,
 														message: message.trim(),
 													};
 													startSaving(async () => {
@@ -613,11 +660,12 @@ type Reservation = {
 		price: number;
 	};
 	eventDate: Date;
+	eventDuration: number;
+	eventType: string;
 	userID: number;
 	userName: string;
 	phoneNumber: string;
 	totalPrice: number;
-	eventDuration: number;
 	orders: {
 		id: number;
 		name: string;

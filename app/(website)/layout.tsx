@@ -5,44 +5,62 @@ import UserNav from "@app/(website)/UserNav";
 import { getServerSession } from "next-auth";
 import { options } from "../api/auth/[...nextauth]/options";
 import prisma from "@lib/db";
+import { Button } from "@components/ui/button";
+import { Loader2 } from "lucide-react";
+import Link from "next/link";
 
 export default async function WebsiteLayout({
 	children,
 }: {
 	children: React.ReactNode;
 }) {
-	const session = await getServerSession(options);
-	const mainNav = session && session.user.role === "ADMIN" ? adminNav : userNav;
-	// session details is static(?), until user log outs
-	const data =
-		session &&
-		(await prisma.account.findUnique({
-			where: {
-				id: session.user.id,
-			},
-			select: {
-				id: true,
-				name: true,
-				phoneNumber: true,
-				role: true,
-				image: true,
-			},
-		}));
-	return (
-		<div className="flex flex-col md:flex">
-			<nav className="border-b">
-				<div className="flex h-16 items-center px-4">
-					<Brand />
-					<MainNav className="mx-6" navBtns={mainNav} />
-					<div className="ml-auto flex items-center space-x-4">
-						<ThemeModeSwitcher />
-						<UserNav session={session} data={data} />
+	try {
+		const session = await getServerSession(options);
+		const mainNav = session && session.user.role === "ADMIN" ? adminNav : userNav;
+		// session details is static(?), until user log outs
+		const data =
+			session &&
+			(await prisma.account.findUnique({
+				where: {
+					id: session.user.id,
+				},
+				select: {
+					id: true,
+					name: true,
+					phoneNumber: true,
+					role: true,
+					image: true,
+				},
+			}));
+		return (
+			<div className="flex flex-col md:flex">
+				<nav className="border-b">
+					<div className="flex h-16 items-center px-4">
+						<Brand />
+						<MainNav className="mx-6" navBtns={mainNav} />
+						<div className="ml-auto flex items-center space-x-4">
+							<ThemeModeSwitcher />
+							<UserNav session={session} data={data} />
+						</div>
 					</div>
-				</div>
-			</nav>
-			{children}
-		</div>
-	);
+				</nav>
+				{children}
+			</div>
+		);
+	} catch (error) {
+		console.error(error);
+		return (
+			<div className="flex h-screen flex-col items-center justify-center gap-4">
+				<span>Something went wrong. Please refresh.</span>
+				<Button>
+					<Loader2 className="mr-4" />
+					<Link href={"/"} replace>
+						Refresh
+					</Link>
+				</Button>
+			</div>
+		);
+	}
 }
 
 const adminNav = [

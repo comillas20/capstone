@@ -1,5 +1,4 @@
 import prisma from "@lib/db";
-import { subHours } from "date-fns";
 import { NextRequest, NextResponse } from "next/server";
 
 type RequestType = {
@@ -31,8 +30,10 @@ type RequestType = {
 								message: string;
 								eventDate: string;
 								eventDuration: string;
+								eventType: string;
 								userID: string;
 								dishes: string;
+								totalPaid: string;
 								totalCost: string;
 							};
 						};
@@ -46,45 +47,55 @@ type RequestType = {
 };
 export async function POST(req: NextRequest, res: NextResponse) {
 	try {
-		const request: RequestType = await req.json(); //this is where I get the event like when user successfully pays
-		const newReservation = await prisma.reservations.create({
+		const request: RequestType = await req.json(); //this is where I get the event, like when user successfully pays
+		const reservation = await prisma.transactions.create({
 			data: {
-				eventDate: new Date(
-					request.data.attributes.data.attributes.payments[0].attributes.metadata.eventDate
-				),
-
-				eventDuration: parseInt(
-					request.data.attributes.data.attributes.payments[0].attributes.metadata
-						.eventDuration
-				),
-				setName: request.data.attributes.data.attributes.line_items[0].name,
-				net_amount:
-					request.data.attributes.data.attributes.payments[0].attributes.net_amount /
-					100,
 				fee:
 					request.data.attributes.data.attributes.payments[0].attributes.fee / 100,
+				netAmount:
+					request.data.attributes.data.attributes.payments[0].attributes.net_amount /
+					100,
+				paymentID: request.data.attributes.data.attributes.payments[0].id,
 				message:
 					request.data.attributes.data.attributes.payments[0].attributes.metadata
 						.message,
-				dishes: JSON.parse(
-					request.data.attributes.data.attributes.payments[0].attributes.metadata
-						.dishes
-				),
-				userID: parseInt(
-					request.data.attributes.data.attributes.payments[0].attributes.metadata
-						.userID
-				),
-				payment_id: request.data.attributes.data.attributes.payments[0].id,
-				totalCost: parseInt(
-					request.data.attributes.data.attributes.payments[0].attributes.metadata
-						.totalCost
-				),
+				reservation: {
+					create: {
+						eventDate: new Date(
+							request.data.attributes.data.attributes.payments[0].attributes.metadata.eventDate
+						),
+
+						eventDuration: parseInt(
+							request.data.attributes.data.attributes.payments[0].attributes.metadata
+								.eventDuration
+						),
+						eventType:
+							request.data.attributes.data.attributes.payments[0].attributes.metadata
+								.eventType,
+						setName: request.data.attributes.data.attributes.line_items[0].name,
+
+						dishes: JSON.parse(
+							request.data.attributes.data.attributes.payments[0].attributes.metadata
+								.dishes
+						),
+						userID: parseInt(
+							request.data.attributes.data.attributes.payments[0].attributes.metadata
+								.userID
+						),
+						totalPaid: parseFloat(
+							request.data.attributes.data.attributes.payments[0].attributes.metadata
+								.totalPaid
+						),
+						totalCost: parseFloat(
+							request.data.attributes.data.attributes.payments[0].attributes.metadata
+								.totalCost
+						),
+					},
+				},
 			},
 		});
-		console.log("Reservation created!");
 		return new Response("ok", { status: 200 });
 	} catch (error) {
-		console.error("Reservation not created!");
 		return new Response("not ok", { status: 200 });
 	}
 }

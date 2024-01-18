@@ -80,6 +80,7 @@ export default async function LandingPage() {
 			</div>
 		);
 	} catch (error) {
+		console.error(error);
 		return (
 			<div className="flex h-screen flex-col items-center justify-center gap-4">
 				<span>Something went wrong. Please refresh.</span>

@@ -4,21 +4,17 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@components/ui/checkbox";
 import { DataTableColumnHeader } from "../../components/DataTableColumnHeader";
 import { DataTableRowActions } from "./DataTableRowActions";
-import { convertDateToString } from "@lib/utils";
 import Link from "next/link";
 import { Separator } from "@components/ui/separator";
 export type Reservations = {
 	id: string;
-	payment_id: string;
 	eventDate: string;
-	reservedAt: Date;
-	net_amount: number;
-	fee: number;
-	totalCost: number;
-	status: "ACCEPTED" | "PENDING" | "DENIED" | "IGNORED" | "CANCELED";
 	eventDuration: number;
+	eventType: string;
+	totalPaid: number;
+	totalCost: number;
+	status: "ONGOING" | "COMPLETED" | "CANCELED";
 	dishes: string[];
-	message: string | null;
 	setName: string;
 	user_id: number;
 	user_name: string;
@@ -70,35 +66,26 @@ export const columns: ColumnDef<Reservations>[] = [
 		),
 	},
 	{
-		id: "Reserved",
-		accessorKey: "reservedAt",
+		id: "Paid/Total cost",
+		accessorKey: "totalPaid",
 		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="Reserved" />
+			<DataTableColumnHeader column={column} title="Paid/Total cost" />
 		),
 		cell: ({ row }) => {
-			return convertDateToString(row.original.reservedAt);
-		},
-	},
-	{
-		id: "Fee/Net Amount",
-		accessorKey: "net_amount",
-		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="Fee/Net Amount" />
-		),
-		cell: ({ row }) => {
-			const fee = new Intl.NumberFormat("en-US", {
+			const totalPaid = new Intl.NumberFormat("en-US", {
 				style: "currency",
 				currency: "PHP",
-			}).format(row.original.fee);
-			const netAmount = new Intl.NumberFormat("en-US", {
+			}).format(row.original.totalPaid);
+			const totalCost = new Intl.NumberFormat("en-US", {
 				style: "currency",
 				currency: "PHP",
-			}).format(row.original.net_amount);
+			}).format(row.original.totalCost);
+
 			return (
 				<div className="flex gap-2">
-					<span>{fee}</span>
+					<span>{totalPaid}</span>
 					<Separator orientation="vertical" className="h-auto" />
-					<span>{netAmount}</span>
+					<span>{totalCost}</span>
 				</div>
 			);
 		},
@@ -122,6 +109,13 @@ export const columns: ColumnDef<Reservations>[] = [
 		},
 	},
 	{
+		id: "Event Type",
+		accessorKey: "eventType",
+		header: ({ column }) => (
+			<DataTableColumnHeader column={column} title="Event Type" />
+		),
+	},
+	{
 		accessorKey: "status",
 		header: ({ column }) => (
 			<DataTableColumnHeader column={column} title="Status" />
@@ -129,9 +123,6 @@ export const columns: ColumnDef<Reservations>[] = [
 	},
 	{
 		id: "actions",
-		cell: ({ row }) => {
-			if (row.original.status === "PENDING")
-				return <DataTableRowActions row={row} />;
-		},
+		cell: ({ row }) => <DataTableRowActions row={row} />,
 	},
 ];

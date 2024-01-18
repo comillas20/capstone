@@ -3,6 +3,7 @@ import ReservationForm from "./components/ReservationForm";
 import { options } from "@app/api/auth/[...nextauth]/options";
 import { Settings } from "@app/(website)/settings/general/page";
 import {
+	getAllVenues,
 	getMaintainanceDates,
 	getSystemSettings,
 } from "@app/(website)/serverActionsGlobal";
@@ -56,7 +57,7 @@ async function convertToObject(): Promise<SettingsObject> {
 export default async function page() {
 	const session = await getServerSession(options);
 	const settings = await convertToObject();
-	const maintainance = await getMaintainanceDates();
+	const venues = await getAllVenues();
 	return (
 		<div className="flex w-full flex-col space-y-32">
 			<div className="flex-col space-y-4">
@@ -64,12 +65,8 @@ export default async function page() {
 					<h2 className="text-2xl font-bold tracking-tight">Offers</h2>
 					<p className="text-muted-foreground">Pick the best offers for you!</p>
 				</div>
-				{settings && maintainance && (
-					<ReservationForm
-						session={session}
-						settings={settings}
-						maintainanceDates={maintainance.map(d => d.date)}
-					/>
+				{settings && venues.length > 0 && (
+					<ReservationForm session={session} settings={settings} venues={venues} />
 				)}
 			</div>
 			{/* {session && session.user.id && (

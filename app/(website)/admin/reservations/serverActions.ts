@@ -16,13 +16,10 @@ export async function getReservations() {
 			dishes: true,
 			eventDate: true,
 			eventDuration: true,
-			fee: true,
-			net_amount: true,
-			message: true,
-			payment_id: true,
-			reservedAt: true,
+			eventType: true,
 			setName: true,
 			status: true,
+			totalPaid: true,
 			totalCost: true,
 			user: {
 				select: {
@@ -33,32 +30,18 @@ export async function getReservations() {
 			},
 		},
 	});
-	const modifiedResult = result.map(
-		({ eventDate, reservedAt, user, ...others }) => ({
-			...others,
-			eventDate: convertDateToString(utcToZonedTime(eventDate, localTimezone)),
-			reservedAt: utcToZonedTime(reservedAt, localTimezone),
-			user_id: user.id,
-			user_name: user.name,
-			user_phoneNumber: user.phoneNumber,
-		})
-	);
+	const modifiedResult = result.map(({ eventDate, user, ...others }) => ({
+		...others,
+		eventDate: convertDateToString(utcToZonedTime(eventDate, localTimezone)),
+		user_id: user.id,
+		user_name: user.name,
+		user_phoneNumber: user.phoneNumber,
+	}));
 
 	return modifiedResult;
 }
 
-export async function acceptReservation(id: string) {
-	return await prisma.reservations.update({
-		where: {
-			id: id,
-		},
-		data: {
-			status: "ACCEPTED",
-		},
-	});
-}
-
-export async function denyReservation(
+export async function cancelReservation(
 	id: string,
 	amount: number,
 	payment_id: string
@@ -94,7 +77,7 @@ export async function denyReservation(
 			id: id,
 		},
 		data: {
-			status: "DENIED",
+			status: "CANCELED",
 		},
 	});
 }

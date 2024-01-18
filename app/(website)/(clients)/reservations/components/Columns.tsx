@@ -17,7 +17,7 @@ export type Reservations = {
 	fee: number;
 	totalCost: number;
 
-	status: "ACCEPTED" | "PENDING" | "DENIED" | "IGNORED" | "CANCELED";
+	status: "ONGOING" | "COMPLETED" | "CANCELED";
 	eventDuration: number;
 	message: string | null;
 
@@ -58,16 +58,6 @@ export const columns: ColumnDef<Reservations, any>[] = [
 		header: ({ column }) => (
 			<DataTableColumnHeader column={column} title="Status" />
 		),
-		cell: ({ row }) => (
-			<div className="flex items-center gap-1">
-				<span>{row.original.status}</span>
-				{row.original.status === "PENDING" && (
-					<HelpToolTip size={15} className="text-primary">
-						The admin is still considering your reservation.
-					</HelpToolTip>
-				)}
-			</div>
-		),
 	},
 	{
 		id: "Event Date",
@@ -87,7 +77,7 @@ export const columns: ColumnDef<Reservations, any>[] = [
 	{
 		id: "actions",
 		cell: ({ row, table }) => {
-			return row.original.status === "PENDING" ? (
+			return row.original.status === "ONGOING" ? (
 				<DataTableRowActions row={row} table={table} />
 			) : (
 				<Button variant="link" size="sm">

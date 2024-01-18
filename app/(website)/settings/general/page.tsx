@@ -1,17 +1,14 @@
 import { Separator } from "@components/ui/separator";
-import { getMaintainanceDates } from "@app/(website)/serverActionsGlobal";
 import {
 	OpeningHour,
 	ClosingHour,
-	MaintainanceDates,
 	MinimumPerHead,
 	ReservationHours,
-	ReservationCostPerHour,
 	FAQ,
 } from "./Settings";
 
 export default async function GeneralPage() {
-	const maintainanceDates = await getMaintainanceDates();
+	// const maintainanceDates = await getMaintainanceDates();
 	return (
 		<div className="space-y-6">
 			<div>
@@ -28,12 +25,12 @@ export default async function GeneralPage() {
 						<ClosingHour />
 					</div>
 				</div>
-				<div className="flex items-center justify-between">
+				{/* <div className="flex items-center justify-between">
 					<h4>Maintainance Dates</h4>
 					<MaintainanceDates
 						maintainanceDates={maintainanceDates.map(d => d.date)}
 					/>
-				</div>
+				</div> */}
 				<div className="flex items-center justify-between">
 					<h4>Minimum Guests</h4>
 					<MinimumPerHead />
@@ -42,10 +39,10 @@ export default async function GeneralPage() {
 					<h4>Reservation Hours</h4>
 					<ReservationHours />
 				</div>
-				<div className="flex items-center justify-between">
+				{/* <div className="flex items-center justify-between">
 					<h4>Reservation Cost/Hour</h4>
 					<ReservationCostPerHour />
-				</div>
+				</div> */}
 				<FAQ />
 			</div>
 		</div>

@@ -10,7 +10,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// customer's reservation table
+
 model Transactions {
   id            String       @id @default(uuid())
   paymentID     String       @db.Text
@@ -28,6 +28,7 @@ enum ReservationStatus {
   CANCELED
 }
 
+// customer's reservation table
 model Reservations {
   id            String            @id @default(uuid())
   userID        Int
@@ -35,6 +36,7 @@ model Reservations {
   transactions  Transactions[]
   status        ReservationStatus @default(ONGOING)
   setName       String
+  totalPaid     Float
   totalCost     Float
   dishes        String[]
   eventDuration Int
@@ -44,7 +46,7 @@ model Reservations {
 
 model Venues {
   id          Int    @id @default(autoincrement())
-  name        String
+  name        String @unique
   location    String
   freeHours   Int
   venueCost   Float //per hour
@@ -82,7 +84,7 @@ model Course {
 
 model Set {
   id                Int       @id @default(autoincrement())
-  name              String    @unique @db.VarChar(50)
+  name              String    @db.VarChar(50)
   description       String?
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
@@ -92,6 +94,7 @@ model Set {
   minimumPerHead    Int
   price             Float
   selectionQuantity Int
+  @@unique([name, venueID])
 }
 
 //to allow merging of categories like "Fish/Canton/Vegetable" in the menu/set

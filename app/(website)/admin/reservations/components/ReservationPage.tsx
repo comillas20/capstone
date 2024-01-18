@@ -27,7 +27,7 @@ import { getReservations } from "../serverActions";
 import { Loader2 } from "lucide-react";
 import { columns } from "./Columns";
 
-interface ReservationPage<TData, TValue> {
+interface Reservation<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];
 	data: TData[];
 	maintainanceDates: Date[] | undefined;
@@ -37,7 +37,7 @@ function Reservation<TData, TValue>({
 	columns,
 	data,
 	maintainanceDates,
-}: ReservationPage<TData, TValue>) {
+}: Reservation<TData, TValue>) {
 	const currentDate = new Date();
 	const nearestDateAvailable: Date = maintainanceDates
 		? findNearestNonDisabledDate(currentDate, maintainanceDates)

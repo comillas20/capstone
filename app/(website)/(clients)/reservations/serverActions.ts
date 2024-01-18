@@ -10,11 +10,12 @@ type Reservation = {
 		price: number;
 	};
 	eventDate: Date;
+	eventDuration: number;
+	eventType: string;
 	userID: number;
 	userName: string;
 	phoneNumber: string;
 	totalPrice: number;
-	eventDuration: number;
 	orders: {
 		id: number;
 		name: string;
@@ -68,9 +69,11 @@ export async function createCheckoutSession(reserve: Reservation) {
 						userID: reserve.userID,
 						eventDate: convertDateToString(reserve.eventDate),
 						eventDuration: reserve.eventDuration,
+						eventType: reserve.eventType,
 						message: reserve.message,
 						setName: reserve.selectedSet.name,
 						dishes: JSON.stringify(reserve.orders.map(order => order.name)),
+						totalPaid: "",
 						totalCost: reserve.totalPrice,
 					},
 				},

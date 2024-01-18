@@ -1,5 +1,3 @@
-import { getAllDishes } from "@app/(website)/serverActionsGlobal";
-import { CheckboxGroup, CheckboxItem } from "@components/CheckBoxGroup";
 import { Button } from "@components/ui/button";
 import {
 	Card,
@@ -8,9 +6,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@components/ui/card";
-import { Label } from "@components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@components/ui/radio-group";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import useSWR from "swr";
 import ReservationDialog from "./ReservationDialog";
 import { signIn } from "next-auth/react";

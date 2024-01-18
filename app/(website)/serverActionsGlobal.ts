@@ -126,8 +126,14 @@ export async function getAllServices() {
 }
 
 export async function getMaintainanceDates() {
-	const result = await prisma.maintainanceDates.findMany();
+	const result = await prisma.maintainanceDates.findMany({
+		select: {
+			date: true,
+			venue: true,
+		},
+	});
 	return result.map(mD => ({
+		...mD,
 		date: utcToZonedTime(mD.date, localTimezone),
 	}));
 }
