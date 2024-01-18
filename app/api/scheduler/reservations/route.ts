@@ -7,10 +7,10 @@ export async function GET() {
 			eventDate: {
 				lt: new Date(),
 			},
-			status: "PENDING",
+			status: "ONGOING",
 		},
 		data: {
-			status: "IGNORED",
+			status: "COMPLETED",
 		},
 	});
 
