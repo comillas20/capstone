@@ -25,11 +25,11 @@ import { findNearestNonDisabledDate } from "@lib/date-utils";
 import useSWR from "swr";
 import { getReservations } from "../serverActions";
 import { Loader2 } from "lucide-react";
-import { columns } from "./Columns";
+import { Reservations, columns } from "./Columns";
 
-interface Reservation<TData, TValue> {
-	columns: ColumnDef<TData, TValue>[];
-	data: TData[];
+interface Reservation {
+	columns: ColumnDef<Reservations, any>[];
+	data: Reservations[];
 	maintainanceDates: Date[] | undefined;
 }
 
@@ -37,7 +37,7 @@ function Reservation<TData, TValue>({
 	columns,
 	data,
 	maintainanceDates,
-}: Reservation<TData, TValue>) {
+}: Reservation) {
 	const currentDate = new Date();
 	const nearestDateAvailable: Date = maintainanceDates
 		? findNearestNonDisabledDate(currentDate, maintainanceDates)
@@ -81,6 +81,9 @@ function Reservation<TData, TValue>({
 		setColumnVisibility(hideAsDefault);
 	}, []);
 
+	const { selectedVenue } = React.useContext(
+		ReservationPageContext
+	) as ReservationPageContextProps;
 	return (
 		<div className="w-full space-y-4">
 			<DataTableToolbar table={table} />
@@ -96,7 +99,7 @@ function Reservation<TData, TValue>({
 						setDate(date);
 					}}
 					mode="single"
-					disabled={maintainanceDates}
+					disabled={selectedVenue ? maintainanceDates : false}
 				/>
 				<div className="space-y-4 xl:flex-1">
 					<ReservationTable table={table} columns={columns} />
@@ -107,19 +110,30 @@ function Reservation<TData, TValue>({
 	);
 }
 
-type ReservationPageProps = {
+type Venue = {
 	maintainanceDates: Date[];
+	id: number;
+	name: string;
+	location: string;
+	freeHours: number;
+	venueCost: number;
+	maxCapacity: number;
 };
-export default function ReservationPage({
-	maintainanceDates,
-}: ReservationPageProps) {
+export type ReservationPageContextProps = {
+	selectedVenue: Venue | undefined;
+	setSelectedVenue: React.Dispatch<React.SetStateAction<Venue | undefined>>;
+};
+
+export const ReservationPageContext = React.createContext<
+	ReservationPageContextProps | undefined
+>(undefined);
+export default function ReservationPage() {
 	const { data } = useSWR("ReservationPageData", async () => getReservations());
+	const [selectedVenue, setSelectedVenue] = React.useState<Venue | undefined>();
 	if (!data) return <Loader2 className="animate-spin" size={15} />;
 	return (
-		<Reservation
-			data={data}
-			columns={columns}
-			maintainanceDates={maintainanceDates}
-		/>
+		<ReservationPageContext.Provider value={{ selectedVenue, setSelectedVenue }}>
+			<Reservation data={data} columns={columns} maintainanceDates={[]} />
+		</ReservationPageContext.Provider>
 	);
 }

@@ -28,14 +28,16 @@ export async function getReservations() {
 					phoneNumber: true,
 				},
 			},
+			transactions: true,
+			venue: true,
 		},
 	});
 	const modifiedResult = result.map(({ eventDate, user, ...others }) => ({
 		...others,
 		eventDate: convertDateToString(utcToZonedTime(eventDate, localTimezone)),
-		user_id: user.id,
-		user_name: user.name,
-		user_phoneNumber: user.phoneNumber,
+		userID: user.id,
+		userName: user.name,
+		userPhoneNumber: user.phoneNumber,
 	}));
 
 	return modifiedResult;

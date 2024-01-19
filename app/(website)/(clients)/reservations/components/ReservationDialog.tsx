@@ -594,6 +594,7 @@ export default function ReservationDialog({
 														userID: currentUser.data.id,
 														userName: currentUser.data.name,
 														message: message.trim(),
+														venueID: selectedVenue.id,
 													};
 													startSaving(async () => {
 														const result = await createCheckoutSession(r);
@@ -652,6 +653,7 @@ export function TermsOfPayment(
 		</AlertDialog>
 	);
 }
+
 type Reservation = {
 	selectedSet: {
 		id: number;
@@ -671,6 +673,7 @@ type Reservation = {
 		name: string;
 	}[];
 	message: string;
+	venueID: number;
 };
 
 function getSelectedServicesTotalPrice(

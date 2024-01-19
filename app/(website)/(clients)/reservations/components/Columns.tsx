@@ -7,19 +7,20 @@ import { DataTableRowActions } from "./DataTableRowActions";
 import { addDays, isAfter, isSameDay } from "date-fns";
 import { Button } from "@components/ui/button";
 import HelpToolTip from "@components/HelpTooltip";
+import { Separator } from "@components/ui/separator";
 
 export type Reservations = {
 	id: string;
+	status: "ONGOING" | "COMPLETED" | "CANCELED";
 	eventDate: Date;
+	totalPaid: number;
+	totalCost: number;
+	eventType: string;
+
+	eventDuration: number;
 	reservedAt: Date;
 
-	net_amount: number;
-	fee: number;
-	totalCost: number;
-
-	status: "ONGOING" | "COMPLETED" | "CANCELED";
-	eventDuration: number;
-	message: string | null;
+	message: string[] | null;
 
 	setName: string;
 	dishes: string[];
@@ -30,16 +31,16 @@ export const columns: ColumnDef<Reservations, any>[] = [
 		header: ({ column }) => <DataTableColumnHeader column={column} title="ID" />,
 	},
 	{
-		id: "Amount Paid",
+		id: "Paid/Cost",
 		accessorKey: "totalCost",
 		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="Amount Paid" />
+			<DataTableColumnHeader column={column} title="Paid/Cost" />
 		),
 		cell: ({ row }) => {
 			const paid = new Intl.NumberFormat("en-US", {
 				style: "currency",
 				currency: "PHP",
-			}).format(row.original.net_amount + row.original.fee);
+			}).format(row.original.totalPaid);
 			const needToPay = new Intl.NumberFormat("en-US", {
 				style: "currency",
 				currency: "PHP",
@@ -47,8 +48,8 @@ export const columns: ColumnDef<Reservations, any>[] = [
 			return (
 				<div className="flex gap-1">
 					<span>{paid}</span>
-					{/* <Separator orientation="vertical" className="h-auto" /> */}
-					{/* <span>{needToPay}</span> */}
+					<Separator orientation="vertical" className="h-auto" />
+					<span>{needToPay}</span>
 				</div>
 			);
 		},
@@ -68,10 +69,10 @@ export const columns: ColumnDef<Reservations, any>[] = [
 		cell: ({ row }) => <div>{convertDateToString(row.original.eventDate)}</div>,
 	},
 	{
-		id: "Event Duration",
-		accessorKey: "eventDuration",
+		id: "Event Type",
+		accessorKey: "eventType",
 		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="Event Duration" />
+			<DataTableColumnHeader column={column} title="Event Type" />
 		),
 	},
 	{

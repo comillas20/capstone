@@ -12,6 +12,7 @@ export type Venues = {
 	venueCost: number;
 	maxCapacity: number;
 	maintainanceDates: Date[];
+	isAvailable: boolean;
 };
 
 export const columns: ColumnDef<Venues>[] = [

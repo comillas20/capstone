@@ -2,7 +2,7 @@
 import { Session } from "next-auth";
 import ReservationTable from "./ReservationTable";
 import useSWR from "swr";
-import { getReservations } from "@app/(website)/serverActionsGlobal";
+import { getReservations } from "../serverActions";
 import { columns } from "./Columns";
 
 type ReservationList = {

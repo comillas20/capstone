@@ -44,7 +44,7 @@ import {
 } from "@components/ui/dialog";
 import { getAllVenues } from "@app/(website)/serverActionsGlobal";
 import { PRODUCTS_VENUES_KEY } from "../../products/components/ProductPageProvider";
-import { createOrUpdateVenue, deleteVenue } from "../serverActions";
+import { createOrUpdateVenue } from "../serverActions";
 type AddEditDialogProps = {
 	data?: Venues;
 	children: React.ReactNode;
@@ -224,56 +224,56 @@ export function AddEditDialog({ data, children }: AddEditDialogProps) {
 	);
 }
 
-type DeleteDialogProps = {
-	data: Venues;
-	children: React.ReactNode;
-} & React.ComponentProps<typeof AlertDialog>;
+// type DeleteDialogProps = {
+// 	data: Venues;
+// 	children: React.ReactNode;
+// } & React.ComponentProps<typeof AlertDialog>;
 
-export function DeleteDialog({ data, children }: DeleteDialogProps) {
-	const [isSaving, startSaving] = useTransition();
-	const { mutate } = useSWRConfig();
+// export function DeleteDialog({ data, children }: DeleteDialogProps) {
+// 	const [isSaving, startSaving] = useTransition();
+// 	const { mutate } = useSWRConfig();
 
-	return (
-		<AlertDialog>
-			<AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
-			<AlertDialogContent>
-				<AlertDialogHeader className="mb-4">
-					<AlertDialogTitle className="text-destructive">Delete</AlertDialogTitle>
-					<AlertDialogDescription className="space-x-2">
-						<span>Deleting</span>
-						<span>{data.name}</span>
-					</AlertDialogDescription>
-					<div className="text-destructive">This action cannot be undo. Delete?</div>
-					<div className="flex justify-end gap-4">
-						<AlertDialogCancel
-							className={buttonVariants({ variant: "secondary" })}
-							type="button">
-							Cancel
-						</AlertDialogCancel>
-						<AlertDialogAction
-							className={buttonVariants({ variant: "destructive" })}
-							type="button"
-							onClick={() => {
-								startSaving(async () => {
-									const result = await deleteVenue(data.id);
-									if (result) {
-										toast({
-											title: "Success",
-											description: data.name + "is successfully deleted!",
-											duration: 5000,
-										});
-										mutate(PRODUCTS_VENUES_KEY);
-										mutate("VenuePage");
-									}
-								});
-							}}
-							disabled={isSaving}>
-							{isSaving && <Loader2 className="mr-2" />}
-							Delete
-						</AlertDialogAction>
-					</div>
-				</AlertDialogHeader>
-			</AlertDialogContent>
-		</AlertDialog>
-	);
-}
+// 	return (
+// 		<AlertDialog>
+// 			<AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
+// 			<AlertDialogContent>
+// 				<AlertDialogHeader className="mb-4">
+// 					<AlertDialogTitle className="text-destructive">Delete</AlertDialogTitle>
+// 					<AlertDialogDescription className="space-x-2">
+// 						<span>Deleting</span>
+// 						<span>{data.name}</span>
+// 					</AlertDialogDescription>
+// 					<div className="text-destructive">This action cannot be undo. Delete?</div>
+// 					<div className="flex justify-end gap-4">
+// 						<AlertDialogCancel
+// 							className={buttonVariants({ variant: "secondary" })}
+// 							type="button">
+// 							Cancel
+// 						</AlertDialogCancel>
+// 						<AlertDialogAction
+// 							className={buttonVariants({ variant: "destructive" })}
+// 							type="button"
+// 							onClick={() => {
+// 								startSaving(async () => {
+// 									const result = await deleteVenue(data.id);
+// 									if (result) {
+// 										toast({
+// 											title: "Success",
+// 											description: data.name + "is successfully deleted!",
+// 											duration: 5000,
+// 										});
+// 										mutate(PRODUCTS_VENUES_KEY);
+// 										mutate("VenuePage");
+// 									}
+// 								});
+// 							}}
+// 							disabled={isSaving}>
+// 							{isSaving && <Loader2 className="mr-2" />}
+// 							Delete
+// 						</AlertDialogAction>
+// 					</div>
+// 				</AlertDialogHeader>
+// 			</AlertDialogContent>
+// 		</AlertDialog>
+// 	);
+// }

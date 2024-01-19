@@ -14,10 +14,15 @@ import { Row } from "@tanstack/react-table";
 import { Venues } from "./Columns";
 import { Calendar } from "@components/ui/calendar";
 import { cn } from "@lib/utils";
-import { updateMaintainanceDates } from "../serverActions";
+import {
+	switchVenueAvailability,
+	updateMaintainanceDates,
+} from "../serverActions";
 import { toast } from "@components/ui/use-toast";
 import { Loader2 } from "lucide-react";
-import { AddEditDialog, DeleteDialog } from "./VenueAED";
+import { AddEditDialog } from "./VenueAED";
+import { useSWRConfig } from "swr";
+import { PRODUCTS_VENUES_KEY } from "../../products/components/ProductPageProvider";
 
 interface DataTableRowActionsProps {
 	row: Row<Venues>;
@@ -29,6 +34,7 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
 		row.original.maintainanceDates
 	);
 	const [isSaving, startSaving] = React.useTransition();
+	const { mutate } = useSWRConfig();
 	return (
 		<>
 			<DropdownMenu>
@@ -49,13 +55,32 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
 							Edit {row.original.name}
 						</DropdownMenuItem>
 					</AddEditDialog>
-					<DeleteDialog data={row.original}>
+					{/* <DeleteDialog data={row.original}>
 						<DropdownMenuItem
 							onSelect={e => e.preventDefault()}
 							className="text-destructive">
 							Delete {row.original.name}
 						</DropdownMenuItem>
-					</DeleteDialog>
+					</DeleteDialog> */}
+					<DropdownMenuItem
+						onSelect={() => {
+							startSaving(async () => {
+								const result = await switchVenueAvailability(
+									row.original.id,
+									row.original.isAvailable
+								);
+								if (result) {
+									mutate(PRODUCTS_VENUES_KEY);
+									mutate("VenuePage");
+								}
+							});
+						}}
+						className="text-destructive"
+						disabled={isSaving}>
+						{`${row.original.isAvailable ? "Disable" : "Enable"} ${
+							row.original.name
+						}`}
+					</DropdownMenuItem>
 				</DropdownMenuContent>
 			</DropdownMenu>
 			<Dialog open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>

@@ -16,9 +16,23 @@ export type Reservations = {
 	status: "ONGOING" | "COMPLETED" | "CANCELED";
 	dishes: string[];
 	setName: string;
-	user_id: number;
-	user_name: string;
-	user_phoneNumber: string;
+	userID: number;
+	userName: string;
+	userPhoneNumber: string;
+	transactions: {
+		id: string;
+		paymentID: string;
+		createdAt: Date;
+		netAmount: number;
+		fee: number;
+		message: string | null;
+	}[];
+	venue: {
+		id: number;
+		name: string;
+		location: string;
+		freeHours: number;
+	};
 };
 export const columns: ColumnDef<Reservations>[] = [
 	{
@@ -48,19 +62,19 @@ export const columns: ColumnDef<Reservations>[] = [
 	},
 	{
 		id: "Customer",
-		accessorKey: "user_name",
+		accessorKey: "userName",
 		header: ({ column }) => (
 			<DataTableColumnHeader column={column} title="Customer" />
 		),
 		cell: ({ row }) => (
-			<Link href={"/admin/customers?customer=".concat(row.original.user_name)}>
-				{row.original.user_name}
+			<Link href={"/admin/customers?customer=".concat(row.original.userName)}>
+				{row.original.userName}
 			</Link>
 		),
 	},
 	{
 		id: "Mobile Number",
-		accessorKey: "user_phoneNumber",
+		accessorKey: "userPhoneNumber",
 		header: ({ column }) => (
 			<DataTableColumnHeader column={column} title="Mobile Number" />
 		),
@@ -99,20 +113,17 @@ export const columns: ColumnDef<Reservations>[] = [
 		cell: ({ row }) => <div>{row.original.eventDate}</div>,
 	},
 	{
-		id: "Duration",
-		accessorKey: "eventDuration",
-		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="Duration" />
-		),
-		cell: ({ cell }) => {
-			return (cell.getValue() as string) + " hours";
-		},
-	},
-	{
 		id: "Event Type",
 		accessorKey: "eventType",
 		header: ({ column }) => (
 			<DataTableColumnHeader column={column} title="Event Type" />
+		),
+	},
+	{
+		id: "Venue",
+		accessorFn: data => data.venue.name,
+		header: ({ column }) => (
+			<DataTableColumnHeader column={column} title="Venue" />
 		),
 	},
 	{

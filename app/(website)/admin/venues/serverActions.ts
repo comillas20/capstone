@@ -32,8 +32,21 @@ export async function createOrUpdateVenue(data: VenueData) {
 	});
 }
 
-export async function deleteVenue(id: number) {
-	return await prisma.venues.delete({
+// export async function deleteVenue(id: number) {
+// 	return await prisma.venues.delete({
+// 		where: {
+// 			id: id,
+// 		},
+// 	});
+// }
+export async function switchVenueAvailability(
+	id: number,
+	isAvailable: boolean
+) {
+	return await prisma.venues.update({
+		data: {
+			isAvailable: !isAvailable,
+		},
 		where: {
 			id: id,
 		},

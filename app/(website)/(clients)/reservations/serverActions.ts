@@ -29,7 +29,7 @@ type Reservation = {
 		name: string;
 	}[];
 	message: string;
-	venue: string;
+	venueID: number;
 };
 export async function getCurrentUser(currentID: number) {
 	return await prisma.account.findUnique({
@@ -84,7 +84,7 @@ export async function createCheckoutSession(reserve: Reservation) {
 						dishes: JSON.stringify(reserve.orders.map(order => order.name)),
 						totalPaid: "",
 						totalCost: reserve.totalPrice,
-						venue: reserve.venue,
+						venueID: reserve.venueID,
 					},
 				},
 			},

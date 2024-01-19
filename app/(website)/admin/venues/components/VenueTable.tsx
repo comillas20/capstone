@@ -7,14 +7,12 @@ import {
 	TableRow,
 } from "@components/ui/table";
 import { ColumnDef, flexRender, Table as t } from "@tanstack/react-table";
-type VenueTableProps<TData, TValue> = {
-	table: t<TData>;
-	columns: ColumnDef<TData, TValue>[];
+import { Venues } from "./Columns";
+type VenueTableProps = {
+	table: t<Venues>;
+	columns: ColumnDef<Venues, any>[];
 };
-export default function VenueTable<TData, TValue>({
-	table,
-	columns,
-}: VenueTableProps<TData, TValue>) {
+export default function VenueTable({ table, columns }: VenueTableProps) {
 	return (
 		<Table className="rounded-md border">
 			<TableHeader>
@@ -35,7 +33,10 @@ export default function VenueTable<TData, TValue>({
 			<TableBody>
 				{table.getRowModel().rows?.length ? (
 					table.getRowModel().rows.map(row => (
-						<TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+						<TableRow
+							key={row.id}
+							data-state={row.getIsSelected() && "selected"}
+							className={row.original.isAvailable ? "text-muted-foreground" : ""}>
 							{row.getVisibleCells().map(cell => (
 								<TableCell key={cell.id}>
 									{flexRender(cell.column.columnDef.cell, cell.getContext())}

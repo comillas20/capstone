@@ -1,6 +1,5 @@
 "use server";
 import prisma from "@lib/db";
-import { addMonths, addYears } from "date-fns";
 import { utcToZonedTime } from "date-fns-tz";
 
 // had to do this because prisma auto converts Dates to UTC timezone
@@ -183,38 +182,6 @@ function convertValue<T extends SettingType>(
 		default:
 			throw new Error(`Unsupported type: ${type}`);
 	}
-}
-/**
- *
- * @param userID ID used to filter
- * @param startDate Date that will be used as a filter
- * @returns reservations starting from the startDate up to startDate.year + 1 if provided, otherwise all reservations
- */
-export async function getReservations(userID?: number, startDate?: Date) {
-	const result = await prisma.reservations.findMany({
-		where: {
-			userID: userID,
-			AND: [
-				{
-					eventDate: {
-						gte: startDate,
-					},
-				},
-				{
-					eventDate: {
-						lt: startDate ? addYears(startDate, 1) : undefined,
-					},
-				},
-			],
-		},
-	});
-
-	const modifiedResult = result.map(({ eventDate, ...others }) => ({
-		...others,
-		eventDate: utcToZonedTime(eventDate, localTimezone),
-	}));
-
-	return modifiedResult;
 }
 
 type SMS = {

@@ -42,7 +42,8 @@ model Reservations {
   eventDuration Int
   eventDate     DateTime
   eventType     String
-  venue         String
+  venueID       Int
+  venue         Venues @relation(fields: [venueID], references: [id])
 }
 
 model Venues {
@@ -54,6 +55,8 @@ model Venues {
   maxCapacity Int
   sets        Set[]
   maintainanceDates MaintainanceDates[]
+  isAvailable Boolean @default(true)
+  reservations  Reservations[]
 }
 
 model Dish {

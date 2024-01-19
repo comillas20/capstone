@@ -296,7 +296,7 @@ function Details({ open, onOpenChange }: Details) {
 				<Popover>
 					<PopoverTrigger asChild>
 						<Button variant="link" className="inline cursor-pointer text-primary">
-							{/* {timeLinkName} */}was
+							{/* {timeLinkName} */}
 						</Button>
 					</PopoverTrigger>
 					<PopoverContent className="w-64 drop-shadow">
