@@ -1,6 +1,14 @@
 "use server";
 import prisma from "@lib/db";
 import { convertDateToString, generateRandomNumbers } from "@lib/utils";
+import { addYears } from "date-fns";
+import { utcToZonedTime } from "date-fns-tz";
+
+// had to do this because prisma auto converts Dates to UTC timezone
+// and I can't do anything to make it use local time zone
+// so Im converting every Dates I get from Prisma to local
+
+const localTimezone = "Asia/Manila";
 
 type Reservation = {
 	selectedSet: {
@@ -21,6 +29,7 @@ type Reservation = {
 		name: string;
 	}[];
 	message: string;
+	venue: string;
 };
 export async function getCurrentUser(currentID: number) {
 	return await prisma.account.findUnique({
@@ -75,6 +84,7 @@ export async function createCheckoutSession(reserve: Reservation) {
 						dishes: JSON.stringify(reserve.orders.map(order => order.name)),
 						totalPaid: "",
 						totalCost: reserve.totalPrice,
+						venue: reserve.venue,
 					},
 				},
 			},
@@ -120,6 +130,24 @@ export async function getALlDishesWithCourses() {
 			},
 		},
 	});
+}
+
+export async function getReservations(userID: number) {
+	const result = await prisma.reservations.findMany({
+		where: {
+			userID: userID,
+		},
+		include: {
+			transactions: true,
+		},
+	});
+
+	const modifiedResult = result.map(({ eventDate, ...others }) => ({
+		...others,
+		eventDate: utcToZonedTime(eventDate, localTimezone),
+	}));
+
+	return modifiedResult;
 }
 
 type Reschedule = {

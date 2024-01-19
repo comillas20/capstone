@@ -35,6 +35,7 @@ type RequestType = {
 								dishes: string;
 								totalPaid: string;
 								totalCost: string;
+								venue: string;
 							};
 						};
 					}[];
@@ -90,6 +91,9 @@ export async function POST(req: NextRequest, res: NextResponse) {
 							request.data.attributes.data.attributes.payments[0].attributes.metadata
 								.totalCost
 						),
+						venue:
+							request.data.attributes.data.attributes.payments[0].attributes.metadata
+								.venue,
 					},
 				},
 			},

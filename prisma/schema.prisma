@@ -42,6 +42,7 @@ model Reservations {
   eventDuration Int
   eventDate     DateTime
   eventType     String
+  venue         String
 }
 
 model Venues {
