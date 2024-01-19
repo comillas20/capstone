@@ -88,7 +88,25 @@ export async function POST(req: NextRequest, res: NextResponse) {
 			request.data.attributes.data.attributes.payments[0].attributes.metadata
 				.venueID
 		);
-		const reservation = await prisma.transactions.create({
+
+		const reservation = await prisma.reservations.create({
+			data: {
+				eventDate: eventDate,
+				eventDuration: eventDuration,
+				eventType: eventType,
+				setName: setName,
+				dishes: dishes,
+				userID: userID,
+				totalPaid: totalPaid,
+				totalCost: totalCost,
+				venueID: venueID,
+			},
+			select: {
+				id: true,
+			},
+		});
+
+		const transactions = await prisma.transactions.create({
 			data: {
 				fee:
 					request.data.attributes.data.attributes.payments[0].attributes.fee / 100,
@@ -99,23 +117,11 @@ export async function POST(req: NextRequest, res: NextResponse) {
 				message:
 					request.data.attributes.data.attributes.payments[0].attributes.metadata
 						.message,
-				reservation: {
-					create: {
-						eventDate: eventDate,
-						eventDuration: eventDuration,
-						eventType: eventType,
-						setName: setName,
-						dishes: dishes,
-						userID: userID,
-						totalPaid: totalPaid,
-						totalCost: totalCost,
-						venueID: venueID,
-					},
-				},
+				reservationID: reservation.id,
 			},
 		});
 
-		console.log("saved a checkout");
+		if (transactions) console.log("saved a checkout");
 
 		const venue = await prisma.venues.findUnique({
 			where: {
