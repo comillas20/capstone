@@ -151,6 +151,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
 		} else console.log("NO PHONE NUMBER!!!");
 		return new Response("ok", { status: 200 });
 	} catch (error) {
+		console.log("Error", error);
 		return new Response("not ok", { status: 200 });
 	}
 }
