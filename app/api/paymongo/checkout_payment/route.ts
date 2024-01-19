@@ -96,10 +96,18 @@ export async function POST(req: NextRequest, res: NextResponse) {
 				eventType: eventType,
 				setName: setName,
 				dishes: dishes,
-				userID: userID,
+				user: {
+					connect: {
+						id: userID,
+					},
+				},
 				totalPaid: totalPaid,
 				totalCost: totalCost,
-				venueID: venueID,
+				venue: {
+					connect: {
+						id: venueID,
+					},
+				},
 			},
 			select: {
 				id: true,
@@ -117,7 +125,11 @@ export async function POST(req: NextRequest, res: NextResponse) {
 				message:
 					request.data.attributes.data.attributes.payments[0].attributes.metadata
 						.message,
-				reservationID: reservation.id,
+				reservation: {
+					connect: {
+						id: reservation.id,
+					},
+				},
 			},
 		});
 

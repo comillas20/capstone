@@ -82,7 +82,7 @@ export async function createCheckoutSession(reserve: Reservation) {
 						message: reserve.message,
 						setName: reserve.selectedSet.name,
 						dishes: JSON.stringify(reserve.orders.map(order => order.name)),
-						totalPaid: "",
+						totalPaid: "1",
 						totalCost: reserve.totalPrice,
 						venueID: reserve.venueID,
 					},
