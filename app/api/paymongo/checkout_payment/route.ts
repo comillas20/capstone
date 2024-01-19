@@ -55,6 +55,7 @@ type RequestType = {
 };
 export async function POST(req: NextRequest, res: NextResponse) {
 	try {
+		console.log("starting to save a checkout");
 		const request: RequestType = await req.json(); //this is where I get the event, like when user successfully pays
 		const eventDate = new Date(
 			request.data.attributes.data.attributes.payments[0].attributes.metadata.eventDate
@@ -114,6 +115,8 @@ export async function POST(req: NextRequest, res: NextResponse) {
 			},
 		});
 
+		console.log("saved a checkout");
+
 		const venue = await prisma.venues.findUnique({
 			where: {
 				id: venueID,
@@ -139,11 +142,13 @@ export async function POST(req: NextRequest, res: NextResponse) {
 		}`;
 
 		const phoneNumber = request.data.attributes.data.attributes.billing.phone;
-		if (phoneNumber)
-			await sendSMS({
+		if (phoneNumber) {
+			const result = await sendSMS({
 				message: message,
 				recipient: phoneNumber,
 			});
+			console.log("SMS", result);
+		} else console.log("NO PHONE NUMBER!!!");
 		return new Response("ok", { status: 200 });
 	} catch (error) {
 		return new Response("not ok", { status: 200 });
