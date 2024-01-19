@@ -22,21 +22,17 @@ import VenueTable from "./VenueTable";
 import { findNearestNonDisabledDate } from "@lib/date-utils";
 import useSWR from "swr";
 import { Loader2 } from "lucide-react";
-import { columns } from "./Columns";
+import { Venues, columns } from "./Columns";
 import { Button } from "@components/ui/button";
 import { getAllVenues } from "@app/(website)/serverActionsGlobal";
 
-interface ReservationPage<TData, TValue> {
-	columns: ColumnDef<TData, TValue>[];
-	data: TData[];
+type ReservationPage = {
+	columns: ColumnDef<Venues, any>[];
+	data: Venues[];
 	maintainanceDates: Date[] | undefined;
-}
+};
 
-function Reservation<TData, TValue>({
-	columns,
-	data,
-	maintainanceDates,
-}: ReservationPage<TData, TValue>) {
+function Reservation({ columns, data, maintainanceDates }: ReservationPage) {
 	const currentDate = new Date();
 	const nearestDateAvailable: Date = maintainanceDates
 		? findNearestNonDisabledDate(currentDate, maintainanceDates)
