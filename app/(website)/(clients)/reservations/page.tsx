@@ -19,7 +19,6 @@ type SettingsObject = {
 	minReservationHours: number;
 	maxReservationHours: number;
 	minPerHead: number;
-	reservationCostPerHour: number;
 };
 async function convertToObject(): Promise<SettingsObject> {
 	const settings = await getSystemSettings();
@@ -32,9 +31,6 @@ async function convertToObject(): Promise<SettingsObject> {
 		s => s.name === Settings.maxReservationHours
 	);
 	const minPerHead = settings.find(s => s.name === Settings.minPerHead);
-	const reservationCostPerHour = settings.find(
-		s => s.name === Settings.reservationCostPerHour
-	);
 	return {
 		openingTime: openingTime
 			? (openingTime.value as Date)
@@ -49,9 +45,6 @@ async function convertToObject(): Promise<SettingsObject> {
 			? (maxReservationHours.value as number)
 			: 10,
 		minPerHead: minPerHead ? (minPerHead.value as number) : 50,
-		reservationCostPerHour: reservationCostPerHour
-			? (reservationCostPerHour.value as number)
-			: 500,
 	};
 }
 export default async function page() {

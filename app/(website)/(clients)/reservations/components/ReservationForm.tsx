@@ -37,7 +37,6 @@ export type ReservationFormContextProps = {
 		minReservationHours: number;
 		maxReservationHours: number;
 		minPerHead: number;
-		reservationCostPerHour: number;
 	};
 	selectedVenue: Venue;
 };
@@ -54,7 +53,6 @@ type ReservationFormProps = {
 		minReservationHours: number;
 		maxReservationHours: number;
 		minPerHead: number;
-		reservationCostPerHour: number;
 	};
 	venues: Venue[];
 };
