@@ -141,6 +141,10 @@ export async function getFAQs() {
 	return await prisma.fAQ.findMany();
 }
 
+export async function getGCashNumbers() {
+	return await prisma.gCashNumbers.findMany();
+}
+
 export async function getSystemSettings() {
 	const settings = await prisma.systemSettings.findMany();
 	return settings.map(setting => ({
