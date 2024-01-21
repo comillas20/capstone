@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,15 +7,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model Transactions {
-  id            String       @id @default(uuid())
+  id              String       @id @default(uuid())
   referenceNumber String
-  recipientNumber       String
-  createdAt     DateTime     @default(now())
-  message       String?
-  reservationID String
-  reservation   Reservations @relation(fields: [reservationID], references: [id], onDelete: Cascade)
+  recipientNumber String
+  createdAt       DateTime     @default(now())
+  message         String?
+  reservationID   String
+  reservation     Reservations @relation(fields: [reservationID], references: [id], onDelete: Cascade)
 }
 
 enum ReservationStatus {
@@ -43,20 +39,20 @@ model Reservations {
   eventDate     DateTime
   eventType     String
   venueID       Int
-  venue         Venues @relation(fields: [venueID], references: [id])
+  venue         Venues            @relation(fields: [venueID], references: [id])
 }
 
 model Venues {
-  id          Int    @id @default(autoincrement())
-  name        String @unique
-  location    String
-  freeHours   Int
-  venueCost   Float //per hour
-  maxCapacity Int
-  sets        Set[]
+  id                Int                 @id @default(autoincrement())
+  name              String              @unique
+  location          String
+  freeHours         Int
+  venueCost         Float //per hour
+  maxCapacity       Int
+  sets              Set[]
   maintainanceDates MaintainanceDates[]
-  isAvailable Boolean @default(true)
-  reservations  Reservations[]
+  isAvailable       Boolean             @default(true)
+  reservations      Reservations[]
 }
 
 model Dish {
@@ -98,6 +94,7 @@ model Set {
   minimumPerHead    Int
   price             Float
   selectionQuantity Int
+
   @@unique([name, venueID])
 }
 
@@ -147,9 +144,9 @@ enum SettingValueTypes {
 }
 
 model MaintainanceDates {
-  date DateTime @id
+  date    DateTime @id
   venueID Int
-  venue Venues @relation(fields: [venueID], references: [id], onDelete: Cascade)
+  venue   Venues   @relation(fields: [venueID], references: [id], onDelete: Cascade)
 }
 
 model FAQ {
@@ -169,7 +166,7 @@ model OtherServices {
 }
 
 model GCashNumbers {
-  id Int @id @default(autoincrement())
-  name String @unique
+  id          Int    @id @default(autoincrement())
+  name        String @unique
   phoneNumber String @unique
 }

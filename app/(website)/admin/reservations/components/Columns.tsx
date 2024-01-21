@@ -11,14 +11,13 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@components/ui/popover";
-import { convertDateToString } from "@lib/utils";
 export type Reservations = {
 	id: string;
 	eventDate: string;
 	eventDuration: number;
 	eventType: string;
 	totalCost: number;
-	status: "PENDING" | "PARTIAL" | "ONGOING" | "COMPLETED" | "CANCELED";
+	status: "PENDING" | "PARTIAL" | "ONGOING" | "COMPLETED" | "CANCELLED";
 	dishes: string[];
 	setName: string;
 	userID: number;
@@ -133,7 +132,15 @@ export const columns: ColumnDef<Reservations>[] = [
 		header: ({ column }) => (
 			<DataTableColumnHeader column={column} title="Event Date" />
 		),
-		cell: ({ row }) => <div>{row.original.eventDate}</div>,
+		cell: ({ row }) => row.original.eventDate,
+	},
+	{
+		id: "Event Duration",
+		accessorKey: "eventDuration",
+		header: ({ column }) => (
+			<DataTableColumnHeader column={column} title="Event Duration" />
+		),
+		cell: ({ row }) => String(row.original.eventDuration).concat(" hours"),
 	},
 	{
 		id: "Event Type",
@@ -141,6 +148,7 @@ export const columns: ColumnDef<Reservations>[] = [
 		header: ({ column }) => (
 			<DataTableColumnHeader column={column} title="Event Type" />
 		),
+		cell: ({ row }) => row.original.eventType.toUpperCase(),
 	},
 	{
 		id: "Venue",

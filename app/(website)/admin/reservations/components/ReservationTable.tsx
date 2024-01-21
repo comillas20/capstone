@@ -7,14 +7,15 @@ import {
 	TableRow,
 } from "@components/ui/table";
 import { ColumnDef, flexRender, Table as t } from "@tanstack/react-table";
-type ReservationTableProps<TData, TValue> = {
-	table: t<TData>;
-	columns: ColumnDef<TData, TValue>[];
+import { Reservations } from "./Columns";
+type ReservationTableProps = {
+	table: t<Reservations>;
+	columns: ColumnDef<Reservations, any>[];
 };
-export default function ReservationTable<TData, TValue>({
+export default function ReservationTable({
 	table,
 	columns,
-}: ReservationTableProps<TData, TValue>) {
+}: ReservationTableProps) {
 	return (
 		<Table className="rounded-md border">
 			<TableHeader>
@@ -34,15 +35,36 @@ export default function ReservationTable<TData, TValue>({
 			</TableHeader>
 			<TableBody>
 				{table.getRowModel().rows?.length ? (
-					table.getRowModel().rows.map(row => (
-						<TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
-							{row.getVisibleCells().map(cell => (
-								<TableCell key={cell.id}>
-									{flexRender(cell.column.columnDef.cell, cell.getContext())}
-								</TableCell>
-							))}
-						</TableRow>
-					))
+					table.getRowModel().rows.map(row => {
+						const status = row.original.status;
+						let statusCSS: string;
+						switch (status) {
+							case "ONGOING":
+								statusCSS = "bg-green-300/50";
+								break;
+							case "PENDING" || "PARTIAL":
+								statusCSS = "bg-secondary";
+								break;
+							case "CANCELLED":
+								statusCSS = "bg-destructive/20";
+								break;
+							default:
+								statusCSS = "";
+								break;
+						}
+						return (
+							<TableRow
+								key={row.id}
+								data-state={row.getIsSelected() && "selected"}
+								className={statusCSS}>
+								{row.getVisibleCells().map(cell => (
+									<TableCell key={cell.id}>
+										{flexRender(cell.column.columnDef.cell, cell.getContext())}
+									</TableCell>
+								))}
+							</TableRow>
+						);
+					})
 				) : (
 					<TableRow>
 						<TableCell colSpan={columns.length} className="h-24 text-center">

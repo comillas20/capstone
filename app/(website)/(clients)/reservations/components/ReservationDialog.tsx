@@ -676,7 +676,6 @@ export default function ReservationDialog({
 															<div key={gcash.id} className="flex justify-between">
 																<span>{gcash.name}</span>
 																<span>{gcash.phoneNumber}</span>
-																{/* {` — $`} */}
 															</div>
 														))}
 													</div>

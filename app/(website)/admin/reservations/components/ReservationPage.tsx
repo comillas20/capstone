@@ -13,7 +13,6 @@ import {
 	getPaginationRowModel,
 	getSortedRowModel,
 	useReactTable,
-	Table as t,
 } from "@tanstack/react-table";
 
 import { DataTablePagination } from "@admin/components/DataTablePagination";
@@ -78,6 +77,8 @@ function Reservation<TData, TValue>({
 			id: false,
 			email: false,
 			"Mobile Number": false,
+			"Event Type": false,
+			Venue: false,
 		};
 		setColumnVisibility(hideAsDefault);
 	}, []);
@@ -123,17 +124,22 @@ type Venue = {
 export type ReservationPageContextProps = {
 	selectedVenue: Venue | undefined;
 	setSelectedVenue: React.Dispatch<React.SetStateAction<Venue | undefined>>;
+	reservationTableDataKey: string;
 };
 
 export const ReservationPageContext = React.createContext<
 	ReservationPageContextProps | undefined
 >(undefined);
 export default function ReservationPage() {
-	const { data } = useSWR("ReservationPageData", async () => getReservations());
+	const reservationTableDataKey = "ReservationPageData";
+	const { data } = useSWR(reservationTableDataKey, async () =>
+		getReservations()
+	);
 	const [selectedVenue, setSelectedVenue] = React.useState<Venue | undefined>();
 	if (!data) return <Loader2 className="animate-spin" size={15} />;
 	return (
-		<ReservationPageContext.Provider value={{ selectedVenue, setSelectedVenue }}>
+		<ReservationPageContext.Provider
+			value={{ selectedVenue, setSelectedVenue, reservationTableDataKey }}>
 			<Reservation data={data} columns={columns} maintainanceDates={[]} />
 		</ReservationPageContext.Provider>
 	);

@@ -48,43 +48,14 @@ export async function getReservations() {
 	return modifiedResult;
 }
 
-export async function cancelReservation(
-	id: string,
-	amount: number,
-	payment_id: string
-) {
-	const data = {
-		data: {
-			attributes: {
-				amount: amount * 100,
-				notes: "denied",
-				payment_id: payment_id,
-				reason: "others",
-			},
-		},
-	};
-	const optionsIntent = {
-		method: "POST",
-		headers: {
-			Accept: "application/json",
-			"Content-Type": "application/json",
-			Authorization: `Basic ${Buffer.from(
-				process.env.PAYMONGO_SECRET as string
-			).toString("base64")}`, // HTTP Basic Auth and Encoding
-		},
-		body: JSON.stringify(data),
-	};
-	const response = await fetch(
-		"https://api.paymongo.com/refunds",
-		optionsIntent
-	);
-	const result = await response.json();
+type Status = "PENDING" | "PARTIAL" | "ONGOING" | "COMPLETED" | "CANCELLED";
+export async function changeStatus(id: string, status: Status) {
 	return await prisma.reservations.update({
+		data: {
+			status: status,
+		},
 		where: {
 			id: id,
-		},
-		data: {
-			status: "CANCELED",
 		},
 	});
 }

@@ -2,7 +2,7 @@
 
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 
-import { Button } from "@components/ui/button";
+import { Button, buttonVariants } from "@components/ui/button";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -19,7 +19,7 @@ import {
 	AlertDialogTitle,
 } from "@components/ui/alert-dialog";
 import { Row } from "@tanstack/react-table";
-import { useState } from "react";
+import { useContext, useState, useTransition } from "react";
 import { Reservations } from "./Columns";
 import { useSWRConfig } from "swr";
 import {
@@ -34,23 +34,30 @@ import {
 import {
 	Table,
 	TableBody,
-	TableCaption,
 	TableCell,
 	TableHead,
 	TableHeader,
 	TableRow,
 } from "@components/ui/table";
-import { cancelReservation } from "../serverActions";
+import { changeStatus } from "../serverActions";
+import { toast } from "@components/ui/use-toast";
+import {
+	ReservationPageContext,
+	ReservationPageContextProps,
+} from "./ReservationPage";
+import { Loader2 } from "lucide-react";
 
 interface DataTableRowActionsProps {
 	row: Row<Reservations>;
 }
 
 export function DataTableRowActions({ row }: DataTableRowActionsProps) {
-	const [isAcceptOpen, setIsAcceptOpen] = useState(false);
+	const { reservationTableDataKey } = useContext(
+		ReservationPageContext
+	) as ReservationPageContextProps;
+	const [isChangingStatus, startChangingStatus] = useTransition();
 	const [isDenyOpen, setIsDenyOpen] = useState(false);
 	const [isModalOpen, setIsModalOpen] = useState(false);
-	const [isAddtionalOpen, setIsAddtionalOpen] = useState(false);
 	const { mutate } = useSWRConfig();
 	return (
 		<>
@@ -67,37 +74,34 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
 					<DropdownMenuItem onSelect={() => setIsModalOpen(true)}>
 						Details
 					</DropdownMenuItem>
-					<DropdownMenuItem onSelect={() => setIsAcceptOpen(true)}>
-						Accept
-					</DropdownMenuItem>
-					<DropdownMenuItem onSelect={() => setIsDenyOpen(true)}>
-						Deny
+					{(row.original.status === "PENDING" ||
+						row.original.status === "PARTIAL") && (
+						<DropdownMenuItem
+							onSelect={() =>
+								startChangingStatus(async () => {
+									const id = row.original.id;
+									const result = await changeStatus(id, "ONGOING");
+									if (result) {
+										toast({
+											title: "Success",
+											description: "The selected reservation is successfully accepted",
+											duration: 5000,
+										});
+										mutate(reservationTableDataKey);
+									}
+								})
+							}
+							disabled={isChangingStatus}>
+							Accept
+						</DropdownMenuItem>
+					)}
+					<DropdownMenuItem
+						onSelect={() => setIsDenyOpen(true)}
+						disabled={isChangingStatus}>
+						Cancel
 					</DropdownMenuItem>
 				</DropdownMenuContent>
 			</DropdownMenu>
-			<AlertDialog open={isAcceptOpen} onOpenChange={setIsAcceptOpen}>
-				<AlertDialogContent>
-					<AlertDialogHeader className="mb-4">
-						<AlertDialogTitle className="text-destructive">
-							Accept reservation
-						</AlertDialogTitle>
-						<AlertDialogDescription>
-							{"Accepting " + row.getValue("Customer") + "'s reservation"}
-						</AlertDialogDescription>
-						<div className="text-destructive">
-							This action cannot be undo. Continue?
-						</div>
-					</AlertDialogHeader>
-					<div className="flex justify-end gap-4">
-						<AlertDialogCancel asChild>
-							<Button variant={"secondary"} type="button">
-								Cancel
-							</Button>
-						</AlertDialogCancel>
-						<AlertDialogAction>Accept</AlertDialogAction>
-					</div>
-				</AlertDialogContent>
-			</AlertDialog>
 			<AlertDialog open={isDenyOpen} onOpenChange={setIsDenyOpen}>
 				<AlertDialogContent>
 					<AlertDialogHeader className="mb-4">
@@ -112,12 +116,30 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
 						</div>
 					</AlertDialogHeader>
 					<div className="flex justify-end gap-4">
-						<AlertDialogCancel asChild>
-							<Button variant={"secondary"} type="button">
-								Cancel
-							</Button>
+						<AlertDialogCancel
+							className={buttonVariants({ variant: "secondary" })}
+							type="button">
+							Cancel
 						</AlertDialogCancel>
-						<AlertDialogAction>Deny</AlertDialogAction>
+						<AlertDialogAction
+							onClick={() =>
+								startChangingStatus(async () => {
+									const id = row.original.id;
+									const result = await changeStatus(id, "CANCELLED");
+									if (result) {
+										toast({
+											title: "Success",
+											description: "The selected reservation is successfully cancelled",
+											duration: 5000,
+										});
+										mutate(reservationTableDataKey);
+									}
+								})
+							}
+							disabled={isChangingStatus}>
+							{isChangingStatus && <Loader2 className="mr-2 animate-spin" />}
+							Deny
+						</AlertDialogAction>
 					</div>
 				</AlertDialogContent>
 			</AlertDialog>
