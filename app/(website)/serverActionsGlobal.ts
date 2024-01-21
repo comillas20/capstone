@@ -189,7 +189,6 @@ type SMS = {
 	message: string;
 };
 export async function sendSMS(content: SMS) {
-	console.log("sendSMS_entrance");
 	const token = "65|xAiPDApkGu8EWdZ4yCPHQciE6hFgHtqEbCD1id2p ";
 	const parameters = JSON.stringify({
 		sender_id: "PhilSMS", // not allowed to change
