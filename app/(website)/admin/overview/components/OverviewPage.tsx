@@ -138,7 +138,7 @@ export default function Overview() {
 
 							{(() => {
 								const currentSales = thisMonthData.filter(
-									r => !(r.status === "CANCELED") && !isAfter(r.eventDate, now)
+									r => !(r.status === "CANCELLED") && !isAfter(r.eventDate, now)
 								).length;
 								const lastMonthSales = lastMonthData ? lastMonthData.length : undefined;
 								const percentage = lastMonthSales
