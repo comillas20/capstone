@@ -75,6 +75,7 @@ function Reservation<TData, TValue>({
 	});
 	React.useEffect(() => {
 		const hideAsDefault: VisibilityState = {
+			id: false,
 			email: false,
 			"Mobile Number": false,
 		};

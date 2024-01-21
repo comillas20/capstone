@@ -19,7 +19,6 @@ export async function getReservations() {
 			eventType: true,
 			setName: true,
 			status: true,
-			totalPaid: true,
 			totalCost: true,
 			user: {
 				select: {
@@ -32,13 +31,19 @@ export async function getReservations() {
 			venue: true,
 		},
 	});
-	const modifiedResult = result.map(({ eventDate, user, ...others }) => ({
-		...others,
-		eventDate: convertDateToString(utcToZonedTime(eventDate, localTimezone)),
-		userID: user.id,
-		userName: user.name,
-		userPhoneNumber: user.phoneNumber,
-	}));
+	const modifiedResult = result.map(
+		({ eventDate, user, transactions, ...others }) => ({
+			...others,
+			eventDate: convertDateToString(utcToZonedTime(eventDate, localTimezone)),
+			userID: user.id,
+			userName: user.name,
+			userPhoneNumber: user.phoneNumber,
+			transactions: transactions.map(({ createdAt, ...others }) => ({
+				...others,
+				createdAt: convertDateToString(utcToZonedTime(createdAt, localTimezone)),
+			})),
+		})
+	);
 
 	return modifiedResult;
 }

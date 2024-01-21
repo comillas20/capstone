@@ -7,6 +7,23 @@ export async function GET() {
 			eventDate: {
 				lt: new Date(),
 			},
+			OR: [
+				{
+					status: "PENDING",
+				},
+				{ status: "PARTIAL" },
+			],
+		},
+		data: {
+			status: "CANCELED",
+		},
+	});
+
+	const reservations2 = await prisma.reservations.updateMany({
+		where: {
+			eventDate: {
+				lt: new Date(),
+			},
 			status: "ONGOING",
 		},
 		data: {
