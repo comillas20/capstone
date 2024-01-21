@@ -35,7 +35,13 @@ export default function SetPicker() {
 		return filtered;
 	});
 
-	if (!allSets.data) return <Loader2 className="animate-spin" />;
+	if (!allSets.data)
+		return (
+			<div className="flex gap-2">
+				<Loader2 className="animate-spin" />
+				<span>Loading...</span>
+			</div>
+		);
 	else {
 		const filteredSetByVenue = allSets.data.filter(
 			set => set.venue.id === selectedVenue.id

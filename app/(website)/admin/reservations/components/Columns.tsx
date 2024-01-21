@@ -91,13 +91,13 @@ export const columns: ColumnDef<Reservations>[] = [
 					<Popover>
 						<PopoverTrigger>View</PopoverTrigger>
 						<PopoverContent>
-							{transactions.map(trasanction => (
-								<div className="flex gap-2">
-									<span>{trasanction.referenceNumber}</span>
+							{transactions.map(transaction => (
+								<div key={transaction.id} className="flex gap-2">
+									<span>{transaction.referenceNumber}</span>
 									<Separator orientation="vertical" className="h-auto" />
-									<span>{trasanction.createdAt}</span>
+									<span>{transaction.createdAt}</span>
 									<Separator orientation="vertical" className="h-auto" />
-									<span>sent to {trasanction.recipientNumber}</span>
+									<span>sent to {transaction.recipientNumber}</span>
 								</div>
 							))}
 						</PopoverContent>

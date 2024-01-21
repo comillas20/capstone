@@ -11,24 +11,18 @@ import { utcToZonedTime } from "date-fns-tz";
 const localTimezone = "Asia/Manila";
 
 type Reservation = {
-	selectedSet: {
-		id: number;
-		name: string;
-		minimumPerHead: number;
-		price: number;
-	};
+	setName: string;
 	eventDate: Date;
 	eventDuration: number;
 	eventType: string;
-	userID: number;
-	userName: string;
-	phoneNumber: string;
 	totalPrice: number;
-	orders: {
-		id: number;
-		name: string;
-	}[];
-	message: string;
+	dishes: string[];
+	transaction: {
+		recipientNumber: string;
+		referenceNumber: string;
+		message: string;
+	};
+	userID: number;
 	venueID: number;
 };
 export async function getCurrentUser(currentID: number) {
@@ -44,85 +38,15 @@ export async function getCurrentUser(currentID: number) {
 	});
 }
 
-type Result = {
-	data: {
-		attributes: {
-			checkout_url: string;
-		};
-	};
-};
-export async function createCheckoutSession(reserve: Reservation) {
-	const random = generateRandomNumbers(10);
-	try {
-		const data = {
-			data: {
-				attributes: {
-					reference_number: random,
-					billing: { name: reserve.userName, phone: String(reserve.phoneNumber) },
-					send_email_receipt: true,
-					show_description: false,
-					show_line_items: true,
-					// success_url: "https://jakelou.vercel.app/reservations",
-					line_items: [
-						{
-							currency: "PHP",
-							amount: reserve.totalPrice * 100,
-							description: "Selected set used for Jakelou event",
-							name: reserve.selectedSet.name,
-							quantity: 1,
-						},
-					],
-					payment_method_types: ["gcash"],
-					statement_descriptor: "Jakelou",
-					metadata: {
-						userID: reserve.userID,
-						eventDate: convertDateToString(reserve.eventDate),
-						eventDuration: reserve.eventDuration,
-						eventType: reserve.eventType,
-						message: reserve.message,
-						setName: reserve.selectedSet.name,
-						dishes: JSON.stringify(reserve.orders.map(order => order.name)),
-						totalPaid: 500.0,
-						totalCost: reserve.totalPrice,
-						venueID: reserve.venueID,
-					},
-				},
-			},
-		};
-		const optionsIntent = {
-			method: "POST",
-			headers: {
-				Accept: "application/json",
-				"Content-Type": "application/json",
-				Authorization: `Basic ${Buffer.from(
-					process.env.PAYMONGO_SECRET as string
-				).toString("base64")}`, // HTTP Basic Auth and Encoding
-			},
-			body: JSON.stringify(data),
-		};
-
-		const response = await fetch(
-			"https://api.paymongo.com/v1/checkout_sessions",
-			optionsIntent
-		);
-
-		const result: Result = await response.json();
-		return result;
-	} catch (error) {
-		console.error("Error:", error);
-	}
-	return null;
-}
-
 export async function createReservation(reserve: Reservation) {
 	return await prisma.reservations.create({
 		data: {
 			eventDate: reserve.eventDate,
 			eventDuration: reserve.eventDuration,
 			eventType: reserve.eventType,
-			setName: reserve.selectedSet.name,
+			setName: reserve.setName,
 			totalCost: reserve.totalPrice,
-			dishes: reserve.orders.map(order => order.name),
+			dishes: reserve.dishes,
 			user: {
 				connect: {
 					id: reserve.userID,
@@ -135,9 +59,9 @@ export async function createReservation(reserve: Reservation) {
 			},
 			transactions: {
 				create: {
-					recipientNumber: "",
-					referenceNumber: "",
-					message: reserve.message,
+					recipientNumber: reserve.transaction.recipientNumber,
+					referenceNumber: reserve.transaction.referenceNumber,
+					message: reserve.transaction.message,
 				},
 			},
 		},
@@ -172,12 +96,27 @@ export async function getReservations(userID: number) {
 		},
 	});
 
-	const modifiedResult = result.map(({ eventDate, ...others }) => ({
-		...others,
-		eventDate: utcToZonedTime(eventDate, localTimezone),
-	}));
+	const modifiedResult = result.map(
+		({ eventDate, transactions, ...others }) => ({
+			...others,
+			eventDate: utcToZonedTime(eventDate, localTimezone),
+			transactions: transactions.map(({ createdAt, ...others }) => ({
+				...others,
+				createdAt: convertDateToString(utcToZonedTime(createdAt, localTimezone)),
+			})),
+		})
+	);
 
 	return modifiedResult;
+}
+
+async function getReservationDates() {
+	const dates = await prisma.reservations.findMany({
+		select: {
+			eventDate: true,
+			eventDuration: true,
+		},
+	});
 }
 
 type Reschedule = {
