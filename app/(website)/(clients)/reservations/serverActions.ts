@@ -140,7 +140,7 @@ export async function cancelReservation(id: string) {
 			id: id,
 		},
 		data: {
-			status: "CANCELED",
+			status: "CANCELLED",
 		},
 	});
 }
