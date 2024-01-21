@@ -26,7 +26,7 @@ enum ReservationStatus {
   PARTIAL
   ONGOING
   COMPLETED
-  CANCELED
+  CANCELLED
 }
 
 // customer's reservation table
