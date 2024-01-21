@@ -700,7 +700,7 @@ export default function ReservationDialog({
 														</SelectTrigger>
 														<SelectContent>
 															{GCashNumbers.data.map(gcash => (
-																<SelectItem key={gcash.id} value={gcash.name}>
+																<SelectItem key={gcash.id} value={gcash.phoneNumber}>
 																	<span>{gcash.name}</span>
 																</SelectItem>
 															))}
