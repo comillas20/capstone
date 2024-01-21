@@ -18,12 +18,18 @@ import { Textarea } from "@components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DialogClose } from "@radix-ui/react-dialog";
 import { Input } from "@components/ui/input";
-import { Button } from "@components/ui/button";
+import { Button, buttonVariants } from "@components/ui/button";
 import * as z from "zod";
 import { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { Loader2 } from "lucide-react";
-import { createOrUpdateFAQ, deleteFAQ } from "./serverActions";
+import {
+	createOrUpdateFAQ,
+	createOrUpdateGCashNumber,
+	deleteFAQ,
+	deleteGCashNumber,
+	doesAlreadyExist,
+} from "./serverActions";
 import { toast } from "@components/ui/use-toast";
 import { useSWRConfig } from "swr";
 import {
@@ -35,22 +41,47 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from "@components/ui/alert-dialog";
+import { convertPhoneNumber, isPhoneNumberValid } from "@lib/utils";
 
-type FAQProps = {
-	data?: { id: number; question: string; answer: string };
+type GCashNumberProps = {
+	data?: { id: number; name: string; phoneNumber: string };
 	children: React.ReactNode;
 	SWRKey?: string;
 };
 
-export function CreateOrUpdateFAQ({ data, children, SWRKey }: FAQProps) {
+export function CreateOrUpdateGCashNumber({
+	data,
+	children,
+	SWRKey,
+}: GCashNumberProps) {
 	const { mutate } = useSWRConfig();
 	const formSchema = z.object({
 		id: z.number(),
-		question: z.string().min(1, {
-			message: "Question cannot be empty",
+		name: z.string().min(1, {
+			message: "Name cannot be empty",
 		}),
-		answer: z.string().min(1, {
-			message: "Answer cannot be empty",
+		phoneNumber: z.string().superRefine(async (phone, ctx) => {
+			if (!isPhoneNumberValid(phone)) {
+				ctx.addIssue({
+					code: z.ZodIssueCode.custom,
+					message: "Please provide a valid phone number",
+					fatal: true,
+				});
+				return z.NEVER;
+			}
+
+			if (
+				data &&
+				phone !== data.phoneNumber &&
+				(await doesAlreadyExist({ phoneNumber: phone }))
+			) {
+				ctx.addIssue({
+					code: z.ZodIssueCode.custom,
+					message: "Phone number already exists",
+				});
+			}
+
+			return phone;
 		}),
 	});
 
@@ -58,15 +89,18 @@ export function CreateOrUpdateFAQ({ data, children, SWRKey }: FAQProps) {
 		resolver: zodResolver(formSchema),
 		defaultValues: {
 			id: data ? data.id : -1,
-			question: data ? data.question : "",
-			answer: data ? data.answer : "",
+			name: data ? data.name : "",
+			phoneNumber: data ? data.phoneNumber : "",
 		},
 	});
 
 	const [isSaving, startSaving] = useTransition();
 	function onSubmit(values: z.infer<typeof formSchema>) {
 		startSaving(async () => {
-			const result = await createOrUpdateFAQ(values);
+			const result = await createOrUpdateGCashNumber({
+				...values,
+				phoneNumber: convertPhoneNumber(values.phoneNumber),
+			});
 			if (result) {
 				toast({
 					title: "Success",
@@ -86,17 +120,17 @@ export function CreateOrUpdateFAQ({ data, children, SWRKey }: FAQProps) {
 				<DialogHeader className="mb-4">
 					<DialogTitle>{data ? "Update" : "Create"}</DialogTitle>
 					<DialogDescription>
-						FAQ&apos;s will be shown in the home page
+						GCash number that customers will send money to
 					</DialogDescription>
 				</DialogHeader>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
 						<FormField
 							control={form.control}
-							name="question"
+							name="name"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Question</FormLabel>
+									<FormLabel>Name</FormLabel>
 									<FormControl>
 										<Input {...field} />
 									</FormControl>
@@ -106,12 +140,12 @@ export function CreateOrUpdateFAQ({ data, children, SWRKey }: FAQProps) {
 						/>
 						<FormField
 							control={form.control}
-							name="answer"
+							name="phoneNumber"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Answer</FormLabel>
+									<FormLabel>Phone number</FormLabel>
 									<FormControl>
-										<Textarea {...field} />
+										<Input {...field} />
 									</FormControl>
 									<FormMessage />
 								</FormItem>
@@ -128,13 +162,11 @@ export function CreateOrUpdateFAQ({ data, children, SWRKey }: FAQProps) {
 								<div></div>
 							)}
 							<div className="flex justify-end gap-4">
-								<DialogClose asChild>
-									<Button
-										variant={"secondary"}
-										onClick={() => form.reset()}
-										type="button">
-										Cancel
-									</Button>
+								<DialogClose
+									className={buttonVariants({ variant: "secondary" })}
+									onClick={() => form.reset()}
+									type="button">
+									Cancel
 								</DialogClose>
 								<Button type="submit" disabled={isSaving}>
 									{isSaving && <Loader2 className="mr-2 animate-spin" />}
@@ -151,8 +183,8 @@ export function CreateOrUpdateFAQ({ data, children, SWRKey }: FAQProps) {
 type DeleteFAQProps = {
 	data: {
 		id: number;
-		question: string;
-		answer: string;
+		name: string;
+		phoneNumber: string;
 	};
 	children: React.ReactNode;
 	SWRKey?: string | undefined;
@@ -183,7 +215,7 @@ export function DeleteDialog({ data, children, SWRKey }: DeleteFAQProps) {
 							variant={"destructive"}
 							onClick={() => {
 								startSaving(async () => {
-									const result = await deleteFAQ(data);
+									const result = await deleteGCashNumber(data);
 									if (result) {
 										toast({
 											title: "Success",

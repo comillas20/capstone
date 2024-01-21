@@ -167,3 +167,9 @@ model OtherServices {
   isRequired  Boolean @default(false)
   isAvailable Boolean @default(false)
 }
+
+model GCashNumbers {
+  id Int @id @default(autoincrement())
+  name String @unique
+  phoneNumber String @unique
+}

@@ -5,6 +5,7 @@ import {
 	MinimumPerHead,
 	ReservationHours,
 	FAQ,
+	GCashNumbers,
 } from "./Settings";
 
 export default async function GeneralPage() {
@@ -25,12 +26,6 @@ export default async function GeneralPage() {
 						<ClosingHour />
 					</div>
 				</div>
-				{/* <div className="flex items-center justify-between">
-					<h4>Maintainance Dates</h4>
-					<MaintainanceDates
-						maintainanceDates={maintainanceDates.map(d => d.date)}
-					/>
-				</div> */}
 				<div className="flex items-center justify-between">
 					<h4>Minimum Guests</h4>
 					<MinimumPerHead />
@@ -39,10 +34,7 @@ export default async function GeneralPage() {
 					<h4>Reservation Hours</h4>
 					<ReservationHours />
 				</div>
-				{/* <div className="flex items-center justify-between">
-					<h4>Reservation Cost/Hour</h4>
-					<ReservationCostPerHour />
-				</div> */}
+				<GCashNumbers />
 				<FAQ />
 			</div>
 		</div>
@@ -59,5 +51,4 @@ export enum Settings {
 	minPerHead = "minimumPerHead",
 	minReservationHours = "minReservationHours",
 	maxReservationHours = "maxReservationHours",
-	reservationCostPerHour = "reservationCostPerHour",
 }

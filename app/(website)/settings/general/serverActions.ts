@@ -50,3 +50,57 @@ export async function deleteFAQ({ id }: FAQ) {
 		},
 	});
 }
+
+type GCashNumber = {
+	id?: number;
+	name?: string;
+	phoneNumber?: string;
+};
+export async function doesAlreadyExist(entry: GCashNumber) {
+	const instanceFound = await prisma.gCashNumbers.findFirst({
+		where: {
+			OR: [
+				{
+					name: entry.name,
+				},
+				{
+					phoneNumber: entry.phoneNumber,
+				},
+			],
+		},
+		select: {
+			id: true,
+		},
+	});
+
+	return !!instanceFound;
+}
+
+export async function createOrUpdateGCashNumber({
+	id,
+	name,
+	phoneNumber,
+}: GCashNumber) {
+	if (!id || !name || !phoneNumber) return undefined;
+	return await prisma.gCashNumbers.upsert({
+		create: {
+			name: name,
+			phoneNumber: phoneNumber,
+		},
+		where: {
+			id: id,
+		},
+		update: {
+			name: name,
+			phoneNumber: phoneNumber,
+		},
+	});
+}
+
+export async function deleteGCashNumber({ id }: GCashNumber) {
+	return await prisma.gCashNumbers.delete({
+		where: {
+			id: id,
+		},
+	});
+}

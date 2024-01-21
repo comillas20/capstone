@@ -11,7 +11,11 @@ import {
 import { useEffect, useState, useTransition } from "react";
 import useSWR, { useSWRConfig } from "swr";
 import { Settings } from "./page";
-import { getFAQs, getSystemSetting } from "@app/(website)/serverActionsGlobal";
+import {
+	getFAQs,
+	getGCashNumbers,
+	getSystemSetting,
+} from "@app/(website)/serverActionsGlobal";
 import { createOrUpdateSystemSetting } from "./serverActions";
 import { toast } from "@components/ui/use-toast";
 import { Loader2, Plus } from "lucide-react";
@@ -23,6 +27,7 @@ import {
 	AccordionTrigger,
 } from "@components/ui/accordion";
 import { CreateOrUpdateFAQ } from "./FaqCUD";
+import { CreateOrUpdateGCashNumber } from "./GCashNumberCUD";
 
 export function OpeningHour() {
 	// data being undefined means its still loading
@@ -262,117 +267,6 @@ export function ReservationHours() {
 		);
 }
 
-// export function ReservationCostPerHour() {
-// 	// data being undefined means its still loading
-// 	// but data being null means its not in the db yet
-// 	const { data, error } = useSWR(
-// 		Settings.reservationCostPerHour,
-// 		async () => await getSystemSetting(Settings.reservationCostPerHour)
-// 	);
-// 	const [cost, setCost] = useState<number>(500);
-// 	useEffect(() => {
-// 		if (data) {
-// 			setCost(data as number);
-// 		}
-// 	}, [data]);
-// 	const [isSaving, startSaving] = useSettingSaver();
-// 	if (error) return <div>Failed to load</div>;
-// 	else if (data || data === null)
-// 		return (
-// 			<Popover>
-// 				<PopoverTrigger className="text-primary">
-// 					{new Intl.NumberFormat("en-US", {
-// 						style: "currency",
-// 						currency: "PHP",
-// 					}).format(data === null ? 500 : (data as number))}
-// 				</PopoverTrigger>
-// 				<PopoverContent className="space-y-4">
-// 					<div>
-// 						<h4>Reservation cost/hour</h4>
-// 						<p className="text-xs text-muted-foreground">
-// 							Reservation cost per hour of usage
-// 						</p>
-// 					</div>
-// 					<Input
-// 						type="number"
-// 						value={cost}
-// 						onChange={e => setCost(parseInt(e.target.value))}
-// 					/>
-// 					<div className="flex justify-end">
-// 						<Button
-// 							onClick={() => {
-// 								startSaving(
-// 									{
-// 										name: Settings.reservationCostPerHour,
-// 										type: "float",
-// 										value: String(cost),
-// 									},
-// 									Settings.reservationCostPerHour
-// 								);
-// 							}}
-// 							disabled={isSaving}>
-// 							{isSaving && <Loader2 className="mr-2 animate-spin" />}
-// 							Save
-// 						</Button>
-// 					</div>
-// 				</PopoverContent>
-// 			</Popover>
-// 		);
-// }
-
-// export function MaintainanceDates({
-// 	maintainanceDates,
-// }: {
-// 	maintainanceDates?: Date[];
-// }) {
-// 	const [isSaving, startSaving] = useTransition();
-// 	const [dates, setDates] = useState<Date[] | undefined>(maintainanceDates);
-// 	return (
-// 		<Popover>
-// 			<PopoverTrigger className="text-primary">View</PopoverTrigger>
-// 			<PopoverContent className="w-fit space-y-4" side="left">
-// 				<Calendar
-// 					className="p-0"
-// 					mode="multiple"
-// 					onSelect={setDates}
-// 					selected={dates}
-// 					classNames={{
-// 						head_cell:
-// 							"text-muted-foreground rounded-md w-9 font-normal text-[0.8rem]",
-// 						cell: cn(
-// 							buttonVariants({ variant: "ghost" }),
-// 							"h-9 w-9 p-0 font-normal aria-selected:opacity-100"
-// 						),
-// 						day: cn(
-// 							buttonVariants({ variant: "ghost" }),
-// 							"h-8 w-8 p-0 font-normal aria-selected:opacity-100"
-// 						),
-// 					}}
-// 					fixedWeeks
-// 				/>
-// 				<Separator />
-// 				<div className="flex justify-end">
-// 					<Button
-// 						onClick={() =>
-// 							startSaving(async () => {
-// 								const result = dates ? await updateMaintainanceDates(dates) : null;
-// 								toast({
-// 									title: "Success",
-// 									description: result ? "Saved!" : "Failed to save",
-// 									duration: 5000,
-// 								});
-// 							})
-// 						}
-// 						disabled={isSaving}>
-// 						{isSaving && <Loader2 className="mr-2 animate-spin" />}
-// 						Save
-// 					</Button>
-// 				</div>
-// 			</PopoverContent>
-// 		</Popover>
-// 	);
-// }
-
 export function FAQ() {
 	const SWRKey = "FAQList";
 	const { data } = useSWR(SWRKey, async () => getFAQs());
@@ -429,6 +323,70 @@ export function FAQ() {
 									<Plus />
 								</Button>
 							</CreateOrUpdateFAQ>
+						)}
+					</AccordionContent>
+				</AccordionItem>
+			</Accordion>
+		)
+	);
+}
+
+export function GCashNumbers() {
+	const SWRKey = "GCashNumbersList";
+	const { data } = useSWR(SWRKey, async () => getGCashNumbers());
+	return (
+		data && (
+			<Accordion type="single" collapsible>
+				<AccordionItem value="item-1" className="border-b-0">
+					<AccordionTrigger className="p-0 text-base font-medium hover:no-underline">
+						GCash Numbers
+					</AccordionTrigger>
+					<AccordionContent className="flex flex-col gap-0.5">
+						{data.length > 0 ? (
+							<>
+								{data.map(GCash => (
+									<CreateOrUpdateGCashNumber
+										key={String(GCash.id)}
+										data={GCash}
+										SWRKey={SWRKey}>
+										<Button
+											type="button"
+											variant="ghost"
+											size="sm"
+											className="grid grid-cols-2 gap-8 rounded-none">
+											<span className="inline-block max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-left">
+												{GCash.name}
+											</span>
+											<span className="inline-block max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-right">
+												{GCash.phoneNumber}
+											</span>
+										</Button>
+									</CreateOrUpdateGCashNumber>
+								))}
+								<CreateOrUpdateGCashNumber
+									key={"CREATE-v1-".concat(String(data.length))}
+									SWRKey={SWRKey}>
+									<Button
+										type="button"
+										variant="link"
+										size="sm"
+										className="flex w-full justify-center">
+										<Plus />
+									</Button>
+								</CreateOrUpdateGCashNumber>
+							</>
+						) : (
+							<CreateOrUpdateGCashNumber
+								key={"CREATE-v2-".concat(String(data.length))}
+								SWRKey={SWRKey}>
+								<Button
+									type="button"
+									variant="link"
+									size="sm"
+									className="flex w-full justify-center">
+									<Plus />
+								</Button>
+							</CreateOrUpdateGCashNumber>
 						)}
 					</AccordionContent>
 				</AccordionItem>
