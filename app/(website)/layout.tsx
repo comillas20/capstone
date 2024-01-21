@@ -6,7 +6,7 @@ import { getServerSession } from "next-auth";
 import { options } from "../api/auth/[...nextauth]/options";
 import prisma from "@lib/db";
 import { Button } from "@components/ui/button";
-import { Loader2 } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
 export default async function WebsiteLayout({
@@ -51,12 +51,10 @@ export default async function WebsiteLayout({
 		console.error(error);
 		return (
 			<div className="flex h-screen flex-col items-center justify-center gap-4">
-				<span>Something went wrong. Please refresh.</span>
+				<span>Something went wrong. Please refresh or return to home.</span>
 				<Button>
-					<Loader2 className="mr-4" />
-					<Link href={"/"} replace>
-						Refresh
-					</Link>
+					<ArrowLeft className="mr-4" />
+					<Link href={"/"}>Home</Link>
 				</Button>
 			</div>
 		);
@@ -102,8 +100,4 @@ const userNav = [
 		name: "View Products",
 		href: "/products",
 	},
-	// {
-	// 	name: "Venue",
-	// 	href: "/venue",
-	// },
 ];
