@@ -13,16 +13,17 @@ datasource db {
 
 model Transactions {
   id            String       @id @default(uuid())
-  paymentID     String       @db.Text
+  referenceNumber String
+  recipientNumber       String
   createdAt     DateTime     @default(now())
-  netAmount     Float
-  fee           Float
   message       String?
   reservationID String
   reservation   Reservations @relation(fields: [reservationID], references: [id], onDelete: Cascade)
 }
 
 enum ReservationStatus {
+  PENDING
+  PARTIAL
   ONGOING
   COMPLETED
   CANCELED
@@ -34,9 +35,8 @@ model Reservations {
   userID        Int
   user          Account           @relation(fields: [userID], references: [id])
   transactions  Transactions[]
-  status        ReservationStatus @default(ONGOING)
+  status        ReservationStatus @default(PENDING)
   setName       String
-  totalPaid     Float
   totalCost     Float
   dishes        String[]
   eventDuration Int
