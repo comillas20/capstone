@@ -28,7 +28,7 @@ import {
 } from "./ReservationForm";
 import { signIn } from "next-auth/react";
 import { Session } from "next-auth";
-import { createCheckoutSession, getCurrentUser } from "../serverActions";
+import { createReservation, getCurrentUser } from "../serverActions";
 import { AlertTriangle, Loader2, Pencil, X } from "lucide-react";
 import {
 	AlertDialog,
@@ -50,6 +50,8 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@components/ui/select";
+import { toast } from "@components/ui/use-toast";
+import { CheckboxWithText } from "@components/CheckboxWithText";
 type ReservationDialogProps = {
 	selectedDishes: {
 		id: number;
@@ -175,6 +177,32 @@ export default function ReservationDialog({
 	}, [allOtherServices.data]);
 
 	const [isSaving, startSaving] = useTransition();
+	async function initiateReservation(paymentAmount: number) {
+		if (currentUser.data && allOtherServices.data && date && eventType) {
+			const reservation: Reservation = {
+				phoneNumber: currentUser.data.phoneNumber,
+				eventDate: new Date(
+					date.getFullYear(),
+					date.getMonth(),
+					date.getDate(),
+					time.getHours(),
+					time.getMinutes()
+				),
+				eventDuration: timeUse,
+				eventType: eventType,
+				orders: selectedDishes, //dishes
+				totalPrice: paymentAmount,
+				selectedSet: selectedSet,
+				userID: currentUser.data.id,
+				userName: currentUser.data.name,
+				message: message.trim(),
+				venueID: selectedVenue.id,
+			};
+			return await createReservation(reservation);
+		} else {
+			signIn();
+		}
+	}
 	return (
 		<Dialog {...props}>
 			<DialogContent className="sm:max-w-[425px] md:max-w-[fit-content]">
@@ -570,45 +598,24 @@ export default function ReservationDialog({
 										</TabsList>
 										<TermsOfPayment
 											onClick={() => {
-												if (
-													currentUser.data &&
-													allOtherServices.data &&
-													date &&
-													eventType
-												) {
-													const r: Reservation = {
-														phoneNumber: currentUser.data.phoneNumber,
-														eventDate: new Date(
-															date.getFullYear(),
-															date.getMonth(),
-															date.getDate(),
-															time.getHours(),
-															time.getMinutes()
-														),
-														eventDuration: timeUse,
-														eventType: eventType,
-														orders: selectedDishes, //dishes
-														totalPrice:
-															totalSetPrice + totalServicesPrice + totalRentingPrice,
-														selectedSet: selectedSet,
-														userID: currentUser.data.id,
-														userName: currentUser.data.name,
-														message: message.trim(),
-														venueID: selectedVenue.id,
-													};
-													startSaving(async () => {
-														const result = await createCheckoutSession(r);
-														if (result) {
-															window.open(result.data.attributes.checkout_url, "_blank");
-														} else console.log("Error at ReservationDialog: ", result);
-													});
-												} else {
-													signIn();
-												}
+												startSaving(async () => {
+													const result = await initiateReservation(
+														totalSetPrice + totalServicesPrice + totalRentingPrice
+													);
+													if (result) {
+														toast({
+															title: "Success",
+															description: "The reservation is now sent to admin to check",
+															duration: 5000,
+														});
+													}
+													// if (result) {
+													// 	window.open(result.data.attributes.checkout_url, "_blank");
+													// } else console.log("Error at ReservationDialog: ", result);
+												});
 											}}
 											disabled={isSaving}>
-											{isSaving && <Loader2 className="mr-2 animate-spin" />}I agree &
-											reserve
+											{isSaving && <Loader2 className="mr-2 animate-spin" />}Reserve
 										</TermsOfPayment>
 									</DialogFooter>
 								</TabsContent>
@@ -623,6 +630,7 @@ export default function ReservationDialog({
 export function TermsOfPayment(
 	props: React.ComponentProps<typeof AlertDialogAction>
 ) {
+	const [isChecked, setIsChecked] = useState<boolean | "indeterminate">(false);
 	return (
 		<AlertDialog>
 			<AlertDialogTrigger className={buttonVariants()}>
@@ -631,6 +639,8 @@ export function TermsOfPayment(
 			<AlertDialogContent>
 				<AlertDialogHeader className="text-base font-bold">
 					<AlertDialogTitle className="text-xl">Terms of payment</AlertDialogTitle>
+				</AlertDialogHeader>
+				<div className="space-y-4">
 					<p>
 						<span className="mr-1.5 text-sm">
 							Down payment for reservation of the venue
@@ -642,11 +652,21 @@ export function TermsOfPayment(
 					<p className="text-sm">
 						Full payment of your booking should be three (3) days before your function
 					</p>
-				</AlertDialogHeader>
+					<div className="flex items-center space-x-2">
+						<CheckboxWithText
+							className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+							checked={isChecked}
+							onCheckedChange={setIsChecked}>
+							Accept terms and conditions
+						</CheckboxWithText>
+					</div>
+				</div>
 				<AlertDialogFooter>
 					<AlertDialogCancel>Cancel</AlertDialogCancel>
 					<DialogClose asChild>
-						<AlertDialogAction {...props}>{props.children}</AlertDialogAction>
+						<AlertDialogAction {...props} disabled={!isChecked}>
+							{props.children}
+						</AlertDialogAction>
 					</DialogClose>
 				</AlertDialogFooter>
 			</AlertDialogContent>

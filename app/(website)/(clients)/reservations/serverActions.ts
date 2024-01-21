@@ -114,6 +114,36 @@ export async function createCheckoutSession(reserve: Reservation) {
 	return null;
 }
 
+export async function createReservation(reserve: Reservation) {
+	return await prisma.reservations.create({
+		data: {
+			eventDate: reserve.eventDate,
+			eventDuration: reserve.eventDuration,
+			eventType: reserve.eventType,
+			setName: reserve.selectedSet.name,
+			totalCost: reserve.totalPrice,
+			dishes: reserve.orders.map(order => order.name),
+			user: {
+				connect: {
+					id: reserve.userID,
+				},
+			},
+			venue: {
+				connect: {
+					id: reserve.venueID,
+				},
+			},
+			transactions: {
+				create: {
+					recipientNumber: "",
+					referenceNumber: "",
+					message: reserve.message,
+				},
+			},
+		},
+	});
+}
+
 export async function getALlDishesWithCourses() {
 	return await prisma.dish.findMany({
 		select: {
