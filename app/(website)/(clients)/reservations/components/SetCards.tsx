@@ -154,7 +154,6 @@ export default function SetCards({
 					const allSelectedDishes = allDishesNCourses.data.filter(dish =>
 						mergedSelectedIDs.map(d => d.dishID).includes(dish.id)
 					);
-
 					return (
 						<CardFooter className="grid grid-cols-2 pt-6">
 							<div className="text-sm">
@@ -165,7 +164,7 @@ export default function SetCards({
 							</div>
 							<Button
 								className="flex justify-self-end"
-								disabled={mergedSelectedIDs.length < prerequisiteToDialog}
+								disabled={mergedSelectedIDs.length < prerequisiteToDialog || !date}
 								onClick={() => {
 									if (session?.user) {
 										setIsPaymentDialogOpen(true);

@@ -43,6 +43,22 @@ export async function createOrUpdateFAQ({ id, question, answer }: FAQ) {
 	});
 }
 
+export async function FAQAlreadyExists({ question, answer }: FAQ) {
+	const result = await prisma.fAQ.findUnique({
+		where: {
+			question_answer: {
+				question: question,
+				answer: answer,
+			},
+		},
+		select: {
+			id: true,
+		},
+	});
+
+	return result;
+}
+
 export async function deleteFAQ({ id }: FAQ) {
 	return await prisma.fAQ.delete({
 		where: {

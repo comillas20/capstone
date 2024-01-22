@@ -19,7 +19,7 @@ import { PopoverClose } from "@radix-ui/react-popover";
 import { useContext, useEffect, useState, useTransition } from "react";
 import { Input } from "@components/ui/input";
 import TimePicker, { Meridiem } from "@components/TimePicker";
-import useSWR from "swr";
+import useSWR, { useSWRConfig } from "swr";
 import {
 	getAllServices,
 	getGCashNumbers,
@@ -31,7 +31,11 @@ import {
 } from "./ReservationForm";
 import { signIn } from "next-auth/react";
 import { Session } from "next-auth";
-import { createReservation, getCurrentUser } from "../serverActions";
+import {
+	createReservation,
+	getCurrentUser,
+	getReservationDates,
+} from "../serverActions";
 import { AlertTriangle, Loader2, Pencil, X } from "lucide-react";
 import {
 	AlertDialog,
@@ -55,7 +59,12 @@ import {
 } from "@components/ui/select";
 import { toast } from "@components/ui/use-toast";
 import { CheckboxWithText } from "@components/CheckboxWithText";
-import { getDaysBySubtraction } from "@lib/date-utils";
+import {
+	areTimesConflicting,
+	getDaysBySubtraction,
+	getVacantTimeSlot,
+} from "@lib/date-utils";
+import { isSameDay } from "date-fns";
 
 type Reservation = {
 	setName: string;
@@ -201,6 +210,79 @@ export default function ReservationDialog({
 	const [referenceNumber, setReferenceNumber] = useState<string>();
 	const [recipientNumber, setRecipientNumber] = useState<string>();
 	const [isSaving, startSaving] = useTransition();
+
+	const reserved = useSWR("ReservationDialogReservationDates", async () => {
+		const all = await getReservationDates();
+		if (date) return all.find(r => isSameDay(r.eventDate, date));
+		else return undefined;
+	});
+	const vacants = reserved.data
+		? getVacantTimeSlot({
+				openingTime: settings.openingTime,
+				closingTime: settings.closingTime,
+				eventTime: reserved.data.eventDate,
+				eventDuration: reserved.data.eventDuration,
+				minRH: settings.minReservationHours,
+		  })
+		: undefined;
+
+	const [timeError, setTimeError] = useState<string>();
+	const { mutate } = useSWRConfig();
+	useEffect(() => {
+		// const midnightConverter = (hour: number) => {
+		// 	// getHours returns 0-23, 0 being the midnight
+		// 	// but doing something like 0 (midnight) - 17 (5PM) will produce -17 instead of 7
+		// 	// so im converting it to 24 so 24 - 17 = 7 which is the correct output
+		// 	return hour === 0 ? 24 : hour;
+		// };
+		// if (date && reserved.data) {
+		// 	const restingTime = 3; //hours;
+		// 	const hours = reserved.data.eventDate.getHours();
+		// 	const isVacantBeforeEventStart = vacants
+		// 		? vacants.extraHoursAfterMinimumRH_AfterOpeningTimeSlot >=
+		// 		  settings.minReservationHours + restingTime
+		// 		: true;
+		// 	const isVacantAfterEventEnd = vacants
+		// 		? vacants.extraHoursAfterMinimumRH_BeforeClosingTimeSlot >=
+		// 		  settings.minReservationHours + restingTime
+		// 		: true;
+		// 	const reservedEventStart = isVacantBeforeEventStart
+		// 		? midnightConverter(hours)
+		// 		: midnightConverter(settings.openingTime.getHours());
+		// 	const reservedEventEnd = isVacantAfterEventEnd
+		// 		? midnightConverter(hours) + reserved.data.eventDuration + restingTime
+		// 		: midnightConverter(settings.closingTime.getHours());
+		// 	// console.log(reservedEventStart <= midnightConverter(time.getHours()));
+		// 	// console.log(
+		// 	// 	midnightConverter(time.getHours()) + timeUse <= reservedEventEnd,
+		// 	// 	"second bool"
+		// 	// );
+		// 	if (
+		// 		reservedEventStart <= midnightConverter(time.getHours()) &&
+		// 		midnightConverter(time.getHours()) <= reservedEventEnd
+		// 	) {
+		// 		setTimeError("It is already occupied");
+		// 	} else setTimeError(undefined);
+		// }
+		if (
+			date &&
+			reserved.data &&
+			areTimesConflicting({
+				openingTime: settings.openingTime,
+				closingTime: settings.closingTime,
+				eventDuration: reserved.data.eventDuration,
+				eventTime: reserved.data.eventDate,
+				minRH: settings.minReservationHours,
+				newTime: time,
+				openingEventDateStartGap:
+					vacants?.extraHoursAfterMinimumRH_AfterOpeningTimeSlot,
+				closingEventDateEndGap:
+					vacants?.extraHoursAfterMinimumRH_BeforeClosingTimeSlot,
+			})
+		) {
+			setTimeError("It is already occupied");
+		} else setTimeError(undefined);
+	}, [time]);
 	async function initiateReservation(paymentAmount: number) {
 		if (
 			currentUser.data &&
@@ -251,17 +333,17 @@ export default function ReservationDialog({
 							<Separator className="mb-4" />
 							<div className="grid grid-cols-[1fr_auto_1fr_auto_1fr] grid-rows-2 gap-y-1">
 								<span className="flex items-center text-sm font-bold">Packs/dish:</span>
-								<Separator orientation="vertical" className="row-span-2 mx-4" />
+								<Separator orientation="vertical" className="row-span-3 mx-4" />
 								<div className="flex items-center gap-2 text-sm font-bold">
 									Start of event
-									{timeLinkName === defaultTimeLinkName && (
+									{(timeLinkName === defaultTimeLinkName || timeError) && (
 										<AlertTriangle
 											className="text-yellow-500 dark:text-yellow-300"
 											size={15}
 										/>
 									)}
 								</div>
-								<Separator orientation="vertical" className="row-span-2 mx-4" />
+								<Separator orientation="vertical" className="row-span-3 mx-4" />
 								<div className="flex items-center text-sm font-bold">Renting Hours</div>
 								<Popover>
 									<PopoverTrigger asChild>
@@ -374,6 +456,11 @@ export default function ReservationDialog({
 										</div>
 									</PopoverContent>
 								</Popover>
+								{timeLinkName !== defaultTimeLinkName && timeError && (
+									<p className="col-start-3 text-sm font-semibold text-destructive">
+										{timeError}
+									</p>
+								)}
 							</div>
 							{allOtherServices.data && allOtherServices.data.length > 0 && (
 								<div className="space-y-1.5">
@@ -525,7 +612,9 @@ export default function ReservationDialog({
 										className={buttonVariants()}
 										value="details"
 										type="button"
-										disabled={timeLinkName === defaultTimeLinkName || !eventType}>
+										disabled={
+											timeLinkName === defaultTimeLinkName || !eventType || !!timeError
+										}>
 										Next
 									</TabsTrigger>
 								</TabsList>
@@ -744,9 +833,9 @@ export default function ReservationDialog({
 																	duration: 5000,
 																});
 															}
-															// if (result) {
-															// 	window.open(result.data.attributes.checkout_url, "_blank");
-															// } else console.log("Error at ReservationDialog: ", result);
+
+															mutate("ReservationListData");
+															mutate("ReservationDialogReservationDates");
 														});
 													}}
 													disableTrigger={!recipientNumber || !referenceNumber || isSaving}

@@ -9,14 +9,9 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@components/ui/dropdown-menu";
-import {
-	Dialog,
-	DialogContent,
-	DialogHeader,
-	DialogClose,
-} from "@components/ui/dialog";
-import { useState, useTransition } from "react";
-import { Row, Table } from "@tanstack/react-table";
+import { Dialog, DialogContent } from "@components/ui/dialog";
+import { useEffect, useState, useTransition } from "react";
+import { Row } from "@tanstack/react-table";
 import { Calendar } from "@components/ui/calendar";
 import useSWR, { useSWRConfig } from "swr";
 import {
@@ -24,7 +19,6 @@ import {
 	getSystemSettings,
 } from "@app/(website)/serverActionsGlobal";
 import { addDays, isBefore, isSameDay, isSameMonth, subMonths } from "date-fns";
-import { findNearestNonDisabledDate } from "@lib/date-utils";
 import { cn } from "@lib/utils";
 import {
 	Popover,
@@ -34,11 +28,14 @@ import {
 import TimePicker, { Meridiem } from "@components/TimePicker";
 import { Separator } from "@components/ui/separator";
 import { PopoverClose } from "@radix-ui/react-popover";
-import { Loader2 } from "lucide-react";
+import { AlertTriangle, Loader2 } from "lucide-react";
 import { Settings } from "@app/(website)/settings/general/page";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@components/ui/tabs";
-import { Input } from "@components/ui/input";
-import { cancelReservation, rescheduleReservation } from "../serverActions";
+import {
+	cancelReservation,
+	getReservationDates,
+	rescheduleReservation,
+} from "../serverActions";
 import { Reservations } from "./Columns";
 import { toast } from "@components/ui/use-toast";
 import {
@@ -51,17 +48,19 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "@components/ui/alert-dialog";
+import { Input } from "@components/ui/input";
+import { areTimesConflicting, getVacantTimeSlot } from "@lib/date-utils";
 
 interface DataTableRowActionsProps {
 	row: Row<Reservations>;
-	table: Table<Reservations>;
 }
-export function DataTableRowActions({ row, table }: DataTableRowActionsProps) {
+export function DataTableRowActions({ row }: DataTableRowActionsProps) {
 	const maintainanceDates = useSWR("EditReservationMD", getMaintainanceDates);
 	const settings = useSWR("EditReservationSettings", getSystemSettings);
 	const [isEditDialogOpen, setIsEditDialogOpen] = useState<boolean>(false);
 	const [isCancelDialogOpen, setIsCancelDialogOpen] = useState<boolean>(false);
 	const [isDetailDialogOpen, setIsDetailDialogOpen] = useState<boolean>(false);
+
 	if (!settings.data && !maintainanceDates.data)
 		return <Loader2 className="animate-spin" size={15} />;
 
@@ -107,7 +106,6 @@ export function DataTableRowActions({ row, table }: DataTableRowActionsProps) {
 					data={row}
 					open={isEditDialogOpen}
 					onOpenChange={setIsEditDialogOpen}
-					maintainanceDates={maintainanceDates.data.map(md => md.date)}
 					openingHours={openingHours?.value}
 					closingHours={closingHours?.value}
 					minRH={minRH?.value}
@@ -128,7 +126,6 @@ type EditReservationProps = {
 	data: Row<Reservations>;
 	open: boolean;
 	onOpenChange: React.Dispatch<React.SetStateAction<boolean>>;
-	maintainanceDates: Date[];
 	openingHours?: string | number | Date;
 	closingHours?: string | number | Date;
 	minRH?: string | number | Date;
@@ -138,30 +135,77 @@ function EditReservation({
 	data,
 	open,
 	onOpenChange,
-	maintainanceDates,
 	openingHours,
 	closingHours,
 	minRH,
 	maxRH,
 }: EditReservationProps) {
 	const currentDate = new Date();
-	const disabledDays = [
-		...(maintainanceDates.length > 0 ? maintainanceDates : []),
-		{ from: subMonths(currentDate, 2), to: addDays(currentDate, 2) },
-	];
-	const [date, setDate] = useState<Date | undefined>(data.original.eventDate);
+	const [date, setDate] = useState<Date | undefined>();
 	//Note to self: Date type instead of numbers, so I can use date comparison methods
 	const [month, setMonth] = useState<Date>(currentDate);
 
-	const [time, setTime] = useState<Date>(data.original.eventDate); //24 hour, to store in database
+	const [time, setTime] = useState<Date>(new Date(data.original.eventDate)); //24 hour, to store in database
+	const formatTime = (hours: number, min: number) => {
+		const meridiem: Meridiem = hours >= 12 ? "PM" : "AM";
+		return `${String(hours % 12 || 12).padStart(2, "0")}:${String(min).padStart(
+			2,
+			"0"
+		)}${meridiem}`;
+	};
+
+	// for display, other than gatekeeping user, data not so important
+	const defaultTimeLinkName = "Set time";
+	const [timeLinkName, setTimeLinkName] = useState<string>(
+		formatTime(time.getHours(), time.getMinutes())
+	);
+	const [timeError, setTimeError] = useState<string>();
+	const [eventDuration, setEventDuration] = useState(
+		data.original.eventDuration
+	);
 
 	const [isSaving, startSaving] = useTransition();
 	const { mutate } = useSWRConfig();
-	return (
-		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent>
-				<Tabs defaultValue="calendar">
-					<TabsContent value="calendar" className="flex justify-center">
+	const reservations = useSWR(
+		"ReservationDRAReservationAllDates",
+		getReservationDates
+	);
+
+	useEffect(() => {
+		if (date && reservations.data) {
+			const vacants = reservations.data.find(r => isSameDay(r.eventDate, date))
+				? getVacantTimeSlot({
+						openingTime: openingHours as Date,
+						closingTime: closingHours as Date,
+						eventDuration: eventDuration,
+						eventTime: date,
+						minRH: minRH as number,
+				  })
+				: undefined;
+			if (
+				areTimesConflicting({
+					openingTime: openingHours as Date,
+					closingTime: closingHours as Date,
+					eventDuration: eventDuration,
+					eventTime: date,
+					minRH: minRH as number,
+					newTime: time,
+					openingEventDateStartGap:
+						vacants?.extraHoursAfterMinimumRH_AfterOpeningTimeSlot,
+					closingEventDateEndGap:
+						vacants?.extraHoursAfterMinimumRH_BeforeClosingTimeSlot,
+				})
+			) {
+				setTimeError("It is already occupied");
+			}
+		} else setTimeError(undefined);
+	}, [time, date, eventDuration, reservations.data]);
+	if (!reservations.data) return <div></div>;
+	else
+		return (
+			<Dialog open={open} onOpenChange={onOpenChange}>
+				<DialogContent>
+					<div className="flex flex-col">
 						<Calendar
 							mode="single"
 							selected={date}
@@ -187,35 +231,159 @@ function EditReservation({
 								day_disabled: "bg-muted text-muted-foreground opacity-50",
 								day_today: "bg-primary text-primary-foreground opacity-50",
 							}}
-							disabled={disabledDays}
+							disabled={date => {
+								const maintainance = data.original.venue.maintainanceDates.find(d =>
+									isSameDay(d, date)
+								);
+								const pastDays = date < addDays(currentDate, 3);
+								let reservationToday: typeof reservations.data = [];
+								reservations.data?.forEach(r => {
+									if (isSameDay(r.eventDate, date)) {
+										reservationToday.push(r);
+									}
+								});
+								// keep in mind that this only takes the first reservation in this day
+								const restingTime = 3;
+								if (reservationToday.length > 0) {
+									const timeGaps = reservationToday.map(rt => {
+										const result = getVacantTimeSlot({
+											openingTime: openingHours as Date,
+											closingTime: closingHours as Date,
+											eventTime: rt.eventDate,
+											eventDuration: rt.eventDuration,
+											minRH: minRH as number,
+										});
+										return {
+											startGap: result.extraHoursAfterMinimumRH_AfterOpeningTimeSlot,
+											endGap: result.extraHoursAfterMinimumRH_BeforeClosingTimeSlot,
+										};
+									});
+									const noSlot =
+										(timeGaps[0].startGap < (minRH as number) + restingTime &&
+											timeGaps[timeGaps.length - 1].endGap <
+												(minRH as number) + restingTime) ||
+										timeGaps.length >= 2;
+									return !!maintainance || pastDays || noSlot;
+								} else {
+									return !!maintainance || pastDays;
+								}
+							}}
 							fixedWeeks
 							required
 						/>
-					</TabsContent>
-					<TabsContent value="time" className="flex pt-4">
-						<div className="flex flex-col gap-4">
-							<div className="text-sm font-bold">What time do you want to start?</div>
-							<TimePicker
-								time={time}
-								onTimeChange={setTime}
-								minimumTime={
-									openingHours
-										? new Date(openingHours)
-										: new Date("January 20, 2002 00:00:00")
-								}
-								maximumTime={
-									closingHours
-										? new Date(closingHours)
-										: new Date("January 20, 2002 00:00:00")
-								}
-							/>
+						<div className="flex gap-8 p-3">
+							<div className="space-y-1">
+								<div className="flex items-center gap-2 text-sm font-bold">
+									Start of event
+									{(timeLinkName === defaultTimeLinkName || timeError) && (
+										<AlertTriangle
+											className="text-yellow-500 dark:text-yellow-300"
+											size={15}
+										/>
+									)}
+								</div>
+								<Popover>
+									<PopoverTrigger
+										className={buttonVariants({
+											variant: "link",
+											className: "cursor-pointer text-primary",
+										})}
+										disabled={!date}>
+										{timeLinkName}
+									</PopoverTrigger>
+									<PopoverContent className="w-64 drop-shadow">
+										<div className="flex flex-col gap-4">
+											<div className="text-sm font-bold">
+												What time do you want to start?
+											</div>
+											<TimePicker
+												time={time}
+												onTimeChange={setTime}
+												minimumTime={
+													openingHours
+														? new Date(openingHours)
+														: new Date("January 20, 2002 00:00:00")
+												}
+												maximumTime={
+													closingHours
+														? new Date(closingHours)
+														: new Date("January 20, 2002 00:00:00")
+												}
+											/>
+											<Separator className="my-2" />
+											<div className="flex justify-end">
+												<PopoverClose asChild>
+													<Button
+														onClick={() => {
+															const hours = time.getHours();
+															const minutes = time.getMinutes();
+															const meridiem: Meridiem = hours >= 12 ? "PM" : "AM";
+															const formattedTime = `${String(hours % 12 || 12).padStart(
+																2,
+																"0"
+															)}:${String(minutes).padStart(2, "0")}${meridiem}`;
+															if (time) setTimeLinkName(formattedTime);
+														}}>
+														Save
+													</Button>
+												</PopoverClose>
+											</div>
+										</div>
+									</PopoverContent>
+								</Popover>
+								{timeLinkName !== defaultTimeLinkName && timeError && (
+									<p className="col-start-3 text-sm font-semibold text-destructive">
+										{timeError}
+									</p>
+								)}
+							</div>
+							<div className="space-y-1">
+								<div className="flex items-center text-sm font-bold">Renting Hours</div>
+								<Popover>
+									<PopoverTrigger
+										className={buttonVariants({
+											variant: "link",
+											className: "cursor-pointer text-primary",
+										})}
+										disabled={!date}>
+										{eventDuration + " hours"}
+									</PopoverTrigger>
+									<PopoverContent className="w-52 drop-shadow">
+										<h5 className="font-bold">Renting Hours</h5>
+										<p className="text-sm text-muted-foreground">
+											Minimum of{" "}
+											<strong className="font-bold">{(minRH as number) + " hours"}</strong>
+										</p>
+										<Separator className="my-2" />
+										<div className="flex items-center gap-4">
+											<Input
+												className="w-24"
+												type="number"
+												max={maxRH as number}
+												min={minRH as number}
+												value={eventDuration.toString()}
+												onChange={e => {
+													const tu = parseInt(e.target.value, 10);
+													setEventDuration(tu);
+												}}
+												onBlur={e => {
+													const tu = parseInt(e.target.value, 10);
+													if (
+														!isNaN(tu) &&
+														(tu < (minRH as number) || tu > (maxRH as number))
+													) {
+														setEventDuration(minRH as number);
+													}
+												}}
+											/>
+											<span className="font-bold">Hours</span>
+										</div>
+									</PopoverContent>
+								</Popover>
+							</div>
 						</div>
-					</TabsContent>
-					<div className="mt-8 flex justify-between">
-						<TabsList>
-							<TabsTrigger value="calendar">Date</TabsTrigger>
-							<TabsTrigger value="time">Time</TabsTrigger>
-						</TabsList>
+					</div>
+					<div className="flex justify-end">
 						<Button
 							onClick={() => {
 								const id = data.original.id;
@@ -230,7 +398,7 @@ function EditReservation({
 									: null;
 								startSaving(async () => {
 									const result = eventDate
-										? await rescheduleReservation({ id, eventDate })
+										? await rescheduleReservation({ id, eventDate, eventDuration })
 										: null;
 									if (result) {
 										toast({
@@ -247,10 +415,9 @@ function EditReservation({
 							Save
 						</Button>
 					</div>
-				</Tabs>
-			</DialogContent>
-		</Dialog>
-	);
+				</DialogContent>
+			</Dialog>
+		);
 }
 
 type CancelDialogProps = {

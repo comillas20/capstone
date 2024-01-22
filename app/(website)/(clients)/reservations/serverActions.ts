@@ -88,48 +88,89 @@ export async function getALlDishesWithCourses() {
 
 export async function getReservations(userID: number) {
 	const result = await prisma.reservations.findMany({
-		where: {
-			userID: userID,
-		},
-		include: {
+		select: {
+			id: true,
+			dishes: true,
+			eventDate: true,
+			eventDuration: true,
+			eventType: true,
+			setName: true,
+			status: true,
+			totalCost: true,
 			transactions: true,
+			venue: {
+				include: {
+					maintainanceDates: true,
+				},
+			},
+		},
+		where: {
+			user: {
+				id: userID,
+			},
 		},
 	});
-
 	const modifiedResult = result.map(
-		({ eventDate, transactions, ...others }) => ({
+		({ eventDate, transactions, venue, ...others }) => ({
 			...others,
-			eventDate: utcToZonedTime(eventDate, localTimezone),
+			eventDate: convertDateToString(utcToZonedTime(eventDate, localTimezone)),
 			transactions: transactions.map(({ createdAt, ...others }) => ({
 				...others,
 				createdAt: convertDateToString(utcToZonedTime(createdAt, localTimezone)),
 			})),
+			venue: {
+				...venue,
+				maintainanceDates: venue.maintainanceDates.map(({ date }) =>
+					utcToZonedTime(date, localTimezone)
+				),
+			},
 		})
 	);
 
 	return modifiedResult;
 }
 
-async function getReservationDates() {
+export async function getReservationDates() {
 	const dates = await prisma.reservations.findMany({
 		select: {
 			eventDate: true,
 			eventDuration: true,
 		},
+		where: {
+			NOT: {
+				OR: [
+					{
+						status: "CANCELLED",
+					},
+					{
+						status: "COMPLETED",
+					},
+				],
+			},
+		},
 	});
+
+	const modifiedResult = dates.map(({ eventDate, ...others }) => ({
+		...others,
+		eventDate: utcToZonedTime(eventDate, localTimezone),
+	}));
+
+	return modifiedResult;
 }
 
 type Reschedule = {
 	id: string;
 	eventDate: Date;
+	eventDuration: number;
 };
-export async function rescheduleReservation({ id, eventDate }: Reschedule) {
+export async function rescheduleReservation(reservation: Reschedule) {
 	return await prisma.reservations.update({
 		where: {
-			id: id,
+			id: reservation.id,
 		},
 		data: {
-			eventDate: eventDate,
+			eventDate: reservation.eventDate,
+			eventDuration: reservation.eventDuration,
 		},
 	});
 }

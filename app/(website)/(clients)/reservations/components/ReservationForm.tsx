@@ -1,13 +1,20 @@
 "use client";
 
-import { addDays, subMonths, isBefore, isSameMonth } from "date-fns";
+import {
+	addDays,
+	subMonths,
+	isBefore,
+	isSameMonth,
+	addHours,
+	isSameDay,
+} from "date-fns";
 import { createContext, useState } from "react";
 import { buttonVariants } from "@components/ui/button";
 import { Calendar } from "@components/ui/calendar";
 import { cn } from "@lib/utils";
 import SetPicker from "./SetPicker";
 import { Session } from "next-auth";
-import { findNearestNonDisabledDate } from "@lib/date-utils";
+import { findNearestNonDisabledDate, getVacantTimeSlot } from "@lib/date-utils";
 import {
 	Select,
 	SelectContent,
@@ -15,6 +22,9 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@components/ui/select";
+import useSWR from "swr";
+import { getReservationDates } from "../serverActions";
+import { Loader2 } from "lucide-react";
 
 type Venue = {
 	id: number;
@@ -63,23 +73,22 @@ export default function ReservationForm({
 }: ReservationFormProps) {
 	const currentDate = new Date();
 	const [selectedVenue, setSelectedVenue] = useState<Venue>(venues[0]);
-	const disabledDays = [
-		...(selectedVenue.maintainanceDates.length > 0
-			? selectedVenue.maintainanceDates
-			: []),
-		{ from: subMonths(currentDate, 2), to: addDays(currentDate, 2) },
-	];
-	const nearestDateAvailable: Date =
-		selectedVenue.maintainanceDates.length > 0
-			? findNearestNonDisabledDate(
-					addDays(currentDate, 3),
-					selectedVenue.maintainanceDates
-			  )
-			: addDays(currentDate, 3);
-	const [date, setDate] = useState<Date | undefined>(nearestDateAvailable);
+	// const nearestDateAvailable: Date =
+	// 	selectedVenue.maintainanceDates.length > 0
+	// 		? findNearestNonDisabledDate(
+	// 				addDays(currentDate, 3),
+	// 				selectedVenue.maintainanceDates
+	// 		  )
+	// 		: addDays(currentDate, 3);
+	const [date, setDate] = useState<Date | undefined>();
 	//Note to self: Date type instead of numbers, so I can use date comparison methods
 	const [month, setMonth] = useState<Date>(currentDate);
+	const reservations = useSWR(
+		"ReservationFormReservationDates",
+		getReservationDates
+	);
 
+	if (!reservations.data) return <Loader2 className="animate-spin" />;
 	return (
 		<div className="flex flex-col items-start gap-12 xl:flex-row">
 			<ReservationFormContext.Provider
@@ -136,7 +145,43 @@ export default function ReservationForm({
 								day_disabled: "bg-muted text-muted-foreground opacity-50",
 								day_today: "bg-primary text-primary-foreground opacity-50",
 							}}
-							disabled={disabledDays}
+							disabled={date => {
+								const maintainance = selectedVenue.maintainanceDates.find(d =>
+									isSameDay(d, date)
+								);
+								const pastDays = date < addDays(currentDate, 3);
+								let reservationToday: typeof reservations.data = [];
+								reservations.data?.forEach(r => {
+									if (isSameDay(r.eventDate, date)) {
+										reservationToday.push(r);
+									}
+								});
+								// keep in mind that this only takes the first reservation in this day
+								const restingTime = 3;
+								if (reservationToday.length > 0) {
+									const timeGaps = reservationToday.map(rt => {
+										const result = getVacantTimeSlot({
+											openingTime: settings.openingTime,
+											closingTime: settings.closingTime,
+											eventTime: rt.eventDate,
+											eventDuration: rt.eventDuration,
+											minRH: settings.minReservationHours,
+										});
+										return {
+											startGap: result.extraHoursAfterMinimumRH_AfterOpeningTimeSlot,
+											endGap: result.extraHoursAfterMinimumRH_BeforeClosingTimeSlot,
+										};
+									});
+									const noSlot =
+										(timeGaps[0].startGap < settings.minReservationHours + restingTime &&
+											timeGaps[timeGaps.length - 1].endGap <
+												settings.minReservationHours + restingTime) ||
+										timeGaps.length >= 2;
+									return !!maintainance || pastDays || noSlot;
+								} else {
+									return !!maintainance || pastDays;
+								}
+							}}
 							fixedWeeks
 							required
 						/>

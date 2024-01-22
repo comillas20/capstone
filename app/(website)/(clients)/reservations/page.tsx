@@ -4,10 +4,9 @@ import { options } from "@app/api/auth/[...nextauth]/options";
 import { Settings } from "@app/(website)/settings/general/page";
 import {
 	getAllVenues,
-	getMaintainanceDates,
 	getSystemSettings,
 } from "@app/(website)/serverActionsGlobal";
-// import ReservationList from "./components/ReservationList";
+import ReservationList from "./components/ReservationList";
 export function generateMetadata() {
 	return {
 		title: "Reservation | Jakelou",
@@ -62,7 +61,7 @@ export default async function page() {
 					<ReservationForm session={session} settings={settings} venues={venues} />
 				)}
 			</div>
-			{/* {session && session.user.id && (
+			{session && session.user.id && (
 				<div className="flex-col space-y-4">
 					<div className="space-y-0.5">
 						<h2 className="text-2xl font-bold tracking-tight">
@@ -72,7 +71,7 @@ export default async function page() {
 					</div>
 					<ReservationList session={session} />
 				</div>
-			)} */}
+			)}
 		</div>
 	);
 }

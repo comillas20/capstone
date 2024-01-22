@@ -21,16 +21,17 @@ import {
 	TableHeader,
 	TableRow,
 } from "@components/ui/table";
+import { Reservations } from "./Columns";
 
-type ReservationTableProps<TData, TValue> = {
-	columns: ColumnDef<TData, TValue>[];
-	data: TData[];
+type ReservationTableProps = {
+	columns: ColumnDef<Reservations, any>[];
+	data: Reservations[];
 };
 
-export default function ReservationTable<TData, TValue>({
+export default function ReservationTable({
 	columns,
 	data,
-}: ReservationTableProps<TData, TValue>) {
+}: ReservationTableProps) {
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
 		[]
 	);
@@ -58,7 +59,7 @@ export default function ReservationTable<TData, TValue>({
 		setSorting([
 			{
 				id: "Event Date",
-				desc: true,
+				desc: false,
 			},
 		]);
 	}, []);
