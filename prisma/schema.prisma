@@ -151,8 +151,9 @@ model MaintainanceDates {
 
 model FAQ {
   id       Int    @id @default(autoincrement())
-  question String @unique
+  question String 
   answer   String @db.Text
+  @@unique([question, answer])
 }
 
 model OtherServices {

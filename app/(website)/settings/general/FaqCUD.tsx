@@ -23,7 +23,11 @@ import * as z from "zod";
 import { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { Loader2 } from "lucide-react";
-import { createOrUpdateFAQ, deleteFAQ } from "./serverActions";
+import {
+	FAQAlreadyExists,
+	createOrUpdateFAQ,
+	deleteFAQ,
+} from "./serverActions";
 import { toast } from "@components/ui/use-toast";
 import { useSWRConfig } from "swr";
 import {
@@ -44,15 +48,23 @@ type FAQProps = {
 
 export function CreateOrUpdateFAQ({ data, children, SWRKey }: FAQProps) {
 	const { mutate } = useSWRConfig();
-	const formSchema = z.object({
-		id: z.number(),
-		question: z.string().min(1, {
-			message: "Question cannot be empty",
-		}),
-		answer: z.string().min(1, {
-			message: "Answer cannot be empty",
-		}),
-	});
+	const formSchema = z
+		.object({
+			id: z.number(),
+			question: z.string().min(1, {
+				message: "Question cannot be empty",
+			}),
+			answer: z.string().min(1, {
+				message: "Answer cannot be empty",
+			}),
+		})
+		.refine(
+			async data => {
+				const result = await FAQAlreadyExists(data);
+				return result ? data.id === result.id : true;
+			},
+			{ message: "This FAQ already exists", path: ["answer"] }
+		);
 
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
