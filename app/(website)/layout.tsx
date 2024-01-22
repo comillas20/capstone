@@ -9,6 +9,20 @@ import { Button } from "@components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
+async function getAccount(id: number) {
+	return await prisma.account.findUnique({
+		where: {
+			id: id,
+		},
+		select: {
+			id: true,
+			name: true,
+			phoneNumber: true,
+			role: true,
+			image: true,
+		},
+	});
+}
 export default async function WebsiteLayout({
 	children,
 }: {
@@ -18,20 +32,7 @@ export default async function WebsiteLayout({
 		const session = await getServerSession(options);
 		const mainNav = session && session.user.role === "ADMIN" ? adminNav : userNav;
 		// session details is static(?), until user log outs
-		const data =
-			session &&
-			(await prisma.account.findUnique({
-				where: {
-					id: session.user.id,
-				},
-				select: {
-					id: true,
-					name: true,
-					phoneNumber: true,
-					role: true,
-					image: true,
-				},
-			}));
+		const data = session ? await getAccount(session.user.id) : null;
 		return (
 			<div className="flex flex-col md:flex">
 				<nav className="border-b">
