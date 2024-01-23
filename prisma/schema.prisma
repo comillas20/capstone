@@ -33,13 +33,24 @@ model Reservations {
   transactions  Transactions[]
   status        ReservationStatus @default(PENDING)
   setName       String
+  packs         Int
   totalCost     Float
   dishes        String[]
+  otherServices OtherServices[]
   eventDuration Int
   eventDate     DateTime
   eventType     String
   venueID       Int
   venue         Venues            @relation(fields: [venueID], references: [id])
+  additionalFees  AdditionalFees[]
+}
+
+model AdditionalFees {
+  id Int @id @default(autoincrement())
+  name String
+  price Float
+  reservationID String
+  reservation Reservations @relation(fields: [reservationID], references: [id])
 }
 
 model Venues {
@@ -164,6 +175,7 @@ model OtherServices {
   unitName    String?
   isRequired  Boolean @default(false)
   isAvailable Boolean @default(false)
+  reservation Reservations[]
 }
 
 model GCashNumbers {

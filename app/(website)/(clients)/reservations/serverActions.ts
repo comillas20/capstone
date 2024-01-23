@@ -1,4 +1,5 @@
 "use server";
+import { sendSMS } from "@app/(website)/serverActionsGlobal";
 import prisma from "@lib/db";
 import { convertDateToString, generateRandomNumbers } from "@lib/utils";
 import { addYears } from "date-fns";
@@ -16,6 +17,7 @@ type Reservation = {
 	eventDuration: number;
 	eventType: string;
 	totalPrice: number;
+	packs: number;
 	dishes: string[];
 	transaction: {
 		recipientNumber: string;
@@ -24,6 +26,7 @@ type Reservation = {
 	};
 	userID: number;
 	venueID: number;
+	otherServices: string[];
 };
 export async function getCurrentUser(currentID: number) {
 	return await prisma.account.findUnique({
@@ -47,6 +50,7 @@ export async function createReservation(reserve: Reservation) {
 			setName: reserve.setName,
 			totalCost: reserve.totalPrice,
 			dishes: reserve.dishes,
+			packs: reserve.packs,
 			user: {
 				connect: {
 					id: reserve.userID,
@@ -63,6 +67,9 @@ export async function createReservation(reserve: Reservation) {
 					referenceNumber: reserve.transaction.referenceNumber,
 					message: reserve.transaction.message,
 				},
+			},
+			otherServices: {
+				connect: reserve.otherServices.map(os => ({ name: os })),
 			},
 		},
 	});
@@ -103,6 +110,7 @@ export async function getReservations(userID: number) {
 					maintainanceDates: true,
 				},
 			},
+			otherServices: true,
 		},
 		where: {
 			user: {
@@ -176,12 +184,37 @@ export async function rescheduleReservation(reservation: Reschedule) {
 }
 
 export async function cancelReservation(id: string) {
-	return await prisma.reservations.update({
+	const result = await prisma.reservations.update({
 		where: {
 			id: id,
 		},
 		data: {
 			status: "CANCELLED",
 		},
+		include: {
+			venue: true,
+		},
 	});
+
+	if (result) {
+		const admin = await prisma.account.findFirst({
+			where: {
+				role: "ADMIN",
+			},
+			select: {
+				phoneNumber: true,
+			},
+		});
+		if (admin) {
+			const eventDate = convertDateToString(
+				utcToZonedTime(result.eventDate, localTimezone)
+			);
+			const venue = result.venue.name.concat(" @ ", result.venue.location);
+			const res = await sendSMS({
+				message: `Reservation at ${venue} ${eventDate} has been cancelled by the customer.`,
+				recipient: admin.phoneNumber,
+			});
+		}
+	}
+	return result;
 }

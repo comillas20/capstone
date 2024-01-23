@@ -132,9 +132,7 @@ export const ReservationPageContext = React.createContext<
 >(undefined);
 export default function ReservationPage() {
 	const reservationTableDataKey = "ReservationPageData";
-	const { data } = useSWR(reservationTableDataKey, async () =>
-		getReservations()
-	);
+	const { data } = useSWR(reservationTableDataKey, getReservations);
 	const [selectedVenue, setSelectedVenue] = React.useState<Venue | undefined>();
 	if (!data) return <Loader2 className="animate-spin" size={15} />;
 	return (

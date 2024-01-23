@@ -35,7 +35,17 @@ export default function DishesPage() {
 									{courses.map(course => {
 										return (
 											<div key={course.id} className="space-y-2">
-												<h3 className="text-sm font-semibold">{course.name}</h3>
+												<CourseAE key={course.id} data={course}>
+													<EditableButtonText
+														variant={"link"}
+														size={"sm"}
+														className="px-0 text-sm font-semibold"
+														iconSize={15}
+														iconClassName="text-primary"
+														text={course.name}
+													/>
+												</CourseAE>
+												{/* <h3 className="text-sm font-semibold">{course.name}</h3> */}
 												<div className="ml-4 space-y-2">
 													{(() => {
 														// only takes the categories within te current course

@@ -76,6 +76,10 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
 	const maxRH = settings.data?.find(
 		setting => setting.name === Settings.maxReservationHours
 	);
+	const today = new Date();
+	const allowedToResched =
+		isBefore(addDays(today, 3), new Date(row.original.eventDate)) &&
+		(row.original.status === "PENDING" || row.original.status === "PARTIAL");
 	return (
 		<>
 			<DropdownMenu>
@@ -88,14 +92,19 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
 					</Button>
 				</DropdownMenuTrigger>
 				<DropdownMenuContent align="end" className="w-[160px]">
-					{maintainanceDates.data && (
+					{maintainanceDates.data && allowedToResched && (
 						<DropdownMenuItem onSelect={() => setIsEditDialogOpen(true)}>
 							Reschedule
 						</DropdownMenuItem>
 					)}
-					<DropdownMenuItem onSelect={() => setIsCancelDialogOpen(true)}>
-						Cancel
-					</DropdownMenuItem>
+					{!(
+						row.original.status === "CANCELLED" || row.original.status === "COMPLETED"
+					) && (
+						<DropdownMenuItem onSelect={() => setIsCancelDialogOpen(true)}>
+							Cancel
+						</DropdownMenuItem>
+					)}
+
 					<DropdownMenuItem onSelect={() => setIsDetailDialogOpen(true)}>
 						Details
 					</DropdownMenuItem>
@@ -235,7 +244,7 @@ function EditReservation({
 								const maintainance = data.original.venue.maintainanceDates.find(d =>
 									isSameDay(d, date)
 								);
-								const pastDays = date < addDays(currentDate, 3);
+								const pastDays = date < addDays(currentDate, 2);
 								let reservationToday: typeof reservations.data = [];
 								reservations.data?.forEach(r => {
 									if (isSameDay(r.eventDate, date)) {
@@ -442,7 +451,15 @@ function CancelDialog({ data, open, onOpenChange }: CancelDialogProps) {
 					<AlertDialogAction
 						onClick={async () => {
 							const result = await cancelReservation(data.original.id);
-							if (result) mutate("ReservationListData");
+							if (result) {
+								toast({
+									title: "Success",
+									description: "The reservation is successfully cancelled.",
+									duration: 5000,
+								});
+								mutate("ReservationListData");
+								mutate("ReservationFormReservationDates");
+							}
 						}}>
 						Continue
 					</AlertDialogAction>

@@ -34,7 +34,7 @@ export function DataTableToolbar<TData>({
 				{(table.getIsSomeRowsSelected() || table.getIsAllRowsSelected()) && (
 					<DeleteDialog data={selectedRowsData}>
 						<Button size={"sm"} variant="destructive" className="h-8">
-							Delete selected
+							Disable selected
 						</Button>
 					</DeleteDialog>
 				)}

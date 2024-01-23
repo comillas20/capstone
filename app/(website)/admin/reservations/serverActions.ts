@@ -29,6 +29,9 @@ export async function getReservations() {
 			},
 			transactions: true,
 			venue: true,
+			otherServices: true,
+			packs: true,
+			additionalFees: true,
 		},
 	});
 	const modifiedResult = result.map(
@@ -56,6 +59,25 @@ export async function changeStatus(id: string, status: Status) {
 		},
 		where: {
 			id: id,
+		},
+	});
+}
+
+type R = {
+	totalCost: number;
+	dishes: string[];
+	setName: string;
+	id: string;
+};
+export async function updateReservation(r: R) {
+	return await prisma.reservations.update({
+		data: {
+			totalCost: r.totalCost,
+			dishes: r.dishes,
+			setName: r.setName,
+		},
+		where: {
+			id: r.id,
 		},
 	});
 }

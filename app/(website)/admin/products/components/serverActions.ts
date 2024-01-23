@@ -257,7 +257,17 @@ export async function createOrUpadteServices(service: Service) {
 }
 
 export async function deleteServices(ids: number[]) {
-	return await prisma.otherServices.deleteMany({
+	// return await prisma.otherServices.deleteMany({
+	// 	where: {
+	// 		id: {
+	// 			in: ids,
+	// 		},
+	// 	},
+	// });
+	return await prisma.otherServices.updateMany({
+		data: {
+			isAvailable: false,
+		},
 		where: {
 			id: {
 				in: ids,

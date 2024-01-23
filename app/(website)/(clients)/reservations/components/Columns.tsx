@@ -33,6 +33,15 @@ export type Reservations = {
 		freeHours: number;
 		maintainanceDates: Date[];
 	};
+	otherServices: {
+		id: number;
+		name: string;
+		price: number;
+		unit: number | null;
+		unitName: string | null;
+		isRequired: boolean;
+		isAvailable: boolean;
+	}[];
 };
 export const columns: ColumnDef<Reservations>[] = [
 	{

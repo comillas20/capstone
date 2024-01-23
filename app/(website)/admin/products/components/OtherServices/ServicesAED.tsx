@@ -322,12 +322,15 @@ export function DeleteDialog({ data, children }: DeleteDialogProps) {
 			<AlertDialogTrigger>{children}</AlertDialogTrigger>
 			<AlertDialogContent>
 				<AlertDialogHeader className="mb-4">
-					<AlertDialogTitle className="text-destructive">Delete</AlertDialogTitle>
+					<AlertDialogTitle className="text-destructive">Disable</AlertDialogTitle>
 					<AlertDialogDescription>
-						Deleting{" "}
+						Disabling{" "}
 						{data.length > 1 ? "selected services" : data[0] ? data[0].name : "ERROR"}
 					</AlertDialogDescription>
-					<div className="text-destructive">This action cannot be undo. Delete?</div>
+					{/* <div className="text-destructive">This action cannot be undo. Delete?</div> */}
+					<div className="text-destructive">
+						Are you sure you want to make this unavailable to users?
+					</div>
 					<div className="flex justify-end gap-4">
 						<AlertDialogCancel asChild>
 							<Button variant={"secondary"} type="button">
@@ -349,7 +352,7 @@ export function DeleteDialog({ data, children }: DeleteDialogProps) {
 													: data[0].name + " is";
 											toast({
 												title: "Success",
-												description: plural + " successfully deleted!",
+												description: plural + " successfully disabled!",
 												duration: 5000,
 											});
 											mutate(PRODUCTS_SERVICES_KEY);

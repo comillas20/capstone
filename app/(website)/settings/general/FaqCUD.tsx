@@ -63,7 +63,7 @@ export function CreateOrUpdateFAQ({ data, children, SWRKey }: FAQProps) {
 				const result = await FAQAlreadyExists(data);
 				return result ? data.id === result.id : true;
 			},
-			{ message: "This FAQ already exists", path: ["answer"] }
+			{ message: "This FAQ already exists", path: ["question", "answer"] }
 		);
 
 	const form = useForm<z.infer<typeof formSchema>>({

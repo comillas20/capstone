@@ -39,8 +39,8 @@ export default function DownloadBackUp() {
 			dishCatCourses: true,
 			sets: true,
 			otherServices: true,
-			transactions: true,
-			reports: true,
+			transactions: false,
+			reports: false,
 		},
 	});
 	const [isDownloading, startDownload] = useTransition();
@@ -131,7 +131,7 @@ export default function DownloadBackUp() {
 								</FormItem>
 							)}
 						/>
-						<Separator />
+						{/* <Separator />
 						<FormField
 							control={form.control}
 							name="transactions"
@@ -146,7 +146,7 @@ export default function DownloadBackUp() {
 									</FormControl>
 								</FormItem>
 							)}
-						/>
+						/> */}
 						<DialogFooter className="flex space-x-0 space-y-2 sm:flex-col">
 							<div className="flex justify-end space-x-2">
 								<DialogClose asChild>

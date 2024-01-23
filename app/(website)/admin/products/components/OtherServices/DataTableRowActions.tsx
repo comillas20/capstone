@@ -43,7 +43,7 @@ export function DataTableRowActions<TData>({
 				</AddEditDialog>
 				<DeleteDialog data={[row.original as Services]}>
 					<DropdownMenuItem onSelect={e => e.preventDefault()}>
-						Delete {row.getValue("Service")}
+						Disable {row.getValue("Service")}
 					</DropdownMenuItem>
 				</DeleteDialog>
 			</DropdownMenuContent>

@@ -80,6 +80,8 @@ type Reservation = {
 	};
 	userID: number;
 	venueID: number;
+	otherServices: string[];
+	packs: number;
 };
 
 type ReservationDialogProps = {
@@ -229,41 +231,6 @@ export default function ReservationDialog({
 	const [timeError, setTimeError] = useState<string>();
 	const { mutate } = useSWRConfig();
 	useEffect(() => {
-		// const midnightConverter = (hour: number) => {
-		// 	// getHours returns 0-23, 0 being the midnight
-		// 	// but doing something like 0 (midnight) - 17 (5PM) will produce -17 instead of 7
-		// 	// so im converting it to 24 so 24 - 17 = 7 which is the correct output
-		// 	return hour === 0 ? 24 : hour;
-		// };
-		// if (date && reserved.data) {
-		// 	const restingTime = 3; //hours;
-		// 	const hours = reserved.data.eventDate.getHours();
-		// 	const isVacantBeforeEventStart = vacants
-		// 		? vacants.extraHoursAfterMinimumRH_AfterOpeningTimeSlot >=
-		// 		  settings.minReservationHours + restingTime
-		// 		: true;
-		// 	const isVacantAfterEventEnd = vacants
-		// 		? vacants.extraHoursAfterMinimumRH_BeforeClosingTimeSlot >=
-		// 		  settings.minReservationHours + restingTime
-		// 		: true;
-		// 	const reservedEventStart = isVacantBeforeEventStart
-		// 		? midnightConverter(hours)
-		// 		: midnightConverter(settings.openingTime.getHours());
-		// 	const reservedEventEnd = isVacantAfterEventEnd
-		// 		? midnightConverter(hours) + reserved.data.eventDuration + restingTime
-		// 		: midnightConverter(settings.closingTime.getHours());
-		// 	// console.log(reservedEventStart <= midnightConverter(time.getHours()));
-		// 	// console.log(
-		// 	// 	midnightConverter(time.getHours()) + timeUse <= reservedEventEnd,
-		// 	// 	"second bool"
-		// 	// );
-		// 	if (
-		// 		reservedEventStart <= midnightConverter(time.getHours()) &&
-		// 		midnightConverter(time.getHours()) <= reservedEventEnd
-		// 	) {
-		// 		setTimeError("It is already occupied");
-		// 	} else setTimeError(undefined);
-		// }
 		if (
 			date &&
 			reserved.data &&
@@ -312,6 +279,8 @@ export default function ReservationDialog({
 				},
 				userID: currentUser.data.id,
 				venueID: selectedVenue.id,
+				otherServices: selectedServices,
+				packs: numberOfPacks,
 			};
 			return await createReservation(reservation);
 		} else {
@@ -836,6 +805,7 @@ export default function ReservationDialog({
 
 															mutate("ReservationListData");
 															mutate("ReservationDialogReservationDates");
+															mutate("ReservationFormReservationDates");
 														});
 													}}
 													disableTrigger={!recipientNumber || !referenceNumber || isSaving}
