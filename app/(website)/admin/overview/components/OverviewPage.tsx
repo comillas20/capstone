@@ -21,7 +21,7 @@ import {
 import useSWR from "swr";
 import { getAccounts, getReservations } from "../serverActions";
 import { useState } from "react";
-import { isAfter, isBefore, isSameMonth } from "date-fns";
+import { isAfter, isBefore, isSameMonth, isSameYear } from "date-fns";
 
 export default function Overview() {
 	const now = new Date();
@@ -190,14 +190,22 @@ export default function Overview() {
 							})()}
 						</div>
 						<div className="flex flex-col gap-4 lg:grid lg:grid-cols-7">
-							<Card className="lg:col-span-4">
-								<CardHeader>
-									<CardTitle>Sales 2023</CardTitle>
-								</CardHeader>
-								<CardContent className="pl-2">
-									<Sales />
-								</CardContent>
-							</Card>
+							{(() => {
+								const entireYear = reservations.data.filter(r =>
+									isSameYear(r.eventDate, new Date(year, 0))
+								);
+								return (
+									<Card className="lg:col-span-4">
+										<CardHeader>
+											<CardTitle>Sales 2023</CardTitle>
+										</CardHeader>
+										<CardContent className="pl-2">
+											<Sales reservationData={entireYear} />
+										</CardContent>
+									</Card>
+								);
+							})()}
+
 							{(() => {
 								type Account = {
 									createdAt: Date;

@@ -104,10 +104,9 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
 							Cancel
 						</DropdownMenuItem>
 					)}
-
-					<DropdownMenuItem onSelect={() => setIsDetailDialogOpen(true)}>
+					{/* <DropdownMenuItem onSelect={() => setIsDetailDialogOpen(true)}>
 						Details
-					</DropdownMenuItem>
+					</DropdownMenuItem> */}
 				</DropdownMenuContent>
 			</DropdownMenu>
 			{maintainanceDates.data && (

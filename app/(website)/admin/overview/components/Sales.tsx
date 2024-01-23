@@ -2,58 +2,89 @@
 
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 
-const data = [
-	{
-		name: "Jan",
-		total: Math.floor(Math.random() * 5000) + 1000,
-	},
-	{
-		name: "Feb",
-		total: Math.floor(Math.random() * 5000) + 1000,
-	},
-	{
-		name: "Mar",
-		total: Math.floor(Math.random() * 5000) + 1000,
-	},
-	{
-		name: "Apr",
-		total: Math.floor(Math.random() * 5000) + 1000,
-	},
-	{
-		name: "May",
-		total: Math.floor(Math.random() * 5000) + 1000,
-	},
-	{
-		name: "Jun",
-		total: Math.floor(Math.random() * 5000) + 1000,
-	},
-	{
-		name: "Jul",
-		total: Math.floor(Math.random() * 5000) + 1000,
-	},
-	{
-		name: "Aug",
-		total: Math.floor(Math.random() * 5000) + 1000,
-	},
-	{
-		name: "Sep",
-		total: Math.floor(Math.random() * 5000) + 1000,
-	},
-	{
-		name: "Oct",
-		total: Math.floor(Math.random() * 5000) + 1000,
-	},
-	{
-		name: "Nov",
-		total: Math.floor(Math.random() * 5000) + 1000,
-	},
-	{
-		name: "Dec",
-		total: Math.floor(Math.random() * 5000) + 1000,
-	},
-];
-
-export function Sales() {
+type SalesProps = {
+	reservationData: {
+		totalCost: number;
+		status: "PENDING" | "PARTIAL" | "ONGOING" | "COMPLETED" | "CANCELLED";
+		eventDate: Date;
+	}[];
+};
+export function Sales({ reservationData }: SalesProps) {
+	const filtered = reservationData.filter(rd => rd.status === "COMPLETED");
+	const data = [
+		{
+			name: "Jan",
+			total: reservationData
+				.filter(entry => entry.eventDate.getMonth() === 0)
+				.reduce((sum, entry) => sum + entry.totalCost, 0),
+		},
+		{
+			name: "Feb",
+			total: reservationData
+				.filter(entry => entry.eventDate.getMonth() === 1)
+				.reduce((sum, entry) => sum + entry.totalCost, 0),
+		},
+		{
+			name: "Mar",
+			total: reservationData
+				.filter(entry => entry.eventDate.getMonth() === 2)
+				.reduce((sum, entry) => sum + entry.totalCost, 0),
+		},
+		{
+			name: "Apr",
+			total: reservationData
+				.filter(entry => entry.eventDate.getMonth() === 3)
+				.reduce((sum, entry) => sum + entry.totalCost, 0),
+		},
+		{
+			name: "May",
+			total: reservationData
+				.filter(entry => entry.eventDate.getMonth() === 4)
+				.reduce((sum, entry) => sum + entry.totalCost, 0),
+		},
+		{
+			name: "Jun",
+			total: reservationData
+				.filter(entry => entry.eventDate.getMonth() === 5)
+				.reduce((sum, entry) => sum + entry.totalCost, 0),
+		},
+		{
+			name: "Jul",
+			total: reservationData
+				.filter(entry => entry.eventDate.getMonth() === 6)
+				.reduce((sum, entry) => sum + entry.totalCost, 0),
+		},
+		{
+			name: "Aug",
+			total: reservationData
+				.filter(entry => entry.eventDate.getMonth() === 7)
+				.reduce((sum, entry) => sum + entry.totalCost, 0),
+		},
+		{
+			name: "Sep",
+			total: reservationData
+				.filter(entry => entry.eventDate.getMonth() === 8)
+				.reduce((sum, entry) => sum + entry.totalCost, 0),
+		},
+		{
+			name: "Oct",
+			total: reservationData
+				.filter(entry => entry.eventDate.getMonth() === 9)
+				.reduce((sum, entry) => sum + entry.totalCost, 0),
+		},
+		{
+			name: "Nov",
+			total: reservationData
+				.filter(entry => entry.eventDate.getMonth() === 10)
+				.reduce((sum, entry) => sum + entry.totalCost, 0),
+		},
+		{
+			name: "Dec",
+			total: reservationData
+				.filter(entry => entry.eventDate.getMonth() === 11)
+				.reduce((sum, entry) => sum + entry.totalCost, 0),
+		},
+	];
 	return (
 		<ResponsiveContainer width="100%" height={288}>
 			<BarChart data={data}>
