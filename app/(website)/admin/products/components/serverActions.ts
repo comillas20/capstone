@@ -239,6 +239,7 @@ export type Service = {
 	name: string;
 	price: number;
 	unit: number | null;
+	unitName: string | null;
 	isAvailable: boolean;
 };
 export async function createOrUpadteServices(service: Service) {
@@ -247,12 +248,19 @@ export async function createOrUpadteServices(service: Service) {
 			name: service.name,
 			price: service.price,
 			unit: service.unit,
+			unitName: service.unitName,
 			isAvailable: service.isAvailable,
 		},
 		where: {
 			id: service.id,
 		},
-		update: service,
+		update: {
+			name: service.name,
+			price: service.price,
+			unit: service.unit,
+			unitName: service.unitName,
+			isAvailable: service.isAvailable,
+		},
 	});
 }
 

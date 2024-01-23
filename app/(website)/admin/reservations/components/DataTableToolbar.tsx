@@ -71,10 +71,10 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
 						</SelectContent>
 					</Select>
 				)}
-				<Button size="sm" className="flex">
+				{/* <Button size="sm" className="flex">
 					<Plus className="mr-2" />
 					Reservations
-				</Button>
+				</Button> */}
 			</div>
 		</div>
 	);
