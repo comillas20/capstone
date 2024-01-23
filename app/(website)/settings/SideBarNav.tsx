@@ -38,11 +38,6 @@ export function SidebarNav({ role }: SidebarNavProps) {
 			accessLevel: AccessLevel.ADMIN,
 		},
 		{
-			title: "Reservations",
-			href: "/settings/reservations",
-			accessLevel: AccessLevel.USER,
-		},
-		{
 			title: "Backup & Restore",
 			href: "/settings/snapshot",
 			accessLevel: AccessLevel.ADMIN,

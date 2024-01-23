@@ -29,7 +29,7 @@ export async function validateCredentials(
 	);
 	if (!password) return null;
 
-	if (userFound.codeTimeStamp) {
+	if (userFound.codeTimeStamp && credentials.code) {
 		const currentTime = new Date();
 
 		// Calculate the time difference in milliseconds

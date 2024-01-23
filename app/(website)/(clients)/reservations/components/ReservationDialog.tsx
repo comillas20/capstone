@@ -23,6 +23,7 @@ import useSWR, { useSWRConfig } from "swr";
 import {
 	getAllServices,
 	getGCashNumbers,
+	sendSMS,
 } from "@app/(website)/serverActionsGlobal";
 import { CheckboxGroup, CheckboxItem } from "@components/CheckBoxGroup";
 import {
@@ -232,7 +233,6 @@ export default function ReservationDialog({
 	const { mutate } = useSWRConfig();
 	useEffect(() => {
 		if (
-			date &&
 			reserved.data &&
 			areTimesConflicting({
 				openingTime: settings.openingTime,
@@ -248,7 +248,9 @@ export default function ReservationDialog({
 			})
 		) {
 			setTimeError("It is already occupied");
-		} else setTimeError(undefined);
+		} else {
+			setTimeError(undefined);
+		}
 	}, [time]);
 	async function initiateReservation(paymentAmount: number) {
 		if (

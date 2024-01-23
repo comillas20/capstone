@@ -100,9 +100,12 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
 					{!(
 						row.original.status === "CANCELLED" || row.original.status === "COMPLETED"
 					) && (
-						<DropdownMenuItem onSelect={() => setIsCancelDialogOpen(true)}>
-							Cancel
-						</DropdownMenuItem>
+						<>
+							<DropdownMenuItem>Pay</DropdownMenuItem>
+							<DropdownMenuItem onSelect={() => setIsCancelDialogOpen(true)}>
+								Cancel
+							</DropdownMenuItem>
+						</>
 					)}
 					{/* <DropdownMenuItem onSelect={() => setIsDetailDialogOpen(true)}>
 						Details
