@@ -326,7 +326,9 @@ export function Details({ row, open, onOpenChange }: DetailsProps) {
 						<TabsContent value="transactions">
 							<h3 className="font-bold">Transactions</h3>
 							<Table>
-								<TableCaption>A list of this customer's transactions.</TableCaption>
+								<TableCaption>
+									A list of this customer&apos;s transactions.
+								</TableCaption>
 								<TableHeader>
 									<TableRow>
 										<TableHead className="text-center">Reference No.</TableHead>
