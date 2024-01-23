@@ -78,6 +78,15 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useForm } from "react-hook-form";
+import {
+	Table,
+	TableBody,
+	TableCaption,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from "@components/ui/table";
 
 interface DataTableRowActionsProps {
 	row: Row<Reservations>;
@@ -308,13 +317,48 @@ export function Details({ row, open, onOpenChange }: DetailsProps) {
 		};
 		return (
 			<Dialog open={open} onOpenChange={onOpenChange}>
-				<DialogContent>
-					<Tabs className="space-y-8">
+				<DialogContent className="max-w-2xl">
+					<Tabs className="space-y-8" defaultValue="transactions">
 						<DialogHeader>
 							<DialogTitle>Details</DialogTitle>
 							<DialogDescription>Reservation details</DialogDescription>
 						</DialogHeader>
-
+						<TabsContent value="transactions">
+							<h3 className="font-bold">Transactions</h3>
+							<Table>
+								<TableCaption>A list of this customer's transactions.</TableCaption>
+								<TableHeader>
+									<TableRow>
+										<TableHead className="text-center">Reference No.</TableHead>
+										<TableHead className="text-center">Recipient No.</TableHead>
+										<TableHead className="text-center">Message</TableHead>
+										<TableHead className="text-center">Created At</TableHead>
+									</TableRow>
+								</TableHeader>
+								<TableBody>
+									{row.original.transactions.map(t => (
+										<TableRow key={t.id}>
+											<TableCell className="text-center">{t.referenceNumber}</TableCell>
+											<TableCell className="text-center">{t.recipientNumber}</TableCell>
+											<TableCell className="text-center">
+												{t.message ? (
+													<Popover>
+														<PopoverTrigger
+															className={buttonVariants({ variant: "link", size: "sm" })}>
+															View
+														</PopoverTrigger>
+														<PopoverContent>{t.message}</PopoverContent>
+													</Popover>
+												) : (
+													"None"
+												)}
+											</TableCell>
+											<TableCell className="text-center">{t.createdAt}</TableCell>
+										</TableRow>
+									))}
+								</TableBody>
+							</Table>
+						</TabsContent>
 						<TabsContent value="dishes">
 							{availableSets.length > 0 && currentSet && dishes ? (
 								<div className="flex flex-col gap-2">
@@ -481,6 +525,7 @@ export function Details({ row, open, onOpenChange }: DetailsProps) {
 
 						<DialogFooter className="flex flex-row sm:justify-between">
 							<TabsList>
+								<TabsTrigger value="transactions">Transactions</TabsTrigger>
 								<TabsTrigger value="dishes">Dishes & Set</TabsTrigger>
 								<TabsTrigger value="services">Services</TabsTrigger>
 							</TabsList>

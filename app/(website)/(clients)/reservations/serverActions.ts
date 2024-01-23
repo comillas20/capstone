@@ -75,6 +75,27 @@ export async function createReservation(reserve: Reservation) {
 	});
 }
 
+type UpdateReservationProps = {
+	id: string;
+	recipientNumber: string;
+	referenceNumber: string;
+	message?: string;
+};
+export async function updateReservation(u: UpdateReservationProps) {
+	return await prisma.transactions.create({
+		data: {
+			recipientNumber: u.recipientNumber,
+			referenceNumber: u.referenceNumber,
+			reservation: {
+				connect: {
+					id: u.id,
+				},
+			},
+			message: u.message,
+		},
+	});
+}
+
 export async function getALlDishesWithCourses() {
 	return await prisma.dish.findMany({
 		select: {

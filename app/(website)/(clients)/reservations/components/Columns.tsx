@@ -58,7 +58,7 @@ export const columns: ColumnDef<Reservations>[] = [
 				return (
 					<Popover>
 						<PopoverTrigger>View</PopoverTrigger>
-						<PopoverContent>
+						<PopoverContent className="w-fit" side="right">
 							{transactions.map(transaction => (
 								<div key={transaction.id} className="flex gap-2">
 									<span>{transaction.referenceNumber}</span>

@@ -9,12 +9,21 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@components/ui/dropdown-menu";
-import { Dialog, DialogContent } from "@components/ui/dialog";
+import {
+	Dialog,
+	DialogClose,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from "@components/ui/dialog";
 import { useEffect, useState, useTransition } from "react";
 import { Row } from "@tanstack/react-table";
 import { Calendar } from "@components/ui/calendar";
 import useSWR, { useSWRConfig } from "swr";
 import {
+	getGCashNumbers,
 	getMaintainanceDates,
 	getSystemSettings,
 } from "@app/(website)/serverActionsGlobal";
@@ -35,6 +44,7 @@ import {
 	cancelReservation,
 	getReservationDates,
 	rescheduleReservation,
+	updateReservation,
 } from "../serverActions";
 import { Reservations } from "./Columns";
 import { toast } from "@components/ui/use-toast";
@@ -49,7 +59,19 @@ import {
 	AlertDialogTitle,
 } from "@components/ui/alert-dialog";
 import { Input } from "@components/ui/input";
-import { areTimesConflicting, getVacantTimeSlot } from "@lib/date-utils";
+import {
+	areTimesConflicting,
+	getDaysBySubtraction,
+	getVacantTimeSlot,
+} from "@lib/date-utils";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@components/ui/select";
+import { Textarea } from "@components/ui/textarea";
 
 interface DataTableRowActionsProps {
 	row: Row<Reservations>;
@@ -60,6 +82,7 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
 	const [isEditDialogOpen, setIsEditDialogOpen] = useState<boolean>(false);
 	const [isCancelDialogOpen, setIsCancelDialogOpen] = useState<boolean>(false);
 	const [isDetailDialogOpen, setIsDetailDialogOpen] = useState<boolean>(false);
+	const [isPayDialogOpen, setIsPayDialogOpen] = useState<boolean>(false);
 
 	if (!settings.data && !maintainanceDates.data)
 		return <Loader2 className="animate-spin" size={15} />;
@@ -98,14 +121,20 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
 						</DropdownMenuItem>
 					)}
 					{!(
+						row.original.status === "CANCELLED" ||
+						row.original.status === "COMPLETED" ||
+						row.original.status === "ONGOING"
+					) && (
+						<DropdownMenuItem onSelect={() => setIsPayDialogOpen(true)}>
+							Pay
+						</DropdownMenuItem>
+					)}
+					{!(
 						row.original.status === "CANCELLED" || row.original.status === "COMPLETED"
 					) && (
-						<>
-							<DropdownMenuItem>Pay</DropdownMenuItem>
-							<DropdownMenuItem onSelect={() => setIsCancelDialogOpen(true)}>
-								Cancel
-							</DropdownMenuItem>
-						</>
+						<DropdownMenuItem onSelect={() => setIsCancelDialogOpen(true)}>
+							Cancel
+						</DropdownMenuItem>
 					)}
 					{/* <DropdownMenuItem onSelect={() => setIsDetailDialogOpen(true)}>
 						Details
@@ -129,6 +158,7 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
 				open={isCancelDialogOpen}
 				onOpenChange={setIsCancelDialogOpen}
 			/>
+			<Pay data={row} open={isPayDialogOpen} onOpenChange={setIsPayDialogOpen} />
 		</>
 	);
 }
@@ -523,6 +553,134 @@ function Details({ open, onOpenChange }: Details) {
 						</div>
 					</PopoverContent>
 				</Popover>
+			</DialogContent>
+		</Dialog>
+	);
+}
+
+type PayProps = {
+	data: Row<Reservations>;
+	open: boolean;
+	onOpenChange: React.Dispatch<React.SetStateAction<boolean>>;
+};
+function Pay({ data, open, onOpenChange }: PayProps) {
+	const GCashNumbers = useSWR("PayGCashNumbers", getGCashNumbers);
+	const [recipientNumber, setRecipientNumber] = useState<string>("");
+	const [referenceNumber, setReferenceNumber] = useState<string>("");
+	const [message, setMessage] = useState<string>();
+	const [isSaving, startSaving] = useTransition();
+	const { mutate } = useSWRConfig();
+	const currentDate = new Date();
+	if (!GCashNumbers.data) return <div></div>;
+	return (
+		<Dialog open={open} onOpenChange={onOpenChange}>
+			<DialogContent>
+				<DialogHeader>
+					<DialogTitle>Payment</DialogTitle>
+					<DialogDescription>Pay through G-cash</DialogDescription>
+				</DialogHeader>
+				<Separator />
+				<div className="space-y-4">
+					<p>
+						{`You can send your down payment of 20% (${new Intl.NumberFormat(
+							"en-US",
+							{
+								style: "currency",
+								currency: "PHP",
+							}
+						).format(
+							data.original.totalCost * 0.2
+						)}) or full payment to any G-Cash number listed below:`}
+					</p>
+					<div className="grid grid-cols-3 gap-2">
+						<div className="col-span-2 space-y-2">
+							{GCashNumbers.data.map(gcash => (
+								<div key={gcash.id} className="flex justify-between">
+									<span>{gcash.name}</span>
+									<span>{gcash.phoneNumber}</span>
+								</div>
+							))}
+						</div>
+					</div>
+					<p>The admin will review your reservation before it gets accepted</p>
+					{getDaysBySubtraction(new Date(data.original.eventDate), currentDate) ===
+						3 && (
+						<p className="font-semibold text-destructive">
+							As there are only three (3) days left, it is required that you pay the
+							full amount.
+						</p>
+					)}
+				</div>
+				<div className="flex gap-4">
+					<div className="flex-1 space-y-2">
+						<h3 className="text-sm font-bold">Recipient Number</h3>
+						<Select value={recipientNumber} onValueChange={setRecipientNumber}>
+							<SelectTrigger>
+								<SelectValue placeholder="Pick receiver" />
+							</SelectTrigger>
+							<SelectContent>
+								{GCashNumbers.data.map(gcash => (
+									<SelectItem key={gcash.id} value={gcash.phoneNumber}>
+										<span>{gcash.name}</span>
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</div>
+					<div className="flex-1 space-y-2">
+						<h3 className="text-sm font-bold">Reference Number</h3>
+						<Input
+							value={referenceNumber}
+							onChange={e => {
+								const isNumber = !isNaN(+e.target.value);
+								if (isNumber) setReferenceNumber(e.target.value);
+							}}
+							placeholder="GCash reference number"
+						/>
+					</div>
+				</div>
+				<div className="space-y-2">
+					<h3 className="text-sm font-bold">Message</h3>
+					<Textarea value={message} onChange={e => setMessage(e.target.value)} />
+				</div>
+				<p className="font-semibold">
+					*The reference number will be your ticket, please do screenshot your
+					transaction details after paying for quick identification at the chosen
+					venue
+				</p>
+
+				<DialogFooter className="mt-4 flex gap-4">
+					<DialogClose
+						className={buttonVariants({ variant: "secondary" })}
+						type="button">
+						Back
+					</DialogClose>
+					<Button
+						onClick={() => {
+							startSaving(async () => {
+								if (recipientNumber && referenceNumber) {
+									const result = await updateReservation({
+										id: data.original.id,
+										recipientNumber: recipientNumber.trim(),
+										referenceNumber: referenceNumber.trim(),
+										message: message?.trim(),
+									});
+									if (result) {
+										toast({
+											title: "Success",
+											description: "The reservation is now sent to admin to check",
+											duration: 5000,
+										});
+									}
+									mutate("ReservationListData");
+									mutate("ReservationFormReservationDates");
+								}
+							});
+						}}
+						disabled={isSaving || !recipientNumber.trim() || !referenceNumber.trim()}>
+						{isSaving && <Loader2 className="mr-2 animate-spin" />}Reserve
+					</Button>
+				</DialogFooter>
 			</DialogContent>
 		</Dialog>
 	);
