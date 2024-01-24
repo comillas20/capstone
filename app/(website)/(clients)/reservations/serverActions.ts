@@ -42,7 +42,12 @@ export async function getCurrentUser(currentID: number) {
 }
 
 export async function createReservation(reserve: Reservation) {
-	return await prisma.reservations.create({
+	const result2 = await prisma.account.findFirst({
+		where: {
+			role: "ADMIN",
+		},
+	});
+	const result = await prisma.reservations.create({
 		data: {
 			eventDate: reserve.eventDate,
 			eventDuration: reserve.eventDuration,
@@ -73,6 +78,15 @@ export async function createReservation(reserve: Reservation) {
 			},
 		},
 	});
+
+	if (result && result2) {
+		const res = await sendSMS({
+			message:
+				"A reservation has been added to the system. Please review the reservation. Reference No.: " +
+				reserve.transaction.referenceNumber,
+			recipient: result2.phoneNumber,
+		});
+	}
 }
 
 type UpdateReservationProps = {
