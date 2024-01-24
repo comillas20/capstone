@@ -87,6 +87,8 @@ export async function createReservation(reserve: Reservation) {
 			recipient: result2.phoneNumber,
 		});
 	}
+
+	return result;
 }
 
 type UpdateReservationProps = {
