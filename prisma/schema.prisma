@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Transactions {
@@ -27,30 +28,30 @@ enum ReservationStatus {
 
 // customer's reservation table
 model Reservations {
-  id            String            @id @default(uuid())
-  userID        Int
-  user          Account           @relation(fields: [userID], references: [id])
-  transactions  Transactions[]
-  status        ReservationStatus @default(PENDING)
-  setName       String
-  packs         Int
-  totalCost     Float
-  dishes        String[]
-  otherServices OtherServices[]
-  eventDuration Int
-  eventDate     DateTime
-  eventType     String
-  venueID       Int
-  venue         Venues            @relation(fields: [venueID], references: [id])
-  additionalFees  AdditionalFees[]
+  id             String            @id @default(uuid())
+  userID         Int
+  user           Account           @relation(fields: [userID], references: [id])
+  transactions   Transactions[]
+  status         ReservationStatus @default(PENDING)
+  setName        String
+  packs          Int
+  totalCost      Float
+  dishes         String[]
+  otherServices  OtherServices[]
+  eventDuration  Int
+  eventDate      DateTime
+  eventType      String
+  venueID        Int
+  venue          Venues            @relation(fields: [venueID], references: [id])
+  additionalFees AdditionalFees[]
 }
 
 model AdditionalFees {
-  id Int @id @default(autoincrement())
-  name String
-  price Float
+  id            Int          @id @default(autoincrement())
+  name          String
+  price         Float
   reservationID String
-  reservation Reservations @relation(fields: [reservationID], references: [id])
+  reservation   Reservations @relation(fields: [reservationID], references: [id])
 }
 
 model Venues {
@@ -162,19 +163,20 @@ model MaintainanceDates {
 
 model FAQ {
   id       Int    @id @default(autoincrement())
-  question String 
+  question String
   answer   String @db.Text
+
   @@unique([question, answer])
 }
 
 model OtherServices {
-  id          Int     @id @default(autoincrement())
-  name        String  @unique @db.VarChar(50)
+  id          Int            @id @default(autoincrement())
+  name        String         @unique @db.VarChar(50)
   price       Float
   unit        Int?
   unitName    String?
-  isRequired  Boolean @default(false)
-  isAvailable Boolean @default(false)
+  isRequired  Boolean        @default(false)
+  isAvailable Boolean        @default(false)
   reservation Reservations[]
 }
 
